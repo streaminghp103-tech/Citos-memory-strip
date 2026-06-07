@@ -365,6 +365,42 @@ canvas{
 .shutterBtn.filter-vintage{
   background:#b8895b;
 }
+.shutterRow{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:22px;
+}
+
+.miniRoundBtn{
+  width:54px !important;
+  height:54px;
+  max-width:54px;
+  padding:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.45);
+  box-shadow:none;
+  font-size:24px;
+  backdrop-filter:blur(10px);
+}
+
+#flashOverlay{
+  position:fixed;
+  inset:0;
+  background:white;
+  opacity:0;
+  pointer-events:none;
+  z-index:80;
+  transition:opacity .12s ease;
+}
+
+#flashOverlay.show{
+  opacity:1;
+}
+
+#flashBtn.flashOn{
+  background:#ff2f92;
+}
 </style>
 </head>
 
@@ -419,8 +455,8 @@ canvas{
   <span id="photoCounter">Foto 1 / 4</span>
 
   <div style="display:flex;gap:8px;">
-    <button id="switchCameraBtn" class="iconBtn">🔄</button>
-    <button id="timerToggleBtn" class="iconBtn">⏱️</button>
+    <button id="flashBtn" class="iconBtn">⚡</button>
+<button id="timerToggleBtn" class="iconBtn">⏱️</button>
   </div>
 </div>
 
@@ -439,15 +475,22 @@ canvas{
         <button class="filterChip" data-filter="vintage">📸 Vintage</button>
       </div>
 
-      <button id="captureBtn" class="shutterBtn filter-natural" aria-label="Ambil Foto">
-        <span id="shutterIcon"></span>
-      </button>
+      <div class="shutterRow">
+  <div style="width:54px;"></div>
+
+  <button id="captureBtn" class="shutterBtn filter-natural" aria-label="Ambil Foto">
+    <span id="shutterIcon"></span>
+  </button>
+
+  <button id="switchCameraBtn" class="miniRoundBtn">⇄</button>
+</div>
     </div>
   </div>
 
 </section>
 
 <div id="countdown">3</div>
+  <div id="flashOverlay"></div>
 
 <section id="resultScreen" class="screen">
   <h2>Hasilmu Siap ✨</h2>
@@ -479,6 +522,8 @@ const shareBtn=document.getElementById("shareBtn");
 const timerToggleBtn=document.getElementById("timerToggleBtn");
 const timerPopup=document.getElementById("timerPopup");
 const switchCameraBtn=document.getElementById("switchCameraBtn");
+const flashBtn=document.getElementById("flashBtn");
+const flashOverlay=document.getElementById("flashOverlay");
 
 const video=document.getElementById("video");
 const countdown=document.getElementById("countdown");
@@ -492,6 +537,7 @@ const songInput=document.getElementById("songInput");
 let selectedFilter="natural";
 let selectedTimer=0;
 let currentFacingMode="user";
+let torchEnabled=false;
   
   function updateVideoFilter(){
   const f=selectedFilter;
@@ -605,6 +651,40 @@ function stopCamera(){
     stream=null;
   }
 }
+  async function setTorch(enabled){
+  if(!stream) return;
+
+  const track=stream.getVideoTracks()[0];
+
+  if(!track) return;
+
+  const capabilities=track.getCapabilities();
+
+  if(!capabilities.torch){
+    alert("Flash lampu tidak didukung di HP/browser ini.");
+    torchEnabled=false;
+    flashBtn.classList.remove("flashOn");
+    return;
+  }
+
+  try{
+    await track.applyConstraints({
+      advanced:[{torch:enabled}]
+    });
+
+    torchEnabled=enabled;
+
+    if(torchEnabled){
+      flashBtn.classList.add("flashOn");
+    }else{
+      flashBtn.classList.remove("flashOn");
+    }
+
+  }catch(e){
+    alert("Flash lampu tidak bisa dinyalakan di perangkat ini.");
+  }
+}
+  
   async function switchCamera(){
 
   try{
@@ -614,6 +694,8 @@ function stopCamera(){
     }else{
       currentFacingMode="user";
     }
+    torchEnabled=false;
+flashBtn.classList.remove("flashOn");
 
     stopCamera();
 
@@ -637,6 +719,14 @@ function applyFilterToContext(c){
   else c.filter="brightness(1.09) contrast(1.06) saturate(1.13)";
 }
 
+function playFlashEffect(){
+  flashOverlay.classList.add("show");
+
+  setTimeout(()=>{
+    flashOverlay.classList.remove("show");
+  },120);
+}
+  
 function takeSnapshot(){
   const temp=document.createElement("canvas");
   const tctx=temp.getContext("2d");
@@ -733,7 +823,8 @@ async function capturePhoto(){
       return;
     }
 
-    photos.push(takeSnapshot());
+    playFlashEffect();
+photos.push(takeSnapshot());
 
     if(photos.length>=4){
       stopCamera();
@@ -996,6 +1087,15 @@ startBtn.onclick=async()=>{
 
 captureBtn.onclick=capturePhoto;
 
+  flashBtn.onclick=async()=>{
+  if(currentFacingMode!=="environment"){
+    alert("Flash hanya bisa dipakai saat kamera belakang aktif.");
+    return;
+  }
+
+  await setTorch(!torchEnabled);
+};
+  
   switchCameraBtn.onclick=async()=>{
 
   if(isCountingDown) return;
