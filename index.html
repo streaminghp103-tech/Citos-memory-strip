@@ -510,17 +510,19 @@ document.querySelectorAll(".filterChip").forEach(btn=>{
   });
 });
 
+timerToggleBtn.onclick=()=>{
+  timerPopup.classList.toggle("show");
+};
+
 document.querySelectorAll(".timerChip").forEach(btn=>{
   btn.addEventListener("click",()=>{
     document.querySelectorAll(".timerChip").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
+
     selectedTimer=parseInt(btn.dataset.time,10);
-    timerToggleBtn.textContent =
-selectedTimer===0 ? "⏱️" : `${selectedTimer}s`;
-timerPopup.classList.remove("show");
-    timerToggleBtn.onclick=()=>{
-  timerPopup.classList.toggle("show");
-};
+    timerToggleBtn.textContent = selectedTimer===0 ? "⏱️" : `${selectedTimer}s`;
+
+    timerPopup.classList.remove("show");
   });
 });
 function updateShutterFilter(){
