@@ -869,10 +869,13 @@ async function capturePhoto(){
     showScreen(reviewScreen);
     captureBtn.disabled=false;
 
-  }catch(e){
+    }catch(e){
     alert("Foto gagal diambil. Coba ulangi.");
     captureBtn.disabled=false;
   }
+}
+
+function roundRect(x,y,w,h,r){
 
 
 function roundRect(x,y,w,h,r){
