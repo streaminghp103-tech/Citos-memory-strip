@@ -313,19 +313,27 @@ function takeSnapshot(){
 
 function runCountdown(){
   return new Promise(resolve=>{
-    let count=3;
-    countdown.style.display="flex";
-    countdown.textContent=count;
+    let count = parseInt(timerSelect.value, 10);
 
-    const timer=setInterval(()=>{
+    if(count === 0){
+      resolve();
+      return;
+    }
+
+    countdown.style.display = "flex";
+    countdown.textContent = count;
+
+    const timer = setInterval(()=>{
       count--;
-      if(count>0) countdown.textContent=count;
-      else{
+
+      if(count > 0){
+        countdown.textContent = count;
+      }else{
         clearInterval(timer);
-        countdown.style.display="none";
+        countdown.style.display = "none";
         resolve();
       }
-    },850);
+    },1000);
   });
 }
 
