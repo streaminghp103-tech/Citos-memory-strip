@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HP103 Memory Strip</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#08080d;color:white;font-family:Arial,sans-serif}
+.screen{display:none;min-height:100vh;padding:24px}
+.screen.active{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px}
+h1,h2{text-align:center;margin:0}
+p{text-align:center;color:#ccc}
+button{border:none;border-radius:999px;padding:14px 24px;background:#ff2f92;color:white;font-weight:bold;font-size:16px}
+#cameraScreen.active{justify-content:flex-start}
+.topbar{width:100%;display:flex;justify-content:space-between;align-items:center}
+#cancelBtn{background:#333;padding:10px 16px}
+video{width:100%;max-width:430px;aspect-ratio:9/16;object-fit:cover;border-radius:20px;background:black}
+#countdown{position:fixed;font-size:90px;font-weight:bold;color:white;text-shadow:0 0 20px #ff2f92;display:none}
+canvas{width:100%;max-width:360px;border-radius:16px;background:black}
+</style>
+</head>
+
+<body>
+<div id="app">
+
+<section id="startScreen" class="screen active">
+  <h1>HP103 Memory Strip</h1>
+  <p>Buat kenangan karaoke malam ini 🎤</p>
+  <p id="roomInfo">Room -</p>
+  <button id="startBtn">Mulai Foto</button>
+</section>
+
+<section id="cameraScreen" class="screen">
+  <div class="topbar">
+    <span id="photoCounter">Foto 1 / 5</span>
+    <button id="cancelBtn">Batal</button>
+  </div>
+
+  <video id="video" autoplay playsinline></video>
+  <div id="countdown">3</div>
+  <button id="captureBtn">Ambil Foto</button>
+</section>
+
+<section id="resultScreen" class="screen">
+  <h2>Hasilmu Siap!</h2>
+  <canvas id="resultCanvas" width="1080" height="1920"></canvas>
+  <button id="downloadBtn">Download Foto</button>
+  <button id="retryBtn">Ambil Ulang</button>
+  <button id="openIgBtn">Buka Instagram</button>
+</section>
+
+</div>
+
+<script>
+const startScreen=document.getElementById("startScreen");
+const cameraScreen=document.getElementById("cameraScreen");
+const resultScreen=document.getElementById("resultScreen");
+const startBtn=document.getElementById("startBtn");
+const captureBtn=document.getElementById("captureBtn");
+const cancelBtn=document.getElementById("cancelBtn");
+const retryBtn=document.getElementById("retryBtn");
+const downloadBtn=document.getElementById("downloadBtn");
+const openIgBtn=document.getElementById("openIgBtn");
+const video=document.getElementById("video");
+const countdown=document.getElementById("countdown");
+const photoCounter=document.getElementById("photoCounter");
+const roomInfo=document.getElementById("roomInfo");
+const canvas=document.getElementById("resultCanvas");
+const ctx=canvas.getContext("2d");
+
+let stream=null;
+let photos=[];
+let currentPhoto=1;
+
+const params=new URLSearchParams(window.location.search);
+const room=params.get("room")||"Lobby";
+roomInfo.textContent=`Room ${room}`;
+
+function showScreen(screen){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  screen.classList.add("active");
+}
+
+async function startCamera(){
+  stream=await navigator.mediaDevices.getUserMedia({
+    video:{facingMode:"user",width:{ideal:1080},height:{ideal:1920}},
+    audio:false
+  });
+  video.srcObject=stream;
+}
+
+function stopCamera(){
+  if(stream){stream.getTracks().forEach(track=>track.stop())}
+}
+
+function takeSnapshot(){
+  const tempCanvas=document.createElement("canvas");
+  const tempCtx=tempCanvas.getContext("2d");
+  tempCanvas.width=720;
+  tempCanvas.height=960;
+  tempCtx.drawImage(video,0,0,tempCanvas.width,tempCanvas.height);
+  return tempCanvas;
+}
+
+function runCountdown(){
+  return new Promise(resolve=>{
+    let count=3;
+    countdown.style.display="block";
+    countdown.textContent=count;
+
+    const timer=setInterval(()=>{
+      count--;
+      if(count>0){
+        countdown.textContent=count;
+      }else{
+        clearInterval(timer);
+        countdown.style.display="none";
+        resolve();
+      }
+    },1000);
+  });
+}
+
+async function capturePhoto(){
+  captureBtn.disabled=true;
+  await runCountdown();
+
+  const photo=takeSnapshot();
+  photos.push(photo);
+
+  if(photos.length>=5){
+    stopCamera();
+    generateResult();
+    showScreen(resultScreen);
+  }else{
+    currentPhoto++;
+    photoCounter.textContent=`Foto ${currentPhoto} / 5`;
+  }
+
+  captureBtn.disabled=false;
+}
+
+function drawCroppedImage(image,x,y,w,h,rotate=0){
+  ctx.save();
+  ctx.translate(x+w/2,y+h/2);
+  ctx.rotate((rotate*Math.PI)/180);
+  ctx.drawImage(image,-w/2,-h/2,w,h);
+  ctx.strokeStyle="#ffffff";
+  ctx.lineWidth=18;
+  ctx.strokeRect(-w/2,-h/2,w,h);
+  ctx.restore();
+}
+
+function generateResult(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const bg=ctx.createLinearGradient(0,0,0,canvas.height);
+  bg.addColorStop(0,"#090910");
+  bg.addColorStop(0.5,"#171018");
+  bg.addColorStop(1,"#050505");
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle="rgba(255,47,146,0.25)";
+  ctx.beginPath();
+  ctx.arc(900,250,280,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle="rgba(255,195,77,0.18)";
+  ctx.beginPath();
+  ctx.arc(160,1580,300,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle="#ffffff";
+  ctx.font="bold 58px Arial";
+  ctx.fillText("HAPPY PUPPY",70,110);
+
+  ctx.fillStyle="#ffc34d";
+  ctx.font="bold 34px Arial";
+  ctx.fillText("KARAOKE NIGHT",70,158);
+
+  ctx.fillStyle="#ffffff";
+  ctx.font="32px Arial";
+  ctx.fillText(`ROOM ${room}`,720,110);
+
+  const date=new Date();
+  const dateText=date.toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
+
+  ctx.fillStyle="#ffc1dc";
+  ctx.font="30px Arial";
+  ctx.fillText(dateText,720,155);
+
+  drawCroppedImage(photos[0],80,220,520,360,-8);
+  drawCroppedImage(photos[1],110,610,500,360,4);
+  drawCroppedImage(photos[2],570,470,410,520,7);
+  drawCroppedImage(photos[3],80,1050,420,520,-5);
+  drawCroppedImage(photos[4],520,1130,450,520,6);
+
+  ctx.fillStyle="#ffffff";
+  ctx.font="italic 64px Georgia";
+  ctx.fillText("Good Friends",70,1760);
+
+  ctx.fillStyle="#ffc34d";
+  ctx.font="bold 36px Arial";
+  ctx.fillText("Great Memories",70,1810);
+
+  ctx.fillStyle="#ff2f92";
+  ctx.font="bold 32px Arial";
+  ctx.fillText("@HappyPuppyHP103",650,1810);
+}
+
+startBtn.addEventListener("click",async()=>{
+  photos=[];
+  currentPhoto=1;
+  photoCounter.textContent="Foto 1 / 5";
+  showScreen(cameraScreen);
+  await startCamera();
+});
+
+captureBtn.addEventListener("click",capturePhoto);
+
+cancelBtn.addEventListener("click",()=>{
+  stopCamera();
+  showScreen(startScreen);
+});
+
+retryBtn.addEventListener("click",async()=>{
+  photos=[];
+  currentPhoto=1;
+  photoCounter.textContent="Foto 1 / 5";
+  showScreen(cameraScreen);
+  await startCamera();
+});
+
+downloadBtn.addEventListener("click",()=>{
+  const link=document.createElement("a");
+  link.download=`HP103-Memory-${room}.png`;
+  link.href=canvas.toDataURL("image/png");
+  link.click();
+});
+
+openIgBtn.addEventListener("click",()=>{
+  window.location.href="instagram://app";
+});
+</script>
+</body>
+</html>

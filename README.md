@@ -1,1 +1,0 @@
-# Citos-memory-strip
