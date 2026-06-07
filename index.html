@@ -228,6 +228,144 @@ canvas{
   width:78px !important;
   min-width:78px;
 }
+  #cameraScreen{
+  padding:0;
+}
+
+#cameraScreen.active{
+  justify-content:center;
+}
+
+.fullCamera{
+  position:relative;
+  width:100vw;
+  height:100dvh;
+  overflow:hidden;
+  background:#000;
+}
+
+.fullCamera video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  background:#000;
+  transform:scaleX(-1);
+}
+
+.cameraTopOverlay{
+  position:absolute;
+  top:14px;
+  left:14px;
+  right:14px;
+  z-index:40;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.iconBtn{
+  width:44px !important;
+  height:44px;
+  max-width:44px;
+  padding:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.45);
+  box-shadow:none;
+  font-size:22px;
+  backdrop-filter:blur(10px);
+}
+
+#photoCounter{
+  padding:10px 16px;
+  border-radius:999px;
+  background:rgba(0,0,0,.45);
+  font-weight:bold;
+  backdrop-filter:blur(10px);
+}
+
+.timerPopup{
+  position:absolute;
+  top:68px;
+  right:14px;
+  z-index:45;
+  display:none;
+  gap:8px;
+  padding:8px;
+  border-radius:999px;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(10px);
+}
+
+.timerPopup.show{
+  display:flex;
+}
+
+.cameraBottomOverlay{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:22px;
+  z-index:40;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+}
+
+.filterBar{
+  width:100%;
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding:0 18px;
+  scrollbar-width:none;
+}
+
+.filterBar::-webkit-scrollbar{
+  display:none;
+}
+
+.filterChip,
+.timerChip{
+  width:auto !important;
+  min-width:max-content;
+  padding:10px 16px;
+  border-radius:999px;
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:none;
+  color:white;
+  backdrop-filter:blur(10px);
+}
+
+.filterChip.active,
+.timerChip.active{
+  background:#ff2f92;
+  border-color:#ff2f92;
+}
+
+.shutterBtn{
+  width:78px !important;
+  min-width:78px;
+  height:78px;
+  max-width:78px;
+}
+
+.shutterBtn.filter-natural{
+  background:white;
+}
+
+.shutterBtn.filter-bright{
+  background:#ffb6d8;
+}
+
+.shutterBtn.filter-party{
+  background:#8b5cf6;
+}
+
+.shutterBtn.filter-vintage{
+  background:#b8895b;
+}
 </style>
 </head>
 
@@ -272,39 +410,38 @@ canvas{
 </section>
 
 <section id="cameraScreen" class="screen">
-  <div class="topbar">
-    <span id="photoCounter">Foto 1 / 4</span>
-    <button id="cancelBtn" class="secondary">Batal</button>
+
+  <div class="fullCamera">
+    <video id="video" autoplay playsinline muted></video>
+
+    <div class="cameraTopOverlay">
+      <button id="cancelBtn" class="iconBtn">‹</button>
+      <span id="photoCounter">Foto 1 / 4</span>
+      <button id="timerToggleBtn" class="iconBtn">⚡</button>
+    </div>
+
+    <div id="timerPopup" class="timerPopup">
+      <button class="timerChip active" data-time="0">⚡</button>
+      <button class="timerChip" data-time="3">3s</button>
+      <button class="timerChip" data-time="5">5s</button>
+      <button class="timerChip" data-time="10">10s</button>
+    </div>
+
+    <div class="cameraBottomOverlay">
+      <div class="filterBar">
+        <button class="filterChip active" data-filter="natural">✨ Natural</button>
+        <button class="filterChip" data-filter="bright">🌸 Bright</button>
+        <button class="filterChip" data-filter="party">💜 Party</button>
+        <button class="filterChip" data-filter="vintage">📸 Vintage</button>
+      </div>
+
+      <button id="captureBtn" class="shutterBtn filter-natural" aria-label="Ambil Foto">
+        <span id="shutterIcon"></span>
+      </button>
+    </div>
   </div>
 
-  <div class="cameraWrap">
-  <video id="video" autoplay playsinline muted></video>
-
-  <div class="cameraSettings">
-    <div class="filterBar">
-  <button class="filterChip active" data-filter="natural">✨</button>
-  <button class="filterChip" data-filter="bright">🌸</button>
-  <button class="filterChip" data-filter="party">💜</button>
-  <button class="filterChip" data-filter="vintage">📸</button>
-</div>
-
-    <div class="timerBar">
-  <button class="timerChip active" data-time="0">⚡</button>
-  <button class="timerChip" data-time="3">3s</button>
-  <button class="timerChip" data-time="5">5s</button>
-  <button class="timerChip" data-time="10">10s</button>
-</div>
-    </div>
-    
-
-  <div class="cameraHint">Pose santai, lihat kamera, lalu klik ambil foto</div>
-</div>
-
-<button id="captureBtn" class="shutterBtn" aria-label="Ambil Foto">
-  <span id="shutterIcon"></span>
-</button>
-
-  </section>
+</section>
 
 <div id="countdown">3</div>
 
@@ -367,6 +504,7 @@ document.querySelectorAll(".filterChip").forEach(btn=>{
     btn.classList.add("active");
     selectedFilter=btn.dataset.filter;
     updateVideoFilter();
+    updateShutterFilter();
   });
 });
 
@@ -375,9 +513,21 @@ document.querySelectorAll(".timerChip").forEach(btn=>{
     document.querySelectorAll(".timerChip").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     selectedTimer=parseInt(btn.dataset.time,10);
+    timerToggleBtn.textContent = selectedTimer===0 ? "⚡" : `⏱️ ${selectedTimer}s`;
+timerPopup.classList.remove("show");
   });
 });
+function updateShutterFilter(){
+  captureBtn.classList.remove(
+    "filter-natural",
+    "filter-bright",
+    "filter-party",
+    "filter-vintage"
+  );
 
+  captureBtn.classList.add(`filter-${selectedFilter}`);
+}
+  
 let stream=null;
 let photos=[];
 let currentPhoto=1;
