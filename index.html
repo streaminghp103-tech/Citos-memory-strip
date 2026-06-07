@@ -417,11 +417,11 @@ canvas{
     <div class="cameraTopOverlay">
       <button id="cancelBtn" class="iconBtn">‹</button>
       <span id="photoCounter">Foto 1 / 4</span>
-      <button id="timerToggleBtn" class="iconBtn">⚡</button>
+      <button id="timerToggleBtn" class="iconBtn">⏱️</button>
     </div>
 
     <div id="timerPopup" class="timerPopup">
-      <button class="timerChip active" data-time="0">⚡</button>
+      <button class="timerChip active" data-time="0">Off</button>
       <button class="timerChip" data-time="3">3s</button>
       <button class="timerChip" data-time="5">5s</button>
       <button class="timerChip" data-time="10">10s</button>
@@ -515,7 +515,8 @@ document.querySelectorAll(".timerChip").forEach(btn=>{
     document.querySelectorAll(".timerChip").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     selectedTimer=parseInt(btn.dataset.time,10);
-    timerToggleBtn.textContent = selectedTimer===0 ? "⚡" : `⏱️ ${selectedTimer}s`;
+    timerToggleBtn.textContent =
+selectedTimer===0 ? "⏱️" : `${selectedTimer}s`;
 timerPopup.classList.remove("show");
     timerToggleBtn.onclick=()=>{
   timerPopup.classList.toggle("show");
