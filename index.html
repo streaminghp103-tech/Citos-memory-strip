@@ -249,7 +249,6 @@ canvas{
   height:100%;
   object-fit:cover;
   background:#000;
-  transform:scaleX(-1);
 }
 
 .cameraTopOverlay{
@@ -415,10 +414,15 @@ canvas{
     <video id="video" autoplay playsinline muted></video>
 
     <div class="cameraTopOverlay">
-      <button id="cancelBtn" class="iconBtn">‹</button>
-      <span id="photoCounter">Foto 1 / 4</span>
-      <button id="timerToggleBtn" class="iconBtn">⏱️</button>
-    </div>
+  <button id="cancelBtn" class="iconBtn">‹</button>
+
+  <span id="photoCounter">Foto 1 / 4</span>
+
+  <div style="display:flex;gap:8px;">
+    <button id="switchCameraBtn" class="iconBtn">🔄</button>
+    <button id="timerToggleBtn" class="iconBtn">⏱️</button>
+  </div>
+</div>
 
     <div id="timerPopup" class="timerPopup">
       <button class="timerChip active" data-time="0">Off</button>
@@ -474,6 +478,7 @@ const openIgBtn=document.getElementById("openIgBtn");
 const shareBtn=document.getElementById("shareBtn");
 const timerToggleBtn=document.getElementById("timerToggleBtn");
 const timerPopup=document.getElementById("timerPopup");
+const switchCameraBtn=document.getElementById("switchCameraBtn");
 
 const video=document.getElementById("video");
 const countdown=document.getElementById("countdown");
@@ -486,6 +491,7 @@ const roomInput=document.getElementById("roomInput");
 const songInput=document.getElementById("songInput");
 let selectedFilter="natural";
 let selectedTimer=0;
+let currentFacingMode="user";
   
   function updateVideoFilter(){
   const f=selectedFilter;
@@ -569,7 +575,7 @@ async function startCamera(){
   try{
     stream=await navigator.mediaDevices.getUserMedia({
       video:{
-  facingMode:{ ideal:"user" }
+  facingMode:{ ideal: currentFacingMode }
 },
       audio:false
     });
@@ -581,6 +587,11 @@ async function startCamera(){
     });
 
     await video.play();
+    if(currentFacingMode==="user"){
+  video.style.transform="scaleX(-1)";
+}else{
+  video.style.transform="scaleX(1)";
+}
     updateVideoFilter();
   }catch(e){
     alert("Kamera tidak bisa dibuka. Pastikan izin kamera aktif dan buka lewat HTTPS.");
@@ -592,6 +603,29 @@ function stopCamera(){
   if(stream){
     stream.getTracks().forEach(t=>t.stop());
     stream=null;
+  }
+}
+  async function switchCamera(){
+
+  try{
+
+    if(currentFacingMode==="user"){
+      currentFacingMode="environment";
+    }else{
+      currentFacingMode="user";
+    }
+
+    stopCamera();
+
+    await startCamera();
+
+  }catch(e){
+
+    currentFacingMode="user";
+
+    stopCamera();
+
+    await startCamera();
   }
 }
 
@@ -958,6 +992,14 @@ startBtn.onclick=async()=>{
 };
 
 captureBtn.onclick=capturePhoto;
+
+  switchCameraBtn.onclick=async()=>{
+
+  if(isCountingDown) return;
+
+  await switchCamera();
+
+};
 
 cancelBtn.onclick=()=>{
   countdownCancelled=true;
