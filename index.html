@@ -426,6 +426,23 @@ canvas{
 .reviewActions button{
   flex:1;
 }
+  .previewThumb{
+  width:54px !important;
+  height:54px;
+  max-width:54px;
+  padding:0;
+  border-radius:14px;
+  overflow:hidden;
+  background:rgba(0,0,0,.45);
+  box-shadow:none;
+  border:2px solid rgba(255,255,255,.5);
+}
+
+.previewThumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
   
 </style>
 </head>
@@ -502,7 +519,9 @@ canvas{
       </div>
 
       <div class="shutterRow">
-  <div style="width:54px;"></div>
+  <button id="previewBtn" class="previewThumb" style="display:none;">
+  <img id="previewThumbImg">
+</button>
 
   <button id="captureBtn" class="shutterBtn filter-natural" aria-label="Ambil Foto">
     <span id="shutterIcon"></span>
@@ -560,7 +579,8 @@ const flashBtn=document.getElementById("flashBtn");
 const flashOverlay=document.getElementById("flashOverlay");
 const reviewImage=document.getElementById("reviewImage");
 const deletePhotoBtn=document.getElementById("deletePhotoBtn");
-const usePhotoBtn=document.getElementById("usePhotoBtn");
+const usePhotoBtn=document.getElementById("usePhotoBtn");const previewBtn=document.getElementById("previewBtn");
+const previewThumbImg=document.getElementById("previewThumbImg");
 
 const video=document.getElementById("video");
 const countdown=document.getElementById("countdown");
@@ -864,9 +884,14 @@ async function capturePhoto(){
     playFlashEffect();
 
     pendingPhoto = takeSnapshot();
-    reviewImage.src = pendingPhoto.toDataURL("image/png");
-    
-    captureBtn.disabled=false;
+
+const imgData = pendingPhoto.toDataURL("image/png");
+
+reviewImage.src = imgData;
+previewThumbImg.src = imgData;
+previewBtn.style.display = "block";
+
+captureBtn.disabled=false;
 
     }catch(e){
     alert("Foto gagal diambil. Coba ulangi.");
@@ -1118,6 +1143,11 @@ startBtn.onclick=async()=>{
 };
 
 captureBtn.onclick=capturePhoto;
+  previewBtn.onclick=()=>{
+  if(!pendingPhoto) return;
+  showScreen(reviewScreen);
+};
+  
   deletePhotoBtn.onclick=()=>{
   pendingPhoto=null;
   showScreen(cameraScreen);
