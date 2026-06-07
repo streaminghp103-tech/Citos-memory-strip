@@ -197,6 +197,37 @@ canvas{
 .shutterBtn.cancelMode #shutterIcon::after{
   transform:rotate(-45deg);
 }
+.filterBar,
+.timerBar{
+  display:flex;
+  gap:6px;
+  flex:1;
+}
+
+.filterChip,
+.timerChip{
+  width:auto;
+  min-width:44px;
+  height:44px;
+  padding:0 12px;
+  border-radius:999px;
+  background:rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.15);
+  box-shadow:none;
+  font-size:14px;
+  color:white;
+}
+
+.filterChip.active,
+.timerChip.active{
+  background:#ff2f92;
+  border-color:#ff2f92;
+}
+
+.shutterBtn{
+  width:78px !important;
+  min-width:78px;
+}
 </style>
 </head>
 
