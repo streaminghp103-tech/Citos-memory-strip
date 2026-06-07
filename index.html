@@ -624,10 +624,15 @@ cancelBtn.onclick=()=>{
 };
 
 retryBtn.onclick=async()=>{
+  stopCamera();
+
   photos=[];
   currentPhoto=1;
   lastBlob=null;
+
+  captureBtn.disabled=false;
   photoCounter.textContent="Foto 1 / 4";
+
   showScreen(cameraScreen);
   await startCamera();
 };
