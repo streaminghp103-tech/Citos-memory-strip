@@ -401,6 +401,32 @@ canvas{
 #flashBtn.flashOn{
   background:#ff2f92;
 }
+  #reviewScreen.active{
+  justify-content:center;
+  background:#000;
+  padding:18px;
+}
+
+#reviewImage{
+  width:100%;
+  max-width:430px;
+  height:calc(100dvh - 130px);
+  object-fit:contain;
+  border-radius:24px;
+  background:#000;
+}
+
+.reviewActions{
+  width:100%;
+  max-width:430px;
+  display:flex;
+  gap:10px;
+}
+
+.reviewActions button{
+  flex:1;
+}
+  
 </style>
 </head>
 
@@ -491,6 +517,13 @@ canvas{
 
 <div id="countdown">3</div>
   <div id="flashOverlay"></div>
+  <section id="reviewScreen" class="screen">
+  <img id="reviewImage" alt="Preview Foto">
+  <div class="reviewActions">
+    <button id="deletePhotoBtn" class="secondary">🗑️ Hapus</button>
+    <button id="usePhotoBtn">✅ Pakai</button>
+  </div>
+</section>
 
 <section id="resultScreen" class="screen">
   <h2>Hasilmu Siap ✨</h2>
@@ -509,6 +542,7 @@ const startScreen=document.getElementById("startScreen");
 const formScreen=document.getElementById("formScreen");
 const cameraScreen=document.getElementById("cameraScreen");
 const resultScreen=document.getElementById("resultScreen");
+const reviewScreen=document.getElementById("reviewScreen");
 
 const goFormBtn=document.getElementById("goFormBtn");
 const backHomeBtn=document.getElementById("backHomeBtn");
@@ -524,6 +558,9 @@ const timerPopup=document.getElementById("timerPopup");
 const switchCameraBtn=document.getElementById("switchCameraBtn");
 const flashBtn=document.getElementById("flashBtn");
 const flashOverlay=document.getElementById("flashOverlay");
+const reviewImage=document.getElementById("reviewImage");
+const deletePhotoBtn=document.getElementById("deletePhotoBtn");
+const usePhotoBtn=document.getElementById("usePhotoBtn");
 
 const video=document.getElementById("video");
 const countdown=document.getElementById("countdown");
@@ -595,6 +632,7 @@ let selectedTemplate="karaoke";
 let lastBlob=null;
 let isCountingDown=false;
 let countdownCancelled=false;
+let pendingPhoto=null;
   
 const params=new URLSearchParams(window.location.search);
 const room=params.get("room")||"Lobby";
@@ -823,10 +861,16 @@ async function capturePhoto(){
       return;
     }
 
-    playFlashEffect();
-photos.push(takeSnapshot());
+   playFlashEffect();
 
-    if(photos.length>=4){
+pendingPhoto=takeSnapshot();
+reviewImage.src=pendingPhoto.toDataURL("image/png");
+
+showScreen(reviewScreen);
+captureBtn.disabled=false;
+
+return;
+      
       stopCamera();
       generateResult();
       await prepareBlob();
@@ -1086,6 +1130,28 @@ startBtn.onclick=async()=>{
 };
 
 captureBtn.onclick=capturePhoto;
+  deletePhotoBtn.onclick=()=>{
+  pendingPhoto=null;
+  showScreen(cameraScreen);
+};
+
+usePhotoBtn.onclick=async()=>{
+  if(!pendingPhoto) return;
+
+  photos.push(pendingPhoto);
+  pendingPhoto=null;
+
+  if(photos.length>=4){
+    stopCamera();
+    generateResult();
+    await prepareBlob();
+    showScreen(resultScreen);
+  }else{
+    currentPhoto++;
+    photoCounter.textContent=`Foto ${currentPhoto} / 4`;
+    showScreen(cameraScreen);
+  }
+};
 
   flashBtn.onclick=async()=>{
   if(currentFacingMode!=="environment"){
