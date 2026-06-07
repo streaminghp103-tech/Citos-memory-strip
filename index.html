@@ -6,39 +6,65 @@
 <title>HP103 Memory Strip</title>
 <style>
 *{box-sizing:border-box}
-body{
+html,body{
   margin:0;
-  min-height:100vh;
+  width:100%;
+  height:100%;
+  overflow:hidden;
   font-family:Arial,sans-serif;
   color:white;
+  background:#08080d;
+  touch-action:manipulation;
+}
+body{
   background:
     radial-gradient(circle at top,#ff2f9255,transparent 35%),
     radial-gradient(circle at bottom,#ffc34d33,transparent 30%),
     #08080d;
 }
-.screen{display:none;min-height:100vh;padding:22px}
-.screen.active{display:flex;flex-direction:column;align-items:center;gap:18px}
-#startScreen.active,#resultScreen.active{justify-content:center}
+.screen{
+  display:none;
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100dvh;
+  padding:18px;
+  overflow:hidden;
+}
+.screen.active{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:14px;
+}
 .logo{
-  font-size:14px;
-  letter-spacing:3px;
+  font-size:12px;
+  letter-spacing:2px;
   color:#ffc34d;
   font-weight:bold;
 }
 .card{
   width:100%;
-  max-width:420px;
-  padding:28px 22px;
+  height:100%;
+  max-width:430px;
+  max-height:760px;
+  padding:24px 18px;
   border:1px solid rgba(255,255,255,.15);
   border-radius:28px;
   background:rgba(255,255,255,.08);
   backdrop-filter:blur(14px);
   box-shadow:0 20px 60px rgba(0,0,0,.35);
   text-align:center;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:14px;
 }
-h1{font-size:34px;margin:8px 0 10px}
-h2{margin:0}
-p{color:#ddd;line-height:1.5}
+h1{font-size:32px;margin:0}
+h2{margin:0;font-size:22px}
+p{color:#ddd;line-height:1.4;margin:0}
 .badge{
   display:inline-block;
   padding:10px 16px;
@@ -52,7 +78,7 @@ button{
   max-width:360px;
   border:none;
   border-radius:999px;
-  padding:15px 22px;
+  padding:14px 20px;
   background:linear-gradient(135deg,#ff2f92,#ff7ac0);
   color:white;
   font-weight:bold;
@@ -61,29 +87,40 @@ button{
 }
 button.secondary{background:#292936;box-shadow:none}
 button:disabled{opacity:.5}
-.small{font-size:13px;color:#aaa}
+.small{font-size:12px;color:#aaa}
+#cameraScreen.active{
+  justify-content:space-between;
+}
 .topbar{
   width:100%;
   max-width:430px;
+  height:44px;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  flex-shrink:0;
 }
 #photoCounter{
-  padding:10px 14px;
+  padding:9px 13px;
   border-radius:999px;
   background:rgba(255,255,255,.12);
   font-weight:bold;
 }
-#cameraScreen.active{justify-content:flex-start}
+#cancelBtn{
+  width:auto;
+  padding:9px 14px;
+}
 .cameraWrap{
   position:relative;
   width:100%;
   max-width:430px;
+  height:calc(100dvh - 150px);
+  max-height:690px;
+  flex:1;
 }
 video{
   width:100%;
-  aspect-ratio:9/16;
+  height:100%;
   object-fit:cover;
   border-radius:28px;
   background:black;
@@ -91,14 +128,17 @@ video{
 }
 .cameraHint{
   position:absolute;
-  left:16px;
-  right:16px;
-  bottom:16px;
-  padding:12px;
+  left:14px;
+  right:14px;
+  bottom:14px;
+  padding:11px;
   border-radius:18px;
   background:rgba(0,0,0,.45);
   text-align:center;
-  font-size:14px;
+  font-size:13px;
+}
+#captureBtn{
+  flex-shrink:0;
 }
 #countdown{
   position:fixed;
@@ -112,19 +152,30 @@ video{
   text-shadow:0 0 24px #ff2f92;
   z-index:9;
 }
+#resultScreen.active{
+  justify-content:space-between;
+  padding:16px;
+}
 canvas{
-  width:100%;
-  max-width:350px;
+  width:auto;
+  height:calc(100dvh - 210px);
+  max-height:620px;
+  max-width:92vw;
   border-radius:22px;
   background:black;
   box-shadow:0 18px 50px rgba(0,0,0,.45);
 }
 .actions{
   width:100%;
+  max-width:360px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:10px;
+  gap:8px;
+  flex-shrink:0;
+}
+.actions button{
+  padding:12px 18px;
 }
 </style>
 </head>
