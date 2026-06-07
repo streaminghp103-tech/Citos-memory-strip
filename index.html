@@ -1,258 +1,171 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>HP103 Memory Strip</title>
 
 <style>
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  font-family:Arial,sans-serif;
-  color:white;
-  background:#08080d;
-  touch-action:manipulation;
+  margin:0;width:100%;height:100%;overflow:hidden;
+  font-family:Arial,sans-serif;color:#fff;background:#07070b;
 }
-
 body{
   background:
-    radial-gradient(circle at top,#ff2f9255,transparent 35%),
-    radial-gradient(circle at bottom,#ffc34d33,transparent 30%),
-    #08080d;
+  radial-gradient(circle at top left,rgba(255,47,146,.35),transparent 34%),
+  radial-gradient(circle at bottom right,rgba(255,195,77,.2),transparent 32%),
+  #07070b;
 }
-
 .screen{
-  display:none;
-  position:fixed;
-  inset:0;
-  width:100vw;
-  height:100dvh;
-  padding:16px;
-  overflow:hidden;
+  display:none;position:fixed;inset:0;width:100vw;height:100dvh;
+  padding:16px;overflow:hidden;
 }
-
-.screen.active{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
+.screen.active{display:flex;flex-direction:column;align-items:center;gap:12px}
+button{
+  border:none;border-radius:999px;padding:14px 18px;
+  background:linear-gradient(135deg,#ff2f92,#ff7ac0);
+  color:white;font-weight:700;font-size:15px;
+  box-shadow:0 10px 26px rgba(255,47,146,.28);
 }
-
-#startScreen.active{
-  justify-content:center;
+button.secondary{background:#252532;box-shadow:none}
+button:disabled{opacity:.5}
+input,select{
+  width:100%;border:none;border-radius:16px;padding:13px 14px;
+  background:rgba(255,255,255,.1);color:white;font-size:15px;
+  outline:none;border:1px solid rgba(255,255,255,.14);
 }
-
-.logo{
-  font-size:12px;
-  letter-spacing:2px;
-  color:#ffc34d;
-  font-weight:bold;
-}
-
+select option{color:black}
 .card{
-  width:100%;
-  max-width:430px;
-  height:100%;
-  max-height:740px;
-  padding:24px 18px;
-  border:1px solid rgba(255,255,255,.15);
-  border-radius:28px;
+  width:100%;max-width:440px;height:100%;max-height:780px;
+  padding:20px 16px;border-radius:28px;
   background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.14);
   backdrop-filter:blur(14px);
   box-shadow:0 20px 60px rgba(0,0,0,.35);
-  text-align:center;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  gap:14px;
+  display:flex;flex-direction:column;gap:14px;
 }
-
-h1{
-  font-size:32px;
-  margin:0;
-}
-
-h2{
-  margin:0;
-  font-size:22px;
-}
-
-p{
-  color:#ddd;
-  line-height:1.4;
-  margin:0;
-}
-
+.center{justify-content:center;align-items:center;text-align:center}
+.logo{font-size:12px;letter-spacing:2px;color:#ffc34d;font-weight:bold}
+h1,h2,h3,p{margin:0}
+p{color:#ddd;line-height:1.4}
+.small{font-size:12px;color:#aaa}
 .badge{
-  display:inline-block;
-  padding:10px 16px;
-  border-radius:999px;
-  background:rgba(255,47,146,.18);
-  color:#ffc1dc;
-  font-weight:bold;
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 13px;border-radius:999px;
+  background:rgba(255,47,146,.18);color:#ffc1dc;font-weight:bold;
 }
-
-button{
-  width:100%;
-  max-width:360px;
-  border:none;
-  border-radius:999px;
-  padding:14px 20px;
-  background:linear-gradient(135deg,#ff2f92,#ff7ac0);
-  color:white;
-  font-weight:bold;
-  font-size:16px;
-  box-shadow:0 10px 24px rgba(255,47,146,.3);
+.templateGrid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;overflow:auto;padding-bottom:4px;
 }
-
-button.secondary{
-  background:#292936;
-  box-shadow:none;
+.template{
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.08);
+  border-radius:18px;padding:12px;text-align:left;min-height:120px;
 }
-
-button:disabled{
-  opacity:.55;
+.template.active{outline:2px solid #ff2f92;background:rgba(255,47,146,.18)}
+.template .thumb{
+  height:72px;border-radius:14px;margin-bottom:8px;
+  background:linear-gradient(135deg,#ff2f92,#111);
+  display:flex;align-items:center;justify-content:center;font-size:26px;
 }
-
-.small{
-  font-size:12px;
-  color:#aaa;
-}
-
-#cameraScreen.active{
-  justify-content:space-between;
-}
-
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+.fullBtn{width:100%}
+#startScreen.active,#formScreen.active{justify-content:center}
+#cameraScreen.active{justify-content:space-between}
 .topbar{
-  width:100%;
-  max-width:430px;
-  height:44px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-shrink:0;
+  width:100%;max-width:430px;height:44px;
+  display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
 }
-
 #photoCounter{
-  padding:9px 13px;
-  border-radius:999px;
-  background:rgba(255,255,255,.12);
-  font-weight:bold;
+  padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.12);font-weight:bold;
 }
-
-#cancelBtn{
-  width:auto;
-  padding:9px 14px;
-}
-
+#cancelBtn{width:auto;padding:9px 14px}
 .cameraWrap{
-  position:relative;
-  width:100%;
-  max-width:430px;
-  height:calc(100dvh - 150px);
-  max-height:680px;
-  flex:1;
-  border-radius:28px;
-  overflow:hidden;
-  background:#000;
+  position:relative;width:100%;max-width:430px;height:calc(100dvh - 150px);
+  max-height:680px;flex:1;border-radius:28px;overflow:hidden;background:#000;
   border:2px solid rgba(255,255,255,.18);
 }
-
-video{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  background:#000;
-  transform:scaleX(-1);
-}
-
+video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX(-1)}
 .cameraHint{
-  position:absolute;
-  left:14px;
-  right:14px;
-  bottom:14px;
-  padding:11px;
-  border-radius:18px;
-  background:rgba(0,0,0,.45);
-  text-align:center;
-  font-size:13px;
+  position:absolute;left:14px;right:14px;bottom:14px;padding:11px;border-radius:18px;
+  background:rgba(0,0,0,.45);text-align:center;font-size:13px;
 }
-
-#captureBtn{
-  flex-shrink:0;
-}
-
 #countdown{
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  font-size:110px;
-  font-weight:bold;
-  background:rgba(0,0,0,.35);
-  text-shadow:0 0 24px #ff2f92;
-  z-index:9;
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  font-size:116px;font-weight:bold;background:rgba(0,0,0,.35);
+  text-shadow:0 0 24px #ff2f92;z-index:20;
 }
-
-#resultScreen.active{
-  justify-content:space-between;
-  padding:14px;
-}
-
+#resultScreen.active{justify-content:space-between;padding:14px}
 canvas{
-  width:auto;
-  height:calc(100dvh - 205px);
-  max-height:620px;
-  max-width:92vw;
-  border-radius:22px;
-  background:black;
-  box-shadow:0 18px 50px rgba(0,0,0,.45);
+  width:auto;height:calc(100dvh - 210px);max-height:620px;max-width:92vw;
+  border-radius:22px;background:black;box-shadow:0 18px 50px rgba(0,0,0,.45);
 }
-
-.actions{
-  width:100%;
-  max-width:360px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  flex-shrink:0;
-}
-
-.actions button{
-  padding:12px 18px;
-}
+.actions{width:100%;max-width:360px;display:flex;flex-direction:column;gap:8px}
+.actions button{width:100%;padding:12px 18px}
 </style>
 </head>
 
 <body>
 
-<div id="app">
-
 <section id="startScreen" class="screen active">
-  <div class="card">
+  <div class="card center">
     <div class="logo">HAPPY PUPPY PANJAITAN</div>
-    <h1>Memory Strip</h1>
-    <p>Buat kenangan karaoke malam ini dalam 5 foto.</p>
-    <div class="badge" id="roomInfo">ROOM -</div>
-    <button id="startBtn">📸 Mulai Foto</button>
-    <p class="small">Tidak perlu install aplikasi. Langsung pakai kamera HP.</p>
+    <h1>HP103 Memory Strip</h1>
+    <p>Buat kenangan karaoke malam ini dengan template spesial.</p>
+    <div class="badge" id="roomBadge">ROOM -</div>
+    <button id="goFormBtn" class="fullBtn">📸 Mulai Buat Foto</button>
+    <p class="small">Scan QR • Ambil 4 foto • Download • Upload Instagram</p>
+  </div>
+</section>
+
+<section id="formScreen" class="screen">
+  <div class="card">
+    <div>
+      <div class="logo">PILIH TEMPLATE</div>
+      <h2>Memory Theme</h2>
+      <p class="small">Pilih gaya hasil foto kamu.</p>
+    </div>
+
+    <div class="templateGrid">
+      <div class="template active" data-template="karaoke">
+        <div class="thumb">🎤</div><b>Karaoke Night</b><p class="small">Neon pink HP103</p>
+      </div>
+      <div class="template" data-template="couple">
+        <div class="thumb">💕</div><b>Couple</b><p class="small">Pink romantic</p>
+      </div>
+      <div class="template" data-template="bestfriend">
+        <div class="thumb">👯</div><b>Best Friend</b><p class="small">Fun & playful</p>
+      </div>
+      <div class="template" data-template="birthday">
+        <div class="thumb">🎂</div><b>Birthday</b><p class="small">Party celebration</p>
+      </div>
+      <div class="template" data-template="receipt">
+        <div class="thumb">🧾</div><b>Karaoke Receipt</b><p class="small">Unik seperti struk</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <input id="roomInput" placeholder="Room" readonly>
+      <input id="songInput" placeholder="Lagu favorit">
+    </div>
+
+    <select id="filterSelect">
+      <option value="natural">✨ Natural Glow</option>
+      <option value="bright">🌸 Bright Clean</option>
+      <option value="party">💜 Night Party</option>
+      <option value="vintage">📸 Vintage Film</option>
+    </select>
+
+    <button id="startBtn" class="fullBtn">Lanjut Ambil Foto</button>
+    <button id="backHomeBtn" class="secondary fullBtn">Kembali</button>
   </div>
 </section>
 
 <section id="cameraScreen" class="screen">
   <div class="topbar">
-    <span id="photoCounter">Foto 1 / 5</span>
+    <span id="photoCounter">Foto 1 / 4</span>
     <button id="cancelBtn" class="secondary">Batal</button>
   </div>
 
@@ -261,7 +174,7 @@ canvas{
     <div class="cameraHint">Pose santai, lihat kamera, lalu klik ambil foto</div>
   </div>
 
-  <button id="captureBtn">Ambil Foto</button>
+  <button id="captureBtn" class="fullBtn">Ambil Foto</button>
 </section>
 
 <div id="countdown">3</div>
@@ -273,196 +186,160 @@ canvas{
   <div class="actions">
     <button id="downloadBtn">📥 Simpan Foto</button>
     <button id="openIgBtn">📷 Buka Instagram</button>
+    <button id="shareBtn">📤 Share</button>
     <button id="retryBtn" class="secondary">🔄 Ambil Ulang</button>
   </div>
 </section>
 
-</div>
-
 <script>
-const startScreen = document.getElementById("startScreen");
-const cameraScreen = document.getElementById("cameraScreen");
-const resultScreen = document.getElementById("resultScreen");
+const startScreen=document.getElementById("startScreen");
+const formScreen=document.getElementById("formScreen");
+const cameraScreen=document.getElementById("cameraScreen");
+const resultScreen=document.getElementById("resultScreen");
 
-const startBtn = document.getElementById("startBtn");
-const captureBtn = document.getElementById("captureBtn");
-const cancelBtn = document.getElementById("cancelBtn");
-const retryBtn = document.getElementById("retryBtn");
-const downloadBtn = document.getElementById("downloadBtn");
-const openIgBtn = document.getElementById("openIgBtn");
+const goFormBtn=document.getElementById("goFormBtn");
+const backHomeBtn=document.getElementById("backHomeBtn");
+const startBtn=document.getElementById("startBtn");
+const captureBtn=document.getElementById("captureBtn");
+const cancelBtn=document.getElementById("cancelBtn");
+const retryBtn=document.getElementById("retryBtn");
+const downloadBtn=document.getElementById("downloadBtn");
+const openIgBtn=document.getElementById("openIgBtn");
+const shareBtn=document.getElementById("shareBtn");
 
-const video = document.getElementById("video");
-const countdown = document.getElementById("countdown");
-const photoCounter = document.getElementById("photoCounter");
-const roomInfo = document.getElementById("roomInfo");
+const video=document.getElementById("video");
+const countdown=document.getElementById("countdown");
+const photoCounter=document.getElementById("photoCounter");
+const canvas=document.getElementById("resultCanvas");
+const ctx=canvas.getContext("2d");
 
-const canvas = document.getElementById("resultCanvas");
-const ctx = canvas.getContext("2d");
+const roomBadge=document.getElementById("roomBadge");
+const roomInput=document.getElementById("roomInput");
+const songInput=document.getElementById("songInput");
+const filterSelect=document.getElementById("filterSelect");
 
-let stream = null;
-let photos = [];
-let currentPhoto = 1;
+let stream=null;
+let photos=[];
+let currentPhoto=1;
+let selectedTemplate="karaoke";
+let lastBlob=null;
 
-const params = new URLSearchParams(window.location.search);
-const room = params.get("room") || "Lobby";
-roomInfo.textContent = `ROOM ${room}`;
+const params=new URLSearchParams(window.location.search);
+const room=params.get("room")||"Lobby";
+roomBadge.textContent=`ROOM ${room}`;
+roomInput.value=`ROOM ${room}`;
 
 function showScreen(screen){
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   screen.classList.add("active");
 }
 
+document.querySelectorAll(".template").forEach(el=>{
+  el.addEventListener("click",()=>{
+    document.querySelectorAll(".template").forEach(t=>t.classList.remove("active"));
+    el.classList.add("active");
+    selectedTemplate=el.dataset.template;
+  });
+});
+
+goFormBtn.onclick=()=>showScreen(formScreen);
+backHomeBtn.onclick=()=>showScreen(startScreen);
+
 async function startCamera(){
   try{
-    stream = await navigator.mediaDevices.getUserMedia({
-      video:{
-        facingMode:"user"
-      },
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:"user"},
       audio:false
     });
-
-    video.srcObject = stream;
-
-    await new Promise(resolve => {
-      video.onloadedmetadata = () => {
-        video.play();
-        resolve();
-      };
+    video.srcObject=stream;
+    await new Promise(resolve=>{
+      video.onloadedmetadata=()=>{video.play();resolve();}
     });
-
-  }catch(error){
-    alert("Kamera tidak bisa dibuka. Pastikan izin kamera sudah diaktifkan.");
-    showScreen(startScreen);
+  }catch(e){
+    alert("Kamera tidak bisa dibuka. Izinkan akses kamera terlebih dahulu.");
+    showScreen(formScreen);
   }
 }
 
 function stopCamera(){
   if(stream){
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
+    stream.getTracks().forEach(t=>t.stop());
+    stream=null;
   }
 }
 
-function drawCoverImage(source, dx, dy, dw, dh){
-  const sw = source.videoWidth || source.width;
-  const sh = source.videoHeight || source.height;
-
-  const sourceRatio = sw / sh;
-  const destRatio = dw / dh;
-
-  let sx, sy, sWidth, sHeight;
-
-  if(sourceRatio > destRatio){
-    sHeight = sh;
-    sWidth = sh * destRatio;
-    sx = (sw - sWidth) / 2;
-    sy = 0;
-  }else{
-    sWidth = sw;
-    sHeight = sw / destRatio;
-    sx = 0;
-    sy = (sh - sHeight) / 2;
-  }
-
-  ctx.drawImage(source, sx, sy, sWidth, sHeight, dx, dy, dw, dh);
+function applyFilterToContext(c){
+  const f=filterSelect.value;
+  if(f==="bright") c.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
+  else if(f==="party") c.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
+  else if(f==="vintage") c.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
+  else c.filter="brightness(1.09) contrast(1.06) saturate(1.13)";
 }
 
 function takeSnapshot(){
-  const tempCanvas = document.createElement("canvas");
-  const tempCtx = tempCanvas.getContext("2d");
+  const temp=document.createElement("canvas");
+  const tctx=temp.getContext("2d");
+  temp.width=900;
+  temp.height=1200;
 
-  tempCanvas.width = 900;
-  tempCanvas.height = 1200;
+  const vw=video.videoWidth;
+  const vh=video.videoHeight;
+  const dw=temp.width;
+  const dh=temp.height;
 
-  tempCtx.save();
+  const sourceRatio=vw/vh;
+  const destRatio=dw/dh;
+  let sx,sy,sw,sh;
 
-  tempCtx.filter = "brightness(1.08) contrast(1.06) saturate(1.12)";
-
-  tempCtx.translate(tempCanvas.width, 0);
-  tempCtx.scale(-1, 1);
-
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
-  const destW = tempCanvas.width;
-  const destH = tempCanvas.height;
-
-  const sourceRatio = vw / vh;
-  const destRatio = destW / destH;
-
-  let sx, sy, sWidth, sHeight;
-
-  if(sourceRatio > destRatio){
-    sHeight = vh;
-    sWidth = vh * destRatio;
-    sx = (vw - sWidth) / 2;
-    sy = 0;
+  if(sourceRatio>destRatio){
+    sh=vh; sw=vh*destRatio; sx=(vw-sw)/2; sy=0;
   }else{
-    sWidth = vw;
-    sHeight = vw / destRatio;
-    sx = 0;
-    sy = (vh - sHeight) / 2;
+    sw=vw; sh=vw/destRatio; sx=0; sy=(vh-sh)/2;
   }
 
-  tempCtx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, destW, destH);
-  tempCtx.restore();
+  tctx.save();
+  applyFilterToContext(tctx);
+  tctx.translate(dw,0);
+  tctx.scale(-1,1);
+  tctx.drawImage(video,sx,sy,sw,sh,0,0,dw,dh);
+  tctx.restore();
 
-  addSoftGlow(tempCanvas);
-
-  return tempCanvas;
-}
-
-function addSoftGlow(photoCanvas){
-  const pctx = photoCanvas.getContext("2d");
-  const imageData = pctx.getImageData(0, 0, photoCanvas.width, photoCanvas.height);
-  const data = imageData.data;
-
-  for(let i = 0; i < data.length; i += 4){
-    data[i] = Math.min(255, data[i] + 5);
-    data[i + 1] = Math.min(255, data[i + 1] + 4);
-    data[i + 2] = Math.min(255, data[i + 2] + 6);
-  }
-
-  pctx.putImageData(imageData, 0, 0);
+  return temp;
 }
 
 function runCountdown(){
-  return new Promise(resolve => {
-    let count = 3;
-    countdown.style.display = "flex";
-    countdown.textContent = count;
-
-    const timer = setInterval(() => {
+  return new Promise(resolve=>{
+    let count=3;
+    countdown.style.display="flex";
+    countdown.textContent=count;
+    const timer=setInterval(()=>{
       count--;
-
-      if(count > 0){
-        countdown.textContent = count;
-      }else{
+      if(count>0) countdown.textContent=count;
+      else{
         clearInterval(timer);
-        countdown.style.display = "none";
+        countdown.style.display="none";
         resolve();
       }
-    }, 850);
+    },850);
   });
 }
 
 async function capturePhoto(){
-  captureBtn.disabled = true;
-
+  captureBtn.disabled=true;
   await runCountdown();
 
-  const photo = takeSnapshot();
-  photos.push(photo);
+  photos.push(takeSnapshot());
 
-  if(photos.length >= 5){
+  if(photos.length>=4){
     stopCamera();
     generateResult();
     showScreen(resultScreen);
   }else{
     currentPhoto++;
-    photoCounter.textContent = `Foto ${currentPhoto} / 5`;
+    photoCounter.textContent=`Foto ${currentPhoto} / 4`;
   }
 
-  captureBtn.disabled = false;
+  captureBtn.disabled=false;
 }
 
 function roundRect(x,y,w,h,r){
@@ -479,148 +356,235 @@ function roundRect(x,y,w,h,r){
   ctx.closePath();
 }
 
-function roundedPhoto(image,x,y,w,h,r,rotate=0){
+function drawPhoto(img,x,y,w,h,r=18,rot=0,border="#fff"){
   ctx.save();
+  ctx.translate(x+w/2,y+h/2);
+  ctx.rotate(rot*Math.PI/180);
 
-  ctx.translate(x + w / 2, y + h / 2);
-  ctx.rotate((rotate * Math.PI) / 180);
-
-  ctx.shadowColor = "rgba(0,0,0,.50)";
-  ctx.shadowBlur = 28;
-  ctx.shadowOffsetY = 14;
-
-  ctx.fillStyle = "#ffffff";
-  roundRect(-w/2 - 12, -h/2 - 12, w + 24, h + 24, r + 10);
+  ctx.shadowColor="rgba(0,0,0,.45)";
+  ctx.shadowBlur=24;
+  ctx.shadowOffsetY=12;
+  ctx.fillStyle=border;
+  roundRect(-w/2-10,-h/2-10,w+20,h+20,r+8);
   ctx.fill();
+  ctx.shadowColor="transparent";
 
-  ctx.shadowColor = "transparent";
-
-  roundRect(-w/2, -h/2, w, h, r);
+  roundRect(-w/2,-h/2,w,h,r);
   ctx.clip();
 
-  const sourceRatio = image.width / image.height;
-  const destRatio = w / h;
+  const sr=img.width/img.height;
+  const dr=w/h;
+  let sx,sy,sw,sh;
 
-  let sx, sy, sw, sh;
+  if(sr>dr){sh=img.height;sw=img.height*dr;sx=(img.width-sw)/2;sy=0;}
+  else{sw=img.width;sh=img.width/dr;sx=0;sy=(img.height-sh)/2;}
 
-  if(sourceRatio > destRatio){
-    sh = image.height;
-    sw = image.height * destRatio;
-    sx = (image.width - sw) / 2;
-    sy = 0;
-  }else{
-    sw = image.width;
-    sh = image.width / destRatio;
-    sx = 0;
-    sy = (image.height - sh) / 2;
-  }
-
-  ctx.drawImage(image, sx, sy, sw, sh, -w/2, -h/2, w, h);
-
+  ctx.drawImage(img,sx,sy,sw,sh,-w/2,-h/2,w,h);
   ctx.restore();
 }
 
-function generateResult(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  const bg = ctx.createLinearGradient(0,0,0,1920);
-  bg.addColorStop(0,"#140916");
-  bg.addColorStop(.45,"#24101e");
-  bg.addColorStop(1,"#07070b");
-  ctx.fillStyle = bg;
-  ctx.fillRect(0,0,1080,1920);
-
-  ctx.fillStyle = "rgba(255,47,146,.28)";
-  ctx.beginPath();
-  ctx.arc(900,260,330,0,Math.PI*2);
-  ctx.fill();
-
-  ctx.fillStyle = "rgba(255,195,77,.20)";
-  ctx.beginPath();
-  ctx.arc(140,1560,340,0,Math.PI*2);
-  ctx.fill();
-
-  ctx.fillStyle = "rgba(255,255,255,.06)";
-  for(let i=0;i<35;i++){
-    ctx.beginPath();
-    ctx.arc(Math.random()*1080, Math.random()*1920, Math.random()*3+1, 0, Math.PI*2);
-    ctx.fill();
-  }
-
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 58px Arial";
-  ctx.fillText("HAPPY PUPPY",70,105);
-
-  ctx.fillStyle = "#ffc34d";
-  ctx.font = "bold 34px Arial";
-  ctx.fillText("KARAOKE NIGHT",70,153);
-
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 32px Arial";
-  ctx.fillText(`ROOM ${room}`,735,105);
-
-  const date = new Date().toLocaleDateString("id-ID",{
-    day:"2-digit",
-    month:"long",
-    year:"numeric"
-  });
-
-  ctx.fillStyle = "#ffc1dc";
-  ctx.font = "28px Arial";
-  ctx.fillText(date,735,148);
-
-  roundedPhoto(photos[0],90,240,520,360,28,-7);
-  roundedPhoto(photos[1],120,640,500,360,28,4);
-  roundedPhoto(photos[2],575,500,405,520,28,7);
-  roundedPhoto(photos[3],90,1085,420,520,28,-5);
-  roundedPhoto(photos[4],530,1160,450,520,28,6);
-
-  ctx.fillStyle = "#fff";
-  ctx.font = "italic 66px Georgia";
-  ctx.fillText("Good Friends",70,1770);
-
-  ctx.fillStyle = "#ffc34d";
-  ctx.font = "bold 38px Arial";
-  ctx.fillText("Great Memories",70,1822);
-
-  ctx.fillStyle = "#ff5dad";
-  ctx.font = "bold 30px Arial";
-  ctx.fillText("@HappyPuppyHP103",650,1822);
+function textCenter(txt,x,y,size,color="#fff",bold=true,font="Arial"){
+  ctx.fillStyle=color;
+  ctx.font=`${bold?"bold ":""}${size}px ${font}`;
+  ctx.textAlign="center";
+  ctx.fillText(txt,x,y);
+  ctx.textAlign="left";
 }
 
-startBtn.addEventListener("click",async()=>{
-  photos = [];
-  currentPhoto = 1;
-  photoCounter.textContent = "Foto 1 / 5";
+function drawDoodles(color){
+  ctx.strokeStyle=color;
+  ctx.lineWidth=4;
+  for(let i=0;i<14;i++){
+    const x=Math.random()*980+40;
+    const y=Math.random()*1760+80;
+    ctx.beginPath();
+    ctx.arc(x,y,8+Math.random()*8,0,Math.PI*2);
+    ctx.stroke();
+  }
+}
+
+function baseBg(c1,c2,c3){
+  const bg=ctx.createLinearGradient(0,0,0,1920);
+  bg.addColorStop(0,c1);bg.addColorStop(.48,c2);bg.addColorStop(1,c3);
+  ctx.fillStyle=bg;ctx.fillRect(0,0,1080,1920);
+}
+
+function getDate(){
+  return new Date().toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
+}
+function getTime(){
+  return new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
+}
+function getSong(){
+  return songInput.value.trim() || "KARAOKE NIGHT";
+}
+
+function renderKaraoke(){
+  baseBg("#120817","#241020","#050505");
+  ctx.fillStyle="rgba(255,47,146,.28)";ctx.beginPath();ctx.arc(900,220,300,0,Math.PI*2);ctx.fill();
+  drawDoodles("rgba(255,47,146,.45)");
+
+  textCenter("🎤 KARAOKE",540,82,46,"#ff5dad");
+  textCenter("NIGHT",540,132,44,"#8bd9ff");
+
+  drawPhoto(photos[0],95,190,890,360,24,0,"#ff8bc5");
+  drawPhoto(photos[1],95,585,890,360,24,0,"#ff8bc5");
+  drawPhoto(photos[2],95,980,890,360,24,0,"#ff8bc5");
+
+  ctx.fillStyle="rgba(0,0,0,.55)";
+  roundRect(95,1395,890,350,28);ctx.fill();
+  drawPhoto(photos[3],115,1415,360,300,20,0,"#ff8bc5");
+
+  ctx.fillStyle="#fff";ctx.font="bold 38px Arial";ctx.fillText("HAPPY PUPPY 103",505,1465);
+  ctx.fillStyle="#ffc1dc";ctx.font="28px Arial";ctx.fillText(`ROOM ${room}`,505,1525);
+  ctx.fillText(getDate(),505,1575);
+  ctx.fillText(getTime(),505,1625);
+  ctx.fillStyle="#fff";ctx.font="bold 34px Arial";ctx.fillText(getSong().toUpperCase(),505,1688);
+
+  textCenter("@HappyPuppyHP103",540,1840,34,"#ff5dad");
+}
+
+function renderCouple(){
+  baseBg("#ffd1df","#f78bb8","#1a0b12");
+  textCenter("Happy Puppy",540,100,54,"#fff",false,"Georgia");
+  textCenter("103",540,150,34,"#fff");
+
+  drawPhoto(photos[0],135,230,810,330,18,0,"#ffdce8");
+  drawPhoto(photos[1],135,610,810,330,18,0,"#ffdce8");
+  drawPhoto(photos[2],135,990,810,330,18,0,"#ffdce8");
+  drawPhoto(photos[3],135,1370,810,330,18,0,"#ffdce8");
+
+  ctx.fillStyle="rgba(255,255,255,.35)";
+  roundRect(120,1740,840,90,20);ctx.fill();
+  textCenter(`ROOM ${room} • ${getDate()} • ${getSong()}`,540,1798,30,"#3d1827");
+}
+
+function renderBestFriend(){
+  baseBg("#080808","#151515","#050505");
+  drawDoodles("rgba(255,214,75,.45)");
+  textCenter("BEST",540,110,70,"#fff");
+  textCenter("FRIENDS",540,185,70,"#ffd64b");
+
+  drawPhoto(photos[0],110,265,860,335,18,0,"#e7c36a");
+  drawPhoto(photos[1],110,645,860,335,18,0,"#e7c36a");
+  drawPhoto(photos[2],110,1025,860,335,18,0,"#e7c36a");
+  drawPhoto(photos[3],110,1405,860,335,18,0,"#e7c36a");
+
+  textCenter(`ROOM ${room}  •  ${getDate()}`,540,1810,30,"#ffd64b");
+  textCenter("FRIENDS THAT SING TOGETHER STAY TOGETHER!",540,1860,25,"#fff");
+}
+
+function renderBirthday(){
+  baseBg("#2b0d1f","#3b1028","#08060a");
+  drawDoodles("rgba(255,122,192,.5)");
+  textCenter("HAPPY",540,95,54,"#fff");
+  textCenter("BIRTHDAY!",540,155,60,"#ff7ac0");
+
+  drawPhoto(photos[0],110,230,860,345,20,0,"#ff8bc5");
+  drawPhoto(photos[1],110,620,860,345,20,0,"#ff8bc5");
+  drawPhoto(photos[2],110,1010,860,345,20,0,"#ff8bc5");
+  drawPhoto(photos[3],110,1400,860,345,20,0,"#ff8bc5");
+
+  textCenter(`ROOM ${room} • ${getDate()}`,540,1810,30,"#ffc1dc");
+  textCenter("ANOTHER YEAR OF GOOD MUSIC & GOOD TIMES!",540,1860,26,"#fff");
+}
+
+function renderReceipt(){
+  ctx.fillStyle="#f4ead7";ctx.fillRect(0,0,1080,1920);
+  ctx.fillStyle="#19120b";
+  textCenter("HAPPY PUPPY",540,100,42,"#19120b");
+  textCenter("103",540,145,32,"#19120b");
+  ctx.fillStyle="#19120b";
+  roundRect(220,190,640,58,10);ctx.fill();
+  textCenter("KARAOKE RECEIPT",540,230,26,"#fff");
+
+  ctx.font="bold 36px monospace";ctx.fillStyle="#19120b";
+  ctx.fillText(`ROOM     : ${room}`,120,340);
+  ctx.fillText(`CHECK IN : ${getTime()}`,120,405);
+  ctx.fillText(`DATE     : ${getDate()}`,120,470);
+  ctx.fillText(`PAX      : 4`,120,535);
+
+  ctx.setLineDash([10,10]);
+  ctx.beginPath();ctx.moveTo(120,620);ctx.lineTo(960,620);ctx.stroke();
+  ctx.setLineDash([]);
+
+  textCenter("TOP SONG",540,710,32,"#19120b");
+  textCenter(getSong().toUpperCase(),540,775,48,"#19120b");
+
+  drawPhoto(photos[0],150,850,360,300,6,0,"#fff");
+  drawPhoto(photos[1],570,850,360,300,6,0,"#fff");
+  drawPhoto(photos[2],150,1210,360,300,6,0,"#fff");
+  drawPhoto(photos[3],570,1210,360,300,6,0,"#fff");
+
+  textCenter("THANK YOU",540,1650,36,"#19120b");
+  textCenter("SEE YOU AGAIN!",540,1700,34,"#19120b");
+  ctx.fillStyle="#19120b";
+  for(let i=0;i<38;i++){
+    const x=160+i*20;
+    const h=40+Math.random()*80;
+    ctx.fillRect(x,1770,8,h);
+  }
+}
+
+function generateResult(){
+  ctx.clearRect(0,0,1080,1920);
+  if(selectedTemplate==="couple") renderCouple();
+  else if(selectedTemplate==="bestfriend") renderBestFriend();
+  else if(selectedTemplate==="birthday") renderBirthday();
+  else if(selectedTemplate==="receipt") renderReceipt();
+  else renderKaraoke();
+
+  canvas.toBlob(blob=>{lastBlob=blob},"image/png",1);
+}
+
+startBtn.onclick=async()=>{
+  photos=[];
+  currentPhoto=1;
+  photoCounter.textContent="Foto 1 / 4";
   showScreen(cameraScreen);
   await startCamera();
-});
+};
 
-captureBtn.addEventListener("click",capturePhoto);
+captureBtn.onclick=capturePhoto;
 
-cancelBtn.addEventListener("click",()=>{
+cancelBtn.onclick=()=>{
   stopCamera();
-  showScreen(startScreen);
-});
+  showScreen(formScreen);
+};
 
-retryBtn.addEventListener("click",async()=>{
-  photos = [];
-  currentPhoto = 1;
-  photoCounter.textContent = "Foto 1 / 5";
+retryBtn.onclick=async()=>{
+  photos=[];
+  currentPhoto=1;
+  photoCounter.textContent="Foto 1 / 4";
   showScreen(cameraScreen);
   await startCamera();
-});
+};
 
-downloadBtn.addEventListener("click",()=>{
-  const link = document.createElement("a");
-  link.download = `HP103-Memory-${room}.png`;
-  link.href = canvas.toDataURL("image/png");
+downloadBtn.onclick=()=>{
+  const link=document.createElement("a");
+  link.download=`HP103-${selectedTemplate}-ROOM-${room}.png`;
+  link.href=canvas.toDataURL("image/png");
   link.click();
-});
+};
 
-openIgBtn.addEventListener("click",()=>{
-  window.location.href = "instagram://app";
-});
+openIgBtn.onclick=()=>{
+  window.location.href="instagram://app";
+};
+
+shareBtn.onclick=async()=>{
+  if(navigator.share && lastBlob){
+    const file=new File([lastBlob],`HP103-${room}.png`,{type:"image/png"});
+    try{
+      await navigator.share({
+        title:"HP103 Memory Strip",
+        text:"Happy Puppy Karaoke Night!",
+        files:[file]
+      });
+    }catch(e){}
+  }else{
+    alert("Kalau tombol share tidak didukung HP ini, gunakan tombol Simpan Foto lalu upload manual.");
+  }
+};
 </script>
 
 </body>
