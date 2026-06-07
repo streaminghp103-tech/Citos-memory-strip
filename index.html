@@ -250,20 +250,19 @@ canvas{
   <video id="video" autoplay playsinline muted></video>
 
   <div class="cameraSettings">
-    <select id="filterSelect">
-      <option value="natural">✨ Natural Glow</option>
-      <option value="bright">🌸 Bright Clean</option>
-      <option value="party">💜 Night Party</option>
-      <option value="vintage">📸 Vintage Film</option>
-    </select>
+    <div class="filterBar">
+  <button class="filterChip active" data-filter="natural">✨</button>
+  <button class="filterChip" data-filter="bright">🌸</button>
+  <button class="filterChip" data-filter="party">💜</button>
+  <button class="filterChip" data-filter="vintage">📸</button>
+</div>
 
-    <select id="timerSelect">
-      <option value="0">⚡ Tanpa Timer</option>
-      <option value="3" selected>⏱️ 3 Detik</option>
-      <option value="5">⏱️ 5 Detik</option>
-      <option value="10">⏱️ 10 Detik</option>
-    </select>
-  </div>
+    <div class="timerBar">
+  <button class="timerChip active" data-time="0">⚡</button>
+  <button class="timerChip" data-time="3">3s</button>
+  <button class="timerChip" data-time="5">5s</button>
+  <button class="timerChip" data-time="10">10s</button>
+</div>
     
 
   <div class="cameraHint">Pose santai, lihat kamera, lalu klik ambil foto</div>
