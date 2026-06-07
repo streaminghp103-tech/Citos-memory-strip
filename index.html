@@ -665,9 +665,12 @@ function takeSnapshot(){
 
   tctx.save();
   applyFilterToContext(tctx);
+  if(currentFacingMode==="user"){
   tctx.translate(dw,0);
   tctx.scale(-1,1);
-  tctx.drawImage(video,sx,sy,sw,sh,0,0,dw,dh);
+}
+
+tctx.drawImage(video,sx,sy,sw,sh,0,0,dw,dh);
   tctx.restore();
 
   return temp;
