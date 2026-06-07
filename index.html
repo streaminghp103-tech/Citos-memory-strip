@@ -147,11 +147,18 @@ canvas{
     </div>
 
     <select id="filterSelect">
-      <option value="natural">✨ Natural Glow</option>
-      <option value="bright">🌸 Bright Clean</option>
-      <option value="party">💜 Night Party</option>
-      <option value="vintage">📸 Vintage Film</option>
-    </select>
+  <option value="natural">✨ Natural Glow</option>
+  <option value="bright">🌸 Bright Clean</option>
+  <option value="party">💜 Night Party</option>
+  <option value="vintage">📸 Vintage Film</option>
+</select>
+
+<select id="timerSelect">
+  <option value="0">⚡ Tanpa Timer</option>
+  <option value="3" selected>⏱️ Timer 3 Detik</option>
+  <option value="5">⏱️ Timer 5 Detik</option>
+  <option value="10">⏱️ Timer 10 Detik</option>
+</select>
 
     <button id="startBtn">Lanjut Ambil Foto</button>
     <button id="backHomeBtn" class="secondary">Kembali</button>
@@ -212,6 +219,7 @@ const roomBadge=document.getElementById("roomBadge");
 const roomInput=document.getElementById("roomInput");
 const songInput=document.getElementById("songInput");
 const filterSelect=document.getElementById("filterSelect");
+const timerSelect=document.getElementById("timerSelect");
 
 let stream=null;
 let photos=[];
@@ -313,27 +321,31 @@ function takeSnapshot(){
 
 function runCountdown(){
   return new Promise(resolve=>{
-    let count = parseInt(timerSelect.value, 10);
 
-    if(count === 0){
+    let count=parseInt(timerSelect.value);
+
+    if(count===0){
       resolve();
       return;
     }
 
-    countdown.style.display = "flex";
-    countdown.textContent = count;
+    countdown.style.display="flex";
+    countdown.textContent=count;
 
-    const timer = setInterval(()=>{
+    const timer=setInterval(()=>{
+
       count--;
 
-      if(count > 0){
-        countdown.textContent = count;
+      if(count>0){
+        countdown.textContent=count;
       }else{
         clearInterval(timer);
-        countdown.style.display = "none";
+        countdown.style.display="none";
         resolve();
       }
+
     },1000);
+
   });
 }
 
