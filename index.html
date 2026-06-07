@@ -330,6 +330,7 @@ function runCountdown(){
 }
 
 async function capturePhoto(){
+  if(captureBtn.disabled) return;
   captureBtn.disabled=true;
 
   try{
@@ -620,6 +621,9 @@ downloadBtn.onclick=()=>{
 
 openIgBtn.onclick=()=>{
   window.location.href="instagram://app";
+  setTimeout(()=>{
+    window.location.href="https://www.instagram.com/";
+  },800);
 };
 
 shareBtn.onclick=async()=>{
@@ -627,16 +631,20 @@ shareBtn.onclick=async()=>{
     await prepareBlob();
   }
 
-  if(navigator.share && navigator.canShare){
-    const file=new File([lastBlob],`HP103-${room}.png`,{type:"image/png"});
+  const file=new File([lastBlob],`HP103-${room}.png`,{type:"image/png"});
 
-    if(navigator.canShare({files:[file]})){
-      try{
-        await navigator.share({
-          title:"HP103 Memory Strip",
-          text:"Happy Puppy Karaoke Night!",
-          files:[file]
-        });
+  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({
+        title:"HP103 Memory Strip",
+        text:"Happy Puppy Karaoke Night!",
+        files:[file]
+      });
+    }catch(e){}
+  }else{
+    alert("HP ini belum mendukung share langsung. Gunakan tombol Simpan Foto lalu upload manual.");
+  }
+};
       }catch(e){}
       return;
     }
