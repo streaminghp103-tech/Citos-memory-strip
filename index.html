@@ -198,21 +198,7 @@ canvas{
       <option value="10">⏱️ 10 Detik</option>
     </select>
   </div>
-    function updateVideoFilter(){
-  const f=filterSelect.value;
-
-  if(f==="bright"){
-    video.style.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
-  }else if(f==="party"){
-    video.style.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
-  }else if(f==="vintage"){
-    video.style.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
-  }else{
-    video.style.filter="brightness(1.09) contrast(1.06) saturate(1.13)";
-  }
-}
-
-filterSelect.addEventListener("change",updateVideoFilter);
+    
 
   <div class="cameraHint">Pose santai, lihat kamera, lalu klik ambil foto</div>
 </div>
@@ -262,6 +248,21 @@ const roomInput=document.getElementById("roomInput");
 const songInput=document.getElementById("songInput");
 const filterSelect=document.getElementById("filterSelect");
 const timerSelect=document.getElementById("timerSelect");
+  function updateVideoFilter(){
+  const f=filterSelect.value;
+
+  if(f==="bright"){
+    video.style.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
+  }else if(f==="party"){
+    video.style.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
+  }else if(f==="vintage"){
+    video.style.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
+  }else{
+    video.style.filter="brightness(1.09) contrast(1.06) saturate(1.13)";
+  }
+}
+
+filterSelect.addEventListener("change",updateVideoFilter);
 
 let stream=null;
 let photos=[];
