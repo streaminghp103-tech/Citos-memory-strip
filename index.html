@@ -269,7 +269,6 @@ let photos=[];
 let currentPhoto=1;
 let selectedTemplate="karaoke";
 let lastBlob=null;
-  let countdownInterval=null;
 let isCountingDown=false;
 let countdownCancelled=false;
   
@@ -368,43 +367,38 @@ function takeSnapshot(){
   return temp;
 }
 
-function runCountdown(){
-  return new Promise(resolve=>{
-    let count=parseInt(timerSelect.value);
-    countdownCancelled=false;
+async function runCountdown(){
 
-    if(count===0){
-      resolve(true);
-      return;
+  let count=parseInt(timerSelect.value);
+
+  countdownCancelled=false;
+
+  if(count===0){
+    return true;
+  }
+
+  isCountingDown=true;
+  countdown.style.display="flex";
+
+  while(count>0){
+
+    if(countdownCancelled){
+      countdown.style.display="none";
+      isCountingDown=false;
+      return false;
     }
 
-    isCountingDown=true;
-    countdown.style.display="flex";
     countdown.textContent=count;
 
-    countdownInterval=setInterval(()=>{
-      count--;
+    await new Promise(resolve=>setTimeout(resolve,1000));
 
-      if(countdownCancelled){
-        clearInterval(countdownInterval);
-        countdownInterval=null;
-        isCountingDown=false;
-        countdown.style.display="none";
-        resolve(false);
-        return;
-      }
+    count--;
+  }
 
-      if(count>0){
-        countdown.textContent=count;
-      }else{
-        clearInterval(countdownInterval);
-        countdownInterval=null;
-        isCountingDown=false;
-        countdown.style.display="none";
-        resolve(true);
-      }
-    },1000);
-  });
+  countdown.style.display="none";
+  isCountingDown=false;
+
+  return true;
 }
 
 async function capturePhoto(){
@@ -685,11 +679,6 @@ captureBtn.onclick=capturePhoto;
 cancelBtn.onclick=()=>{
   countdownCancelled=true;
 
-  if(countdownInterval){
-    clearInterval(countdownInterval);
-    countdownInterval=null;
-  }
-
   isCountingDown=false;
   countdown.style.display="none";
   captureBtn.disabled=false;
@@ -721,9 +710,6 @@ downloadBtn.onclick=()=>{
 
 openIgBtn.onclick=()=>{
   window.location.href="instagram://app";
-  setTimeout(()=>{
-    window.location.href="https://www.instagram.com/";
-  },800);
 };
 
 shareBtn.onclick=async()=>{
