@@ -263,6 +263,7 @@ canvas{
   <button class="timerChip" data-time="5">5s</button>
   <button class="timerChip" data-time="10">10s</button>
 </div>
+    </div>
     
 
   <div class="cameraHint">Pose santai, lihat kamera, lalu klik ambil foto</div>
@@ -313,10 +314,11 @@ const ctx=canvas.getContext("2d");
 const roomBadge=document.getElementById("roomBadge");
 const roomInput=document.getElementById("roomInput");
 const songInput=document.getElementById("songInput");
-const filterSelect=document.getElementById("filterSelect");
-const timerSelect=document.getElementById("timerSelect");
+let selectedFilter="natural";
+let selectedTimer=0;
+  
   function updateVideoFilter(){
-  const f=filterSelect.value;
+  const f=selectedFilter;
 
   if(f==="bright"){
     video.style.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
@@ -328,8 +330,22 @@ const timerSelect=document.getElementById("timerSelect");
     video.style.filter="brightness(1.09) contrast(1.06) saturate(1.13)";
   }
 }
+document.querySelectorAll(".filterChip").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".filterChip").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedFilter=btn.dataset.filter;
+    updateVideoFilter();
+  });
+});
 
-filterSelect.addEventListener("change",updateVideoFilter);
+document.querySelectorAll(".timerChip").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".timerChip").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedTimer=parseInt(btn.dataset.time,10);
+  });
+});
 
 let stream=null;
 let photos=[];
@@ -391,7 +407,7 @@ function stopCamera(){
 }
 
 function applyFilterToContext(c){
-  const f=filterSelect.value;
+  const f=selectedFilter;
   if(f==="bright") c.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
   else if(f==="party") c.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
   else if(f==="vintage") c.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
@@ -435,7 +451,7 @@ function takeSnapshot(){
 }
 
 async function runCountdown(){
-  let count=parseInt(timerSelect.value);
+  let count=selectedTimer;
 
   countdownCancelled=false;
 
