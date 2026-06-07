@@ -271,7 +271,8 @@ let selectedTemplate="karaoke";
 let lastBlob=null;
   let countdownInterval=null;
 let isCountingDown=false;
-
+let countdownCancelled=false;
+  
 const params=new URLSearchParams(window.location.search);
 const room=params.get("room")||"Lobby";
 roomBadge.textContent=`ROOM ${room}`;
@@ -370,9 +371,10 @@ function takeSnapshot(){
 function runCountdown(){
   return new Promise(resolve=>{
     let count=parseInt(timerSelect.value);
+    countdownCancelled=false;
 
     if(count===0){
-      resolve();
+      resolve(true);
       return;
     }
 
@@ -383,6 +385,15 @@ function runCountdown(){
     countdownInterval=setInterval(()=>{
       count--;
 
+      if(countdownCancelled){
+        clearInterval(countdownInterval);
+        countdownInterval=null;
+        isCountingDown=false;
+        countdown.style.display="none";
+        resolve(false);
+        return;
+      }
+
       if(count>0){
         countdown.textContent=count;
       }else{
@@ -390,7 +401,7 @@ function runCountdown(){
         countdownInterval=null;
         isCountingDown=false;
         countdown.style.display="none";
-        resolve();
+        resolve(true);
       }
     },1000);
   });
@@ -401,8 +412,14 @@ async function capturePhoto(){
   captureBtn.disabled=true;
 
   try{
-    await runCountdown();
-    photos.push(takeSnapshot());
+    const countdownDone = await runCountdown();
+
+if(!countdownDone){
+  captureBtn.disabled=false;
+  return;
+}
+
+photos.push(takeSnapshot());
 
     if(photos.length>=4){
       stopCamera();
@@ -666,6 +683,8 @@ startBtn.onclick=async()=>{
 captureBtn.onclick=capturePhoto;
 
 cancelBtn.onclick=()=>{
+  countdownCancelled=true;
+
   if(countdownInterval){
     clearInterval(countdownInterval);
     countdownInterval=null;
