@@ -424,7 +424,6 @@ function takeSnapshot(){
 }
 
 async function runCountdown(){
-
   let count=parseInt(timerSelect.value);
 
   countdownCancelled=false;
@@ -434,17 +433,17 @@ async function runCountdown(){
   }
 
   isCountingDown=true;
-captureBtn.disabled=false;
-captureBtn.classList.add("cancelMode");
-countdown.style.display="flex";
+  captureBtn.disabled=false;
+  captureBtn.classList.add("cancelMode");
+  countdown.style.display="flex";
 
   while(count>0){
-
     if(countdownCancelled){
       countdown.style.display="none";
-isCountingDown=false;
-captureBtn.classList.remove("cancelMode");
-return false;
+      isCountingDown=false;
+      captureBtn.classList.remove("cancelMode");
+      return false;
+    }
 
     countdown.textContent=count;
 
@@ -454,10 +453,11 @@ return false;
   }
 
   countdown.style.display="none";
-isCountingDown=false;
-captureBtn.classList.remove("cancelMode");
+  isCountingDown=false;
+  captureBtn.classList.remove("cancelMode");
 
-return true;
+  return true;
+}
 
 async function capturePhoto(){
   if(isCountingDown){
@@ -475,12 +475,12 @@ async function capturePhoto(){
   try{
     const countdownDone = await runCountdown();
 
-if(!countdownDone){
-  captureBtn.disabled=false;
-  return;
-}
+    if(!countdownDone){
+      captureBtn.disabled=false;
+      return;
+    }
 
-photos.push(takeSnapshot());
+    photos.push(takeSnapshot());
 
     if(photos.length>=4){
       stopCamera();
