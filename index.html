@@ -4,51 +4,170 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>HP103 Memory Strip</title>
-
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#08080d;color:white;font-family:Arial,sans-serif}
-.screen{display:none;min-height:100vh;padding:24px}
-.screen.active{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px}
-h1,h2{text-align:center;margin:0}
-p{text-align:center;color:#ccc}
-button{border:none;border-radius:999px;padding:14px 24px;background:#ff2f92;color:white;font-weight:bold;font-size:16px}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial,sans-serif;
+  color:white;
+  background:
+    radial-gradient(circle at top,#ff2f9255,transparent 35%),
+    radial-gradient(circle at bottom,#ffc34d33,transparent 30%),
+    #08080d;
+}
+.screen{display:none;min-height:100vh;padding:22px}
+.screen.active{display:flex;flex-direction:column;align-items:center;gap:18px}
+#startScreen.active,#resultScreen.active{justify-content:center}
+.logo{
+  font-size:14px;
+  letter-spacing:3px;
+  color:#ffc34d;
+  font-weight:bold;
+}
+.card{
+  width:100%;
+  max-width:420px;
+  padding:28px 22px;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:28px;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(14px);
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  text-align:center;
+}
+h1{font-size:34px;margin:8px 0 10px}
+h2{margin:0}
+p{color:#ddd;line-height:1.5}
+.badge{
+  display:inline-block;
+  padding:10px 16px;
+  border-radius:999px;
+  background:rgba(255,47,146,.18);
+  color:#ffc1dc;
+  font-weight:bold;
+}
+button{
+  width:100%;
+  max-width:360px;
+  border:none;
+  border-radius:999px;
+  padding:15px 22px;
+  background:linear-gradient(135deg,#ff2f92,#ff7ac0);
+  color:white;
+  font-weight:bold;
+  font-size:16px;
+  box-shadow:0 10px 24px rgba(255,47,146,.3);
+}
+button.secondary{background:#292936;box-shadow:none}
+button:disabled{opacity:.5}
+.small{font-size:13px;color:#aaa}
+.topbar{
+  width:100%;
+  max-width:430px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+#photoCounter{
+  padding:10px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.12);
+  font-weight:bold;
+}
 #cameraScreen.active{justify-content:flex-start}
-.topbar{width:100%;display:flex;justify-content:space-between;align-items:center}
-#cancelBtn{background:#333;padding:10px 16px}
-video{width:100%;max-width:430px;aspect-ratio:9/16;object-fit:cover;border-radius:20px;background:black}
-#countdown{position:fixed;font-size:90px;font-weight:bold;color:white;text-shadow:0 0 20px #ff2f92;display:none}
-canvas{width:100%;max-width:360px;border-radius:16px;background:black}
+.cameraWrap{
+  position:relative;
+  width:100%;
+  max-width:430px;
+}
+video{
+  width:100%;
+  aspect-ratio:9/16;
+  object-fit:cover;
+  border-radius:28px;
+  background:black;
+  border:2px solid rgba(255,255,255,.18);
+}
+.cameraHint{
+  position:absolute;
+  left:16px;
+  right:16px;
+  bottom:16px;
+  padding:12px;
+  border-radius:18px;
+  background:rgba(0,0,0,.45);
+  text-align:center;
+  font-size:14px;
+}
+#countdown{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:110px;
+  font-weight:bold;
+  background:rgba(0,0,0,.35);
+  text-shadow:0 0 24px #ff2f92;
+  z-index:9;
+}
+canvas{
+  width:100%;
+  max-width:350px;
+  border-radius:22px;
+  background:black;
+  box-shadow:0 18px 50px rgba(0,0,0,.45);
+}
+.actions{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+}
 </style>
 </head>
-
 <body>
+
 <div id="app">
 
 <section id="startScreen" class="screen active">
-  <h1>HP103 Memory Strip</h1>
-  <p>Buat kenangan karaoke malam ini 🎤</p>
-  <p id="roomInfo">Room -</p>
-  <button id="startBtn">Mulai Foto</button>
+  <div class="card">
+    <div class="logo">HAPPY PUPPY PANJAITAN</div>
+    <h1>Memory Strip</h1>
+    <p>Buat kenangan karaoke malam ini dalam 5 foto.</p>
+    <div class="badge" id="roomInfo">Room -</div>
+    <br><br>
+    <button id="startBtn">📸 Mulai Foto</button>
+    <p class="small">Tidak perlu install aplikasi. Langsung pakai kamera HP.</p>
+  </div>
 </section>
 
 <section id="cameraScreen" class="screen">
   <div class="topbar">
     <span id="photoCounter">Foto 1 / 5</span>
-    <button id="cancelBtn">Batal</button>
+    <button id="cancelBtn" class="secondary" style="width:auto">Batal</button>
   </div>
 
-  <video id="video" autoplay playsinline></video>
-  <div id="countdown">3</div>
+  <div class="cameraWrap">
+    <video id="video" autoplay playsinline></video>
+    <div class="cameraHint">Pose santai, lihat kamera, lalu klik ambil foto</div>
+  </div>
+
   <button id="captureBtn">Ambil Foto</button>
 </section>
 
+<div id="countdown">3</div>
+
 <section id="resultScreen" class="screen">
-  <h2>Hasilmu Siap!</h2>
+  <h2>Hasilmu Siap ✨</h2>
   <canvas id="resultCanvas" width="1080" height="1920"></canvas>
-  <button id="downloadBtn">Download Foto</button>
-  <button id="retryBtn">Ambil Ulang</button>
-  <button id="openIgBtn">Buka Instagram</button>
+  <div class="actions">
+    <button id="downloadBtn">📥 Simpan Foto</button>
+    <button id="openIgBtn">📷 Buka Instagram</button>
+    <button id="retryBtn" class="secondary">🔄 Ambil Ulang</button>
+  </div>
 </section>
 
 </div>
@@ -76,7 +195,7 @@ let currentPhoto=1;
 
 const params=new URLSearchParams(window.location.search);
 const room=params.get("room")||"Lobby";
-roomInfo.textContent=`Room ${room}`;
+roomInfo.textContent=`ROOM ${room}`;
 
 function showScreen(screen){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -100,14 +219,17 @@ function takeSnapshot(){
   const tempCtx=tempCanvas.getContext("2d");
   tempCanvas.width=720;
   tempCanvas.height=960;
+
+  tempCtx.filter="brightness(1.08) contrast(1.08) saturate(1.12)";
   tempCtx.drawImage(video,0,0,tempCanvas.width,tempCanvas.height);
+
   return tempCanvas;
 }
 
 function runCountdown(){
   return new Promise(resolve=>{
     let count=3;
-    countdown.style.display="block";
+    countdown.style.display="flex";
     countdown.textContent=count;
 
     const timer=setInterval(()=>{
@@ -119,7 +241,7 @@ function runCountdown(){
         countdown.style.display="none";
         resolve();
       }
-    },1000);
+    },850);
   });
 }
 
@@ -142,73 +264,90 @@ async function capturePhoto(){
   captureBtn.disabled=false;
 }
 
-function drawCroppedImage(image,x,y,w,h,rotate=0){
+function roundedPhoto(image,x,y,w,h,r,rotate=0){
   ctx.save();
   ctx.translate(x+w/2,y+h/2);
   ctx.rotate((rotate*Math.PI)/180);
+
+  ctx.shadowColor="rgba(0,0,0,.45)";
+  ctx.shadowBlur=24;
+  ctx.shadowOffsetY=12;
+
+  ctx.fillStyle="#fff";
+  roundRect(-w/2-12,-h/2-12,w+24,h+24,r+10);
+  ctx.fill();
+
+  ctx.shadowColor="transparent";
+  ctx.clip();
   ctx.drawImage(image,-w/2,-h/2,w,h);
-  ctx.strokeStyle="#ffffff";
-  ctx.lineWidth=18;
-  ctx.strokeRect(-w/2,-h/2,w,h);
+
   ctx.restore();
+}
+
+function roundRect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
 }
 
 function generateResult(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  const bg=ctx.createLinearGradient(0,0,0,canvas.height);
-  bg.addColorStop(0,"#090910");
-  bg.addColorStop(0.5,"#171018");
-  bg.addColorStop(1,"#050505");
+  const bg=ctx.createLinearGradient(0,0,0,1920);
+  bg.addColorStop(0,"#140916");
+  bg.addColorStop(.45,"#24101e");
+  bg.addColorStop(1,"#07070b");
   ctx.fillStyle=bg;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillRect(0,0,1080,1920);
 
-  ctx.fillStyle="rgba(255,47,146,0.25)";
-  ctx.beginPath();
-  ctx.arc(900,250,280,0,Math.PI*2);
-  ctx.fill();
+  ctx.fillStyle="rgba(255,47,146,.28)";
+  ctx.beginPath();ctx.arc(900,260,330,0,Math.PI*2);ctx.fill();
 
-  ctx.fillStyle="rgba(255,195,77,0.18)";
-  ctx.beginPath();
-  ctx.arc(160,1580,300,0,Math.PI*2);
-  ctx.fill();
+  ctx.fillStyle="rgba(255,195,77,.20)";
+  ctx.beginPath();ctx.arc(140,1560,340,0,Math.PI*2);ctx.fill();
 
-  ctx.fillStyle="#ffffff";
+  ctx.fillStyle="#fff";
   ctx.font="bold 58px Arial";
-  ctx.fillText("HAPPY PUPPY",70,110);
+  ctx.fillText("HAPPY PUPPY",70,105);
 
   ctx.fillStyle="#ffc34d";
   ctx.font="bold 34px Arial";
-  ctx.fillText("KARAOKE NIGHT",70,158);
+  ctx.fillText("KARAOKE NIGHT",70,153);
 
-  ctx.fillStyle="#ffffff";
-  ctx.font="32px Arial";
-  ctx.fillText(`ROOM ${room}`,720,110);
+  ctx.fillStyle="#fff";
+  ctx.font="bold 32px Arial";
+  ctx.fillText(`ROOM ${room}`,735,105);
 
-  const date=new Date();
-  const dateText=date.toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
-
+  const date=new Date().toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
   ctx.fillStyle="#ffc1dc";
-  ctx.font="30px Arial";
-  ctx.fillText(dateText,720,155);
+  ctx.font="28px Arial";
+  ctx.fillText(date,735,148);
 
-  drawCroppedImage(photos[0],80,220,520,360,-8);
-  drawCroppedImage(photos[1],110,610,500,360,4);
-  drawCroppedImage(photos[2],570,470,410,520,7);
-  drawCroppedImage(photos[3],80,1050,420,520,-5);
-  drawCroppedImage(photos[4],520,1130,450,520,6);
+  roundedPhoto(photos[0],90,240,520,360,28,-7);
+  roundedPhoto(photos[1],120,640,500,360,28,4);
+  roundedPhoto(photos[2],575,500,405,520,28,7);
+  roundedPhoto(photos[3],90,1085,420,520,28,-5);
+  roundedPhoto(photos[4],530,1160,450,520,28,6);
 
-  ctx.fillStyle="#ffffff";
-  ctx.font="italic 64px Georgia";
-  ctx.fillText("Good Friends",70,1760);
+  ctx.fillStyle="#fff";
+  ctx.font="italic 66px Georgia";
+  ctx.fillText("Good Friends",70,1770);
 
   ctx.fillStyle="#ffc34d";
-  ctx.font="bold 36px Arial";
-  ctx.fillText("Great Memories",70,1810);
+  ctx.font="bold 38px Arial";
+  ctx.fillText("Great Memories",70,1822);
 
-  ctx.fillStyle="#ff2f92";
-  ctx.font="bold 32px Arial";
-  ctx.fillText("@HappyPuppyHP103",650,1810);
+  ctx.fillStyle="#ff5dad";
+  ctx.font="bold 30px Arial";
+  ctx.fillText("@HappyPuppyHP103",650,1822);
 }
 
 startBtn.addEventListener("click",async()=>{
