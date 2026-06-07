@@ -472,6 +472,8 @@ const retryBtn=document.getElementById("retryBtn");
 const downloadBtn=document.getElementById("downloadBtn");
 const openIgBtn=document.getElementById("openIgBtn");
 const shareBtn=document.getElementById("shareBtn");
+const timerToggleBtn=document.getElementById("timerToggleBtn");
+const timerPopup=document.getElementById("timerPopup");
 
 const video=document.getElementById("video");
 const countdown=document.getElementById("countdown");
@@ -515,6 +517,9 @@ document.querySelectorAll(".timerChip").forEach(btn=>{
     selectedTimer=parseInt(btn.dataset.time,10);
     timerToggleBtn.textContent = selectedTimer===0 ? "⚡" : `⏱️ ${selectedTimer}s`;
 timerPopup.classList.remove("show");
+    timerToggleBtn.onclick=()=>{
+  timerPopup.classList.toggle("show");
+};
   });
 });
 function updateShutterFilter(){
