@@ -198,6 +198,21 @@ canvas{
       <option value="10">⏱️ 10 Detik</option>
     </select>
   </div>
+    function updateVideoFilter(){
+  const f=filterSelect.value;
+
+  if(f==="bright"){
+    video.style.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
+  }else if(f==="party"){
+    video.style.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
+  }else if(f==="vintage"){
+    video.style.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
+  }else{
+    video.style.filter="brightness(1.09) contrast(1.06) saturate(1.13)";
+  }
+}
+
+filterSelect.addEventListener("change",updateVideoFilter);
 
   <div class="cameraHint">Pose santai, lihat kamera, lalu klik ambil foto</div>
 </div>
@@ -253,6 +268,8 @@ let photos=[];
 let currentPhoto=1;
 let selectedTemplate="karaoke";
 let lastBlob=null;
+  let countdownInterval=null;
+let isCountingDown=false;
 
 const params=new URLSearchParams(window.location.search);
 const room=params.get("room")||"Lobby";
@@ -278,7 +295,9 @@ backHomeBtn.onclick=()=>showScreen(startScreen);
 async function startCamera(){
   try{
     stream=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:"user"},
+      video:{
+  facingMode:{ ideal:"user" }
+},
       audio:false
     });
     video.srcObject=stream;
@@ -289,6 +308,7 @@ async function startCamera(){
     });
 
     await video.play();
+    updateVideoFilter();
   }catch(e){
     alert("Kamera tidak bisa dibuka. Pastikan izin kamera aktif dan buka lewat HTTPS.");
     showScreen(formScreen);
@@ -348,7 +368,6 @@ function takeSnapshot(){
 
 function runCountdown(){
   return new Promise(resolve=>{
-
     let count=parseInt(timerSelect.value);
 
     if(count===0){
@@ -356,23 +375,23 @@ function runCountdown(){
       return;
     }
 
+    isCountingDown=true;
     countdown.style.display="flex";
     countdown.textContent=count;
 
-    const timer=setInterval(()=>{
-
+    countdownInterval=setInterval(()=>{
       count--;
 
       if(count>0){
         countdown.textContent=count;
       }else{
-        clearInterval(timer);
+        clearInterval(countdownInterval);
+        countdownInterval=null;
+        isCountingDown=false;
         countdown.style.display="none";
         resolve();
       }
-
     },1000);
-
   });
 }
 
@@ -646,6 +665,15 @@ startBtn.onclick=async()=>{
 captureBtn.onclick=capturePhoto;
 
 cancelBtn.onclick=()=>{
+  if(countdownInterval){
+    clearInterval(countdownInterval);
+    countdownInterval=null;
+  }
+
+  isCountingDown=false;
+  countdown.style.display="none";
+  captureBtn.disabled=false;
+
   stopCamera();
   showScreen(formScreen);
 };
