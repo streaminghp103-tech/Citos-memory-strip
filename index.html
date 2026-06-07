@@ -861,27 +861,19 @@ async function capturePhoto(){
       return;
     }
 
-   playFlashEffect();
+    playFlashEffect();
 
-pendingPhoto=takeSnapshot();
-reviewImage.src=pendingPhoto.toDataURL("image/png");
+    pendingPhoto = takeSnapshot();
+    reviewImage.src = pendingPhoto.toDataURL("image/png");
 
-showScreen(reviewScreen);
-captureBtn.disabled=false;
+    showScreen(reviewScreen);
+    captureBtn.disabled=false;
 
-return;
-      
-      stopCamera();
-      generateResult();
-      await prepareBlob();
-      showScreen(resultScreen);
-    }else{
-      currentPhoto++;
-      photoCounter.textContent=`Foto ${currentPhoto} / 4`;
-    }
   }catch(e){
     alert("Foto gagal diambil. Coba ulangi.");
+    captureBtn.disabled=false;
   }
+}
 
   captureBtn.disabled=false;
 }
