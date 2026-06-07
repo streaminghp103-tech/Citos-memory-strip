@@ -885,11 +885,25 @@ async function capturePhoto(){
 
     pendingPhoto = takeSnapshot();
 
+photos.push(pendingPhoto);
+
 const imgData = pendingPhoto.toDataURL("image/png");
 
 reviewImage.src = imgData;
 previewThumbImg.src = imgData;
 previewBtn.style.display = "block";
+
+if(photos.length >= 4){
+  stopCamera();
+  generateResult();
+  await prepareBlob();
+  showScreen(resultScreen);
+  captureBtn.disabled=false;
+  return;
+}
+
+currentPhoto++;
+photoCounter.textContent = `Foto ${currentPhoto} / 4`;
 
 captureBtn.disabled=false;
 
@@ -1149,7 +1163,18 @@ captureBtn.onclick=capturePhoto;
 };
   
   deletePhotoBtn.onclick=()=>{
+  if(photos.length > 0){
+    photos.pop();
+  }
+
   pendingPhoto=null;
+  previewBtn.style.display="none";
+  reviewImage.src="";
+  previewThumbImg.src="";
+
+  currentPhoto = photos.length + 1;
+  photoCounter.textContent = `Foto ${currentPhoto} / 4`;
+
   showScreen(cameraScreen);
 };
 
