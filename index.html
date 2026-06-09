@@ -1250,10 +1250,8 @@ captureBtn.onclick=capturePhoto;
 };
 
 usePhotoBtn.onclick=()=>{
-  pendingPhoto=null;
   showScreen(cameraScreen);
 };
-
   flashBtn.onclick=async()=>{
   if(currentFacingMode!=="environment"){
     alert("Flash hanya bisa dipakai saat kamera belakang aktif.");
@@ -1288,6 +1286,10 @@ retryBtn.onclick=async()=>{
   photos=[];
   currentPhoto=1;
   lastBlob=null;
+  pendingPhoto=null;
+previewBtn.style.display="none";
+reviewImage.src="";
+previewThumbImg.src="";
 
   captureBtn.disabled=false;
   photoCounter.textContent="Foto 1 / 4";
