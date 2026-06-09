@@ -636,8 +636,9 @@ let torchEnabled=false;
   }else if(f==="vintage"){
     video.style.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
   }else{
-    video.style.filter="brightness(1.09) contrast(1.06) saturate(1.13)";
-  }
+  video.style.filter=
+  "brightness(1.18) contrast(.98) saturate(1.08)";
+}
 }
 document.querySelectorAll(".filterChip").forEach(btn=>{
   btn.addEventListener("click",()=>{
@@ -804,7 +805,8 @@ function applyFilterToContext(c){
   if(f==="bright") c.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
   else if(f==="party") c.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
   else if(f==="vintage") c.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
-  else c.filter="brightness(1.09) contrast(1.06) saturate(1.13)";
+  else c.filter=
+"brightness(1.18) contrast(.98) saturate(1.08)";
 }
 
 function playFlashEffect(){
