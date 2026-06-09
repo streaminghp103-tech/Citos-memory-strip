@@ -1021,11 +1021,12 @@ function drawStripLayout(theme){
   textCenter(theme.icon+" "+theme.title,540,92,52,theme.main);
   textCenter(theme.subtitle,540,145,46,theme.sub);
 
-  const photoX=250;
-  const photoW=580;
-  const photoH=300;
-  const gap=40;
-  const startY=205;
+  const photoSize=390;
+const photoX=(1080-photoSize)/2;
+const photoW=photoSize;
+const photoH=photoSize;
+const gap=34;
+const startY=210;
 
   drawPhoto(photos[0],photoX,startY,photoW,photoH,22,-1,theme.border);
   drawPhoto(photos[1],photoX,startY+(photoH+gap),photoW,photoH,22,1,theme.border);
