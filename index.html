@@ -1021,12 +1021,12 @@ function drawStripLayout(theme){
   textCenter(theme.icon+" "+theme.title,540,92,52,theme.main);
   textCenter(theme.subtitle,540,145,46,theme.sub);
 
-  const photoSize=390;
+  const photoSize=340;
 const photoX=(1080-photoSize)/2;
 const photoW=photoSize;
 const photoH=photoSize;
-const gap=34;
-const startY=210;
+const gap=42;
+const startY=180;
 
   drawPhoto(photos[0],photoX,startY,photoW,photoH,22,-1,theme.border);
   drawPhoto(photos[1],photoX,startY+(photoH+gap),photoW,photoH,22,1,theme.border);
@@ -1049,9 +1049,8 @@ const startY=210;
   drawDoodleText("♡",900,720,48,theme.main,10);
   drawDoodleText("★",900,1260,34,theme.sub,0);
   drawDoodleText(theme.icon,910,1580,52,theme.main,-15);
-
-  textCenter("HAPPY PUPPY 103",540,1780,34,theme.main);
-  textCenter("@HappyPuppyHP103",540,1840,28,theme.sub);
+  
+  textCenter("@happup.samarinda.panjaitan",540,1870,26,theme.sub);
 }
 
 function renderKaraoke(){
