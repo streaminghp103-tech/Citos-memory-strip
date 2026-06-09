@@ -974,8 +974,8 @@ previewBtn.style.display = "block";
 
 if(photos.length >= 4){
   stopCamera();
-  generateResult();
-  await prepareBlob();
+  await generateResult();
+await prepareBlob();
   showScreen(resultScreen);
   captureBtn.disabled=false;
   return;
@@ -1257,14 +1257,8 @@ function renderReceipt(){
   }
 }
 
-function generateResult(){
-  ctx.clearRect(0,0,1080,1920);
-
-  if(selectedTemplate==="couple") renderCouple();
-  else if(selectedTemplate==="bestfriend") renderBestFriend();
-  else if(selectedTemplate==="birthday") renderBirthday();
-  else if(selectedTemplate==="receipt") renderReceipt();
-  else renderKaraoke();
+async function generateResult(){
+  await renderUploadedTemplate();
 }
 
 function prepareBlob(){
