@@ -473,6 +473,15 @@ canvas{
   height:100%;
   object-fit:cover;
 }
+  .fullCamera.shoot{
+  animation:cameraShoot .16s ease;
+}
+
+@keyframes cameraShoot{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.015)}
+  100%{transform:scale(1)}
+}
   
 </style>
 </head>
@@ -557,7 +566,7 @@ canvas{
     <span id="shutterIcon"></span>
   </button>
 
-  <button id="switchCameraBtn" class="miniRoundBtn">⇄</button>
+  <button id="switchCameraBtn" class="miniRoundBtn">🔄</button>
 </div>
     </div>
   </div>
@@ -810,11 +819,13 @@ function applyFilterToContext(c){
 }
 
 function playFlashEffect(){
+  document.querySelector(".fullCamera")?.classList.add("shoot");
   flashOverlay.classList.add("show");
 
   setTimeout(()=>{
     flashOverlay.classList.remove("show");
-  },200);
+    document.querySelector(".fullCamera")?.classList.remove("shoot");
+  },180);
 }
   
 function takeSnapshot(){
@@ -1010,6 +1021,13 @@ function baseBg(c1,c2,c3){
 function getDate(){
   return new Date().toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
 }
+  function getDateParts(){
+  const d=new Date();
+  const day=String(d.getDate()).padStart(2,"0");
+  const month=d.toLocaleDateString("id-ID",{month:"short"}).toUpperCase();
+  const year=d.getFullYear();
+  return {day,month,year};
+}
 
 function getTime(){
   return new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
@@ -1071,9 +1089,11 @@ drawDoodleText(room.toUpperCase(),170,650,30,"#fff",-8);
 drawDoodleText("GOOD",900,760,28,"#fff",-10);
 drawDoodleText("MUSIC",900,800,34,theme.main,-10);
 
-drawDoodleText("09",170,1325,36,theme.main,-6);
-drawDoodleText("JUN",170,1365,26,"#fff",-6);
-drawDoodleText("2026",170,1400,26,"#fff",-6);
+const dateParts=getDateParts();
+
+drawDoodleText(dateParts.day,170,1325,36,theme.main,-6);
+drawDoodleText(dateParts.month,170,1365,26,"#fff",-6);
+drawDoodleText(dateParts.year,170,1400,26,"#fff",-6);
 
 drawDoodleText(getTime(),900,1350,30,"#fff",4);
 
@@ -1240,10 +1260,21 @@ captureBtn.onclick=capturePhoto;
     photos.pop();
   }
 
-  pendingPhoto=null;
-  previewBtn.style.display="none";
-  reviewImage.src="";
-  previewThumbImg.src="";
+  pendingPhoto = photos.length > 0
+    ? photos[photos.length - 1]
+    : null;
+
+  if(pendingPhoto){
+    const imgData = pendingPhoto.toDataURL("image/png");
+
+    reviewImage.src = imgData;
+    previewThumbImg.src = imgData;
+    previewBtn.style.display = "block";
+  }else{
+    reviewImage.src = "";
+    previewThumbImg.src = "";
+    previewBtn.style.display = "none";
+  }
 
   currentPhoto = photos.length + 1;
   photoCounter.textContent = `Foto ${currentPhoto} / 4`;
