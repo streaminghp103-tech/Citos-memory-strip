@@ -1018,15 +1018,15 @@ function drawStripLayout(theme){
   ctx.arc(900,190,280,0,Math.PI*2);
   ctx.fill();
 
-  textCenter(theme.icon+" "+theme.title,540,92,52,theme.main);
-  textCenter(theme.subtitle,540,145,46,theme.sub);
+  textCenter(theme.icon+" "+theme.title,540,82,42,theme.main);
+textCenter(theme.subtitle,540,128,38,theme.sub);
 
   const photoSize=340;
 const photoX=(1080-photoSize)/2;
 const photoW=photoSize;
 const photoH=photoSize;
 const gap=42;
-const startY=180;
+const startY=160;
 
   drawPhoto(photos[0],photoX,startY,photoW,photoH,22,-1,theme.border);
   drawPhoto(photos[1],photoX,startY+(photoH+gap),photoW,photoH,22,1,theme.border);
@@ -1034,7 +1034,7 @@ const startY=180;
   drawPhoto(photos[3],photoX,startY+(photoH+gap)*3,photoW,photoH,22,1,theme.border);
 
   drawDoodleText("ROOM",150,610,36,theme.main,-10);
-  drawDoodleText(room.toUpperCase(),150,665,48,"#fff",-8);
+  drawDoodleText(room.toUpperCase(),170,650,34,"#fff",-8);
 
   drawDoodleText("♪",900,455,52,theme.sub,12);
   drawDoodleText(theme.sideText1,900,860,34,"#fff",-12);
@@ -1044,13 +1044,13 @@ const startY=180;
   drawDoodleText("JUN",160,1435,34,"#fff",-6);
   drawDoodleText("2026",160,1480,34,"#fff",-6);
 
-  drawDoodleText(getTime(),900,1430,44,"#fff",4);
+  drawDoodleText(getTime(),165,1435,30,"#fff",-6);
   drawDoodleText("✦",885,620,42,theme.sub,0);
   drawDoodleText("♡",900,720,48,theme.main,10);
   drawDoodleText("★",900,1260,34,theme.sub,0);
   drawDoodleText(theme.icon,910,1580,52,theme.main,-15);
   
-  textCenter("@happup.samarinda.panjaitan",540,1870,26,theme.sub);
+  textCenter("@happup.samarinda.panjaitan",540,1865,24,"rgba(255,255,255,.85)",false);
 }
 
 function renderKaraoke(){
@@ -1065,8 +1065,8 @@ function renderKaraoke(){
     icon:"🎤",
     title:"KARAOKE",
     subtitle:"NIGHT",
-    sideText1:getSong().slice(0,12),
-    sideText2:getSong().slice(12,24) || "KARAOKE"
+    sideText1:"?",
+sideText2:getSong().substring(0,10)
   });
 }
 
@@ -1154,6 +1154,9 @@ function renderReceipt(){
   drawPhoto(photos[1],570,850,360,300,6,0,"#fff");
   drawPhoto(photos[2],150,1210,360,300,6,0,"#fff");
   drawPhoto(photos[3],570,1210,360,300,6,0,"#fff");
+  drawDoodleText("?",150,300,34,theme.sub,10);
+drawDoodleText("?",920,1080,30,theme.main,-10);
+drawDoodleText("?",180,1680,26,theme.sub,0);
 
   textCenter("THANK YOU",540,1650,36,"#19120b");
   textCenter("SEE YOU AGAIN!",540,1700,34,"#19120b");
