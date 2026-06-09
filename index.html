@@ -1244,6 +1244,10 @@ startBtn.onclick=async()=>{
   photos=[];
   currentPhoto=1;
   lastBlob=null;
+  pendingPhoto=null;
+  previewBtn.style.display="none";
+  reviewImage.src="";
+  previewThumbImg.src="";
   photoCounter.textContent="Foto 1 / 4";
   showScreen(cameraScreen);
   await startCamera();
