@@ -745,12 +745,6 @@ document.querySelectorAll(".template").forEach(el=>{
       previewMap[selectedTemplate];
   });
 });
-  el.addEventListener("click",()=>{
-    document.querySelectorAll(".template").forEach(t=>t.classList.remove("active"));
-    el.classList.add("active");
-    selectedTemplate=el.dataset.template;
-  });
-});
 
 goFormBtn.onclick=()=>showScreen(formScreen);
 backHomeBtn.onclick=()=>showScreen(startScreen);
