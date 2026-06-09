@@ -136,13 +136,27 @@ video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX
   position:relative;
   z-index:30;
 }
-#resultScreen.active{justify-content:space-between;padding:14px}
-canvas{
-  width:auto;
-  height:calc(100dvh - 150px);
-  max-height:650px;
-  max-width:92vw;
-  border-radius:22px;background:black;box-shadow:0 18px 50px rgba(0,0,0,.45);
+#resultScreen.active{
+  justify-content:flex-start;
+  padding:10px;
+  gap:10px;
+}
+.actions{
+  width:100%;
+  max-width:430px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  padding:0 6px;
+}
+
+.actions button{
+  width:100%;
+  padding:10px 8px;
+  font-size:13px;
+  border-radius:18px;
+  white-space:nowrap;
+}
 }
 .actions{
   width:100%;
@@ -1038,12 +1052,12 @@ function drawStripLayout(theme){
   textCenter(theme.icon+" "+theme.title,540,82,42,theme.main);
 textCenter(theme.subtitle,540,128,38,theme.sub);
 
-  const photoSize=340;
+  const photoSize=370;
 const photoX=(1080-photoSize)/2;
 const photoW=photoSize;
 const photoH=photoSize;
-const gap=42;
-const startY=160;
+const gap=30;
+const startY=155;
 
   drawPhoto(photos[0],photoX,startY,photoW,photoH,22,-1,theme.border);
   drawPhoto(photos[1],photoX,startY+(photoH+gap),photoW,photoH,22,1,theme.border);
@@ -1068,7 +1082,7 @@ drawDoodleText("♡",900,690,34,theme.main,10);
 drawDoodleText("★",900,1120,26,theme.sub,0);
 drawDoodleText(theme.icon,900,1480,36,theme.main,-15);
 
-textCenter("@happup.samarinda.panjaitan",540,1865,22,"rgba(255,255,255,.85)",false);
+textCenter("@happup.samarinda.panjaitan",540,1825,22,"rgba(255,255,255,.85)",false);
   
   textCenter("@happup.samarinda.panjaitan",540,1865,24,"rgba(255,255,255,.85)",false);
 }
