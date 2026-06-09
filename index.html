@@ -138,11 +138,28 @@ video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX
 }
 #resultScreen.active{justify-content:space-between;padding:14px}
 canvas{
-  width:auto;height:calc(100dvh - 210px);max-height:620px;max-width:92vw;
+  width:auto;
+  height:calc(100dvh - 150px);
+  max-height:650px;
+  max-width:92vw;
   border-radius:22px;background:black;box-shadow:0 18px 50px rgba(0,0,0,.45);
 }
-.actions{width:100%;max-width:360px;display:flex;flex-direction:column;gap:8px}
-.actions button{padding:12px 18px}
+.actions{
+  width:100%;
+  max-width:430px;
+  display:flex;
+  flex-direction:row;
+  gap:8px;
+  padding:0 8px;
+}
+
+.actions button{
+  flex:1;
+  padding:10px 6px;
+  font-size:12px;
+  border-radius:16px;
+  white-space:nowrap;
+}
   .shutterBtn{
   width:78px;
   height:78px;
@@ -1033,22 +1050,25 @@ const startY=160;
   drawPhoto(photos[2],photoX,startY+(photoH+gap)*2,photoW,photoH,22,-1,theme.border);
   drawPhoto(photos[3],photoX,startY+(photoH+gap)*3,photoW,photoH,22,1,theme.border);
 
-  drawDoodleText("ROOM",150,610,36,theme.main,-10);
-  drawDoodleText(room.toUpperCase(),170,650,34,"#fff",-8);
+  drawDoodleText("ROOM",170,610,28,theme.main,-10);
+drawDoodleText(room.toUpperCase(),170,650,30,"#fff",-8);
 
-  drawDoodleText("♪",900,455,52,theme.sub,12);
-  drawDoodleText(theme.sideText1,900,860,34,"#fff",-12);
-  drawDoodleText(theme.sideText2,900,910,42,theme.main,-12);
+drawDoodleText("GOOD",900,760,28,"#fff",-10);
+drawDoodleText("MUSIC",900,800,34,theme.main,-10);
 
-  drawDoodleText("09",160,1385,48,theme.main,-6);
-  drawDoodleText("JUN",160,1435,34,"#fff",-6);
-  drawDoodleText("2026",160,1480,34,"#fff",-6);
+drawDoodleText("09",170,1325,36,theme.main,-6);
+drawDoodleText("JUN",170,1365,26,"#fff",-6);
+drawDoodleText("2026",170,1400,26,"#fff",-6);
 
-  drawDoodleText(getTime(),165,1435,30,"#fff",-6);
-  drawDoodleText("✦",885,620,42,theme.sub,0);
-  drawDoodleText("♡",900,720,48,theme.main,10);
-  drawDoodleText("★",900,1260,34,theme.sub,0);
-  drawDoodleText(theme.icon,910,1580,52,theme.main,-15);
+drawDoodleText(getTime(),900,1350,30,"#fff",4);
+
+drawDoodleText("♪",900,430,30,theme.sub,12);
+drawDoodleText("✦",890,610,30,theme.sub,0);
+drawDoodleText("♡",900,690,34,theme.main,10);
+drawDoodleText("★",900,1120,26,theme.sub,0);
+drawDoodleText(theme.icon,900,1480,36,theme.main,-15);
+
+textCenter("@happup.samarinda.panjaitan",540,1865,22,"rgba(255,255,255,.85)",false);
   
   textCenter("@happup.samarinda.panjaitan",540,1865,24,"rgba(255,255,255,.85)",false);
 }
