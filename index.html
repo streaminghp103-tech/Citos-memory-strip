@@ -999,88 +999,126 @@ function drawDoodles(color){
   }
 }
 
+function drawDoodleText(txt,x,y,size,color="#fff",rot=0,font="Arial"){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(rot*Math.PI/180);
+  ctx.fillStyle=color;
+  ctx.font=`bold ${size}px ${font}`;
+  ctx.textAlign="center";
+  ctx.fillText(txt,0,0);
+  ctx.restore();
+}
+
+function drawStripLayout(theme){
+  baseBg(theme.bg1,theme.bg2,theme.bg3);
+
+  ctx.fillStyle=theme.glow;
+  ctx.beginPath();
+  ctx.arc(900,190,280,0,Math.PI*2);
+  ctx.fill();
+
+  textCenter(theme.icon+" "+theme.title,540,92,52,theme.main);
+  textCenter(theme.subtitle,540,145,46,theme.sub);
+
+  const photoX=250;
+  const photoW=580;
+  const photoH=300;
+  const gap=40;
+  const startY=205;
+
+  drawPhoto(photos[0],photoX,startY,photoW,photoH,22,-1,theme.border);
+  drawPhoto(photos[1],photoX,startY+(photoH+gap),photoW,photoH,22,1,theme.border);
+  drawPhoto(photos[2],photoX,startY+(photoH+gap)*2,photoW,photoH,22,-1,theme.border);
+  drawPhoto(photos[3],photoX,startY+(photoH+gap)*3,photoW,photoH,22,1,theme.border);
+
+  drawDoodleText("ROOM",150,610,36,theme.main,-10);
+  drawDoodleText(room.toUpperCase(),150,665,48,"#fff",-8);
+
+  drawDoodleText("♪",900,455,52,theme.sub,12);
+  drawDoodleText(theme.sideText1,900,860,34,"#fff",-12);
+  drawDoodleText(theme.sideText2,900,910,42,theme.main,-12);
+
+  drawDoodleText("09",160,1385,48,theme.main,-6);
+  drawDoodleText("JUN",160,1435,34,"#fff",-6);
+  drawDoodleText("2026",160,1480,34,"#fff",-6);
+
+  drawDoodleText(getTime(),900,1430,44,"#fff",4);
+  drawDoodleText("✦",885,620,42,theme.sub,0);
+  drawDoodleText("♡",900,720,48,theme.main,10);
+  drawDoodleText("★",900,1260,34,theme.sub,0);
+  drawDoodleText(theme.icon,910,1580,52,theme.main,-15);
+
+  textCenter("HAPPY PUPPY 103",540,1780,34,theme.main);
+  textCenter("@HappyPuppyHP103",540,1840,28,theme.sub);
+}
+
 function renderKaraoke(){
-  baseBg("#120817","#241020","#050505");
-  ctx.fillStyle="rgba(255,47,146,.28)";
-  ctx.beginPath();ctx.arc(900,220,300,0,Math.PI*2);ctx.fill();
-  drawDoodles("rgba(255,47,146,.45)");
-
-  textCenter("🎤 KARAOKE",540,82,46,"#ff5dad");
-  textCenter("NIGHT",540,132,44,"#8bd9ff");
-
-  drawPhoto(photos[0],95,190,890,360,24,0,"#ff8bc5");
-  drawPhoto(photos[1],95,585,890,360,24,0,"#ff8bc5");
-  drawPhoto(photos[2],95,980,890,360,24,0,"#ff8bc5");
-
-  ctx.fillStyle="rgba(0,0,0,.55)";
-  roundRect(95,1395,890,350,28);ctx.fill();
-
-  drawPhoto(photos[3],115,1415,360,300,20,0,"#ff8bc5");
-
-  ctx.fillStyle="#fff";
-  ctx.font="bold 38px Arial";
-  ctx.fillText("HAPPY PUPPY 103",505,1465);
-
-  ctx.fillStyle="#ffc1dc";
-  ctx.font="28px Arial";
-  ctx.fillText(`ROOM ${room}`,505,1525);
-  ctx.fillText(getDate(),505,1575);
-  ctx.fillText(getTime(),505,1625);
-
-  ctx.fillStyle="#fff";
-  ctx.font="bold 32px Arial";
-  ctx.fillText(getSong().toUpperCase().slice(0,24),505,1688);
-
-  textCenter("@HappyPuppyHP103",540,1840,34,"#ff5dad");
+  drawStripLayout({
+    bg1:"#050408",
+    bg2:"#16071a",
+    bg3:"#030303",
+    glow:"rgba(255,47,146,.28)",
+    main:"#ff5dad",
+    sub:"#8bd9ff",
+    border:"#ff5dad",
+    icon:"🎤",
+    title:"KARAOKE",
+    subtitle:"NIGHT",
+    sideText1:getSong().slice(0,12),
+    sideText2:getSong().slice(12,24) || "KARAOKE"
+  });
 }
 
 function renderCouple(){
-  baseBg("#ffd1df","#f78bb8","#1a0b12");
-  textCenter("Happy Puppy",540,100,54,"#fff",false,"Georgia");
-  textCenter("103",540,150,34,"#fff");
-
-  drawPhoto(photos[0],135,230,810,330,18,0,"#ffdce8");
-  drawPhoto(photos[1],135,610,810,330,18,0,"#ffdce8");
-  drawPhoto(photos[2],135,990,810,330,18,0,"#ffdce8");
-  drawPhoto(photos[3],135,1370,810,330,18,0,"#ffdce8");
-
-  ctx.fillStyle="rgba(255,255,255,.35)";
-  roundRect(120,1740,840,90,20);ctx.fill();
-
-  textCenter(`ROOM ${room} • ${getDate()}`,540,1785,28,"#3d1827");
-  textCenter(getSong().slice(0,30),540,1825,24,"#3d1827");
+  drawStripLayout({
+    bg1:"#1a0710",
+    bg2:"#3b1022",
+    bg3:"#090305",
+    glow:"rgba(255,150,190,.28)",
+    main:"#ff9ac7",
+    sub:"#ffd6e8",
+    border:"#ffb1d2",
+    icon:"♡",
+    title:"COUPLE",
+    subtitle:"MEMORY",
+    sideText1:"TOGETHER",
+    sideText2:"FOREVER"
+  });
 }
 
 function renderBestFriend(){
-  baseBg("#080808","#151515","#050505");
-  drawDoodles("rgba(255,214,75,.45)");
-
-  textCenter("BEST",540,110,70,"#fff");
-  textCenter("FRIENDS",540,185,70,"#ffd64b");
-
-  drawPhoto(photos[0],110,265,860,335,18,0,"#e7c36a");
-  drawPhoto(photos[1],110,645,860,335,18,0,"#e7c36a");
-  drawPhoto(photos[2],110,1025,860,335,18,0,"#e7c36a");
-  drawPhoto(photos[3],110,1405,860,335,18,0,"#e7c36a");
-
-  textCenter(`ROOM ${room} • ${getDate()}`,540,1810,30,"#ffd64b");
-  textCenter("FRIENDS THAT SING TOGETHER STAY TOGETHER!",540,1860,25,"#fff");
+  drawStripLayout({
+    bg1:"#090909",
+    bg2:"#191204",
+    bg3:"#020202",
+    glow:"rgba(255,214,75,.24)",
+    main:"#ffd64b",
+    sub:"#ff9f43",
+    border:"#ffd64b",
+    icon:"★",
+    title:"BEST",
+    subtitle:"FRIENDS",
+    sideText1:"BESTIES",
+    sideText2:"SQUAD"
+  });
 }
 
 function renderBirthday(){
-  baseBg("#2b0d1f","#3b1028","#08060a");
-  drawDoodles("rgba(255,122,192,.5)");
-
-  textCenter("HAPPY",540,95,54,"#fff");
-  textCenter("BIRTHDAY!",540,155,60,"#ff7ac0");
-
-  drawPhoto(photos[0],110,230,860,345,20,0,"#ff8bc5");
-  drawPhoto(photos[1],110,620,860,345,20,0,"#ff8bc5");
-  drawPhoto(photos[2],110,1010,860,345,20,0,"#ff8bc5");
-  drawPhoto(photos[3],110,1400,860,345,20,0,"#ff8bc5");
-
-  textCenter(`ROOM ${room} • ${getDate()}`,540,1810,30,"#ffc1dc");
-  textCenter("ANOTHER YEAR OF GOOD MUSIC & GOOD TIMES!",540,1860,26,"#fff");
+  drawStripLayout({
+    bg1:"#12051c",
+    bg2:"#341044",
+    bg3:"#050205",
+    glow:"rgba(255,122,192,.3)",
+    main:"#ff7ac0",
+    sub:"#ffd36a",
+    border:"#ff8bc5",
+    icon:"🎂",
+    title:"HAPPY",
+    subtitle:"BIRTHDAY",
+    sideText1:"MAKE",
+    sideText2:"A WISH"
+  });
 }
 
 function renderReceipt(){
