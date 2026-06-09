@@ -482,6 +482,20 @@ canvas{
   50%{transform:scale(1.015)}
   100%{transform:scale(1)}
 }
+  .templatePreview{
+  width:100%;
+  height:180px;
+  border-radius:20px;
+  overflow:hidden;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+}
+
+.templatePreview img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
   
 </style>
 </head>
@@ -514,6 +528,10 @@ canvas{
       <div class="template" data-template="birthday"><div class="thumb">🎂</div><b>Birthday</b><p class="small">Party celebration</p></div>
       <div class="template" data-template="receipt"><div class="thumb">🧾</div><b>Karaoke Receipt</b><p class="small">Unik seperti struk</p></div>
     </div>
+
+    <div id="templatePreview" class="templatePreview">
+  <img id="templatePreviewImg" src="" alt="">
+</div>
 
     <div class="row">
       <input id="roomInput" readonly>
@@ -703,8 +721,30 @@ function showScreen(screen){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   screen.classList.add("active");
 }
+const templatePreviewImg =
+document.getElementById("templatePreviewImg");
+const previewMap={
+  karaoke:"preview-karaoke.jpg",
+  couple:"preview-couple.jpg",
+  bestfriend:"preview-bestfriend.jpg",
+  birthday:"preview-birthday.jpg",
+  receipt:"preview-receipt.jpg"
+};
 
 document.querySelectorAll(".template").forEach(el=>{
+  el.addEventListener("click",()=>{
+
+    document.querySelectorAll(".template")
+    .forEach(t=>t.classList.remove("active"));
+
+    el.classList.add("active");
+
+    selectedTemplate=el.dataset.template;
+
+    templatePreviewImg.src=
+      previewMap[selectedTemplate];
+  });
+});
   el.addEventListener("click",()=>{
     document.querySelectorAll(".template").forEach(t=>t.classList.remove("active"));
     el.classList.add("active");
