@@ -730,6 +730,8 @@ const previewMap={
   birthday:"preview-birthday.jpg",
   receipt:"preview-receipt.jpg"
 };
+  templatePreviewImg.src =
+  previewMap[selectedTemplate];
 
 document.querySelectorAll(".template").forEach(el=>{
   el.addEventListener("click",()=>{
@@ -740,15 +742,7 @@ document.querySelectorAll(".template").forEach(el=>{
     el.classList.add("active");
 
     selectedTemplate=el.dataset.template;
-const previewMap={
-  karaoke:"preview-karaoke.jpg",
-  couple:"preview-couple.jpg",
-  bestfriend:"preview-bestfriend.jpg",
-  birthday:"preview-birthday.jpg",
-  receipt:"preview-receipt.jpg"
-};
 
-templatePreviewImg.src=previewMap[selectedTemplate];
     templatePreviewImg.src=
       previewMap[selectedTemplate];
   });
