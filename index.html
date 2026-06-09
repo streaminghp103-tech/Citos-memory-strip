@@ -1257,6 +1257,82 @@ function renderReceipt(){
   }
 }
 
+  function loadImage(src){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>resolve(img);
+    img.onerror=reject;
+    img.src=src;
+  });
+}
+
+const templateMap={
+  karaoke:"template-karaoke.png",
+  couple:"template-couple.png",
+  bestfriend:"template-bestfriend.png",
+  birthday:"template-birthday.png",
+  receipt:"template-receipt.png"
+};
+
+async function renderUploadedTemplate(){
+  ctx.clearRect(0,0,1080,1920);
+
+  const src=templateMap[selectedTemplate];
+  const bg=await loadImage(src);
+
+  const temp=document.createElement("canvas");
+  temp.width=1080;
+  temp.height=1920;
+  const tctx=temp.getContext("2d");
+  tctx.drawImage(bg,0,0,1080,1920);
+
+  const imgData=tctx.getImageData(0,0,1080,1920);
+  const data=imgData.data;
+
+  const frames=[];
+
+  for(let y=0;y<1920;y++){
+    for(let x=0;x<1080;x++){
+      const i=(y*1080+x)*4;
+      const r=data[i];
+      const g=data[i+1];
+      const b=data[i+2];
+
+      if(g>200 && r<80 && b<80){
+        let found=false;
+
+        for(const f of frames){
+          if(x>=f.x-10 && x<=f.x+f.w+10 && y>=f.y-10 && y<=f.y+f.h+10){
+            f.x=Math.min(f.x,x);
+            f.y=Math.min(f.y,y);
+            f.w=Math.max(f.w,x-f.x);
+            f.h=Math.max(f.h,y-f.y);
+            found=true;
+            break;
+          }
+        }
+
+        if(!found){
+          frames.push({x,y,w:1,h:1});
+        }
+      }
+    }
+  }
+
+  const cleanFrames=frames
+    .filter(f=>f.w>100 && f.h>100)
+    .sort((a,b)=>a.y-b.y)
+    .slice(0,4);
+
+  ctx.drawImage(bg,0,0,1080,1920);
+
+  cleanFrames.forEach((f,i)=>{
+    if(photos[i]){
+      drawPhoto(photos[i],f.x,f.y,f.w,f.h,8,0,"transparent");
+    }
+  });
+}
+
 async function generateResult(){
   await renderUploadedTemplate();
 }
