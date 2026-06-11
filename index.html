@@ -1290,13 +1290,12 @@ function isMarkerGreen(data,index){
 // Untuk tes sekarang: template yang tersedia adalah preview-couple.png dan preview-birthday.png.
 // Nanti kalau file lain sudah di-upload, cukup ganti map ini ke preview-karaoke.png, dst.
 const templateMap={
-  karaoke:"preview-couple.png",
+  karaoke:"preview-karaoke.png",
   couple:"preview-couple.png",
-  bestfriend:"preview-couple.png",
+  bestfriend:"preview-bestfriend.png",
   birthday:"preview-birthday.png",
-  receipt:"preview-couple.png"
+  receipt:"preview-receipt.png"
 };
-
 const maskCache={};
 const transparentTemplateCache={};
 
@@ -1427,7 +1426,7 @@ lctx.drawImage(
   dw,
   dh
 );
-lctx.globalCompositeOperation="destination-in";
+
   
   const layerData=lctx.getImageData(0,0,w,h);
   const d=layerData.data;
