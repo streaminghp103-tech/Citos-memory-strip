@@ -1273,15 +1273,15 @@ const templateMap={
   birthday:"preview-birthday.png",
   receipt:"preview-couple.png"
 };
-
 function isMarkerGreen(data,index){
   const r=data[index];
   const g=data[index+1];
   const b=data[index+2];
+
   return g>180 && r<120 && b<120;
 }
 
-function detectFramesFromTemplate(img){
+function detectGreenMasks(img){
   const w=1080;
   const h=1920;
 
@@ -1292,28 +1292,31 @@ function detectFramesFromTemplate(img){
   const tctx=temp.getContext("2d");
   tctx.drawImage(img,0,0,w,h);
 
-  const imageData=tctx.getImageData(0,0,w,h);
-  const data=imageData.data;
+  const imgData=tctx.getImageData(0,0,w,h);
+  const data=imgData.data;
   const visited=new Uint8Array(w*h);
-  const frames=[];
+  const masks=[];
 
   for(let y=0;y<h;y++){
     for(let x=0;x<w;x++){
-      const p=y*w+x;
-      if(visited[p]) continue;
+      const start=y*w+x;
+      if(visited[start]) continue;
 
-      const idx=p*4;
-      if(!isMarkerGreen(data,idx)) continue;
+      const startIdx=start*4;
+      if(!isMarkerGreen(data,startIdx)) continue;
 
+      const pixels=[];
       let minX=x,maxX=x,minY=y,maxY=y,count=0;
-      const stack=[p];
-      visited[p]=1;
+
+      const stack=[start];
+      visited[start]=1;
 
       while(stack.length){
         const cur=stack.pop();
         const cx=cur%w;
         const cy=Math.floor(cur/w);
 
+        pixels.push(cur);
         count++;
 
         if(cx<minX) minX=cx;
@@ -1321,12 +1324,7 @@ function detectFramesFromTemplate(img){
         if(cy<minY) minY=cy;
         if(cy>maxY) maxY=cy;
 
-        const neighbors=[
-          cur-1,
-          cur+1,
-          cur-w,
-          cur+w
-        ];
+        const neighbors=[cur-1,cur+1,cur-w,cur+w];
 
         for(const n of neighbors){
           if(n<0 || n>=w*h) continue;
@@ -1350,51 +1348,111 @@ function detectFramesFromTemplate(img){
       const fh=maxY-minY+1;
 
       if(count>5000 && fw>80 && fh>80){
-        frames.push({
+        masks.push({
           x:minX,
           y:minY,
           w:fw,
           h:fh,
-          area:count
+          pixels
         });
       }
     }
   }
 
-  return frames
-    .sort((a,b)=>{
-      if(Math.abs(a.y-b.y)>40) return a.y-b.y;
-      return a.x-b.x;
-    })
-    .slice(0,4);
+  return masks.sort((a,b)=>{
+    if(Math.abs(a.y-b.y)>40) return a.y-b.y;
+    return a.x-b.x;
+  }).slice(0,4);
 }
 
-function drawPhotoCover(img,x,y,w,h){
-  ctx.save();
+function drawPhotoIntoMask(photo,mask){
+  const w=1080;
+  const h=1920;
 
-  ctx.beginPath();
-  ctx.rect(x,y,w,h);
-  ctx.clip();
+  const layer=document.createElement("canvas");
+  layer.width=w;
+  layer.height=h;
 
-  const sr=img.width/img.height;
-  const dr=w/h;
+  const lctx=layer.getContext("2d");
+
+  const sr=photo.width/photo.height;
+  const dr=mask.w/mask.h;
 
   let sx,sy,sw,sh;
 
   if(sr>dr){
-    sh=img.height;
-    sw=img.height*dr;
-    sx=(img.width-sw)/2;
+    sh=photo.height;
+    sw=photo.height*dr;
+    sx=(photo.width-sw)/2;
     sy=0;
   }else{
-    sw=img.width;
-    sh=img.width/dr;
+    sw=photo.width;
+    sh=photo.width/dr;
     sx=0;
-    sy=(img.height-sh)/2;
+    sy=(photo.height-sh)/2;
   }
 
-  ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
-  ctx.restore();
+  lctx.drawImage(
+    photo,
+    sx,sy,sw,sh,
+    mask.x,mask.y,mask.w,mask.h
+  );
+
+  const layerData=lctx.getImageData(0,0,w,h);
+  const d=layerData.data;
+
+  const keep=new Uint8Array(w*h);
+
+  mask.pixels.forEach(p=>{
+    keep[p]=1;
+  });
+
+  for(let p=0;p<w*h;p++){
+    if(!keep[p]){
+      d[p*4+3]=0;
+    }
+  }
+
+  lctx.putImageData(layerData,0,0);
+  ctx.drawImage(layer,0,0);
+}
+
+async function renderUploadedTemplate(){
+  ctx.clearRect(0,0,1080,1920);
+
+  const src=templateMap[selectedTemplate];
+  const bg=await loadImage(src);
+
+  const masks=detectGreenMasks(bg);
+
+  if(masks.length===0){
+    throw new Error("Area hijau #00FF00 tidak terdeteksi.");
+  }
+
+  masks.forEach((mask,i)=>{
+    if(photos[i]){
+      drawPhotoIntoMask(photos[i],mask);
+    }
+  });
+
+  const temp=document.createElement("canvas");
+  temp.width=1080;
+  temp.height=1920;
+
+  const tctx=temp.getContext("2d");
+  tctx.drawImage(bg,0,0,1080,1920);
+
+  const imgData=tctx.getImageData(0,0,1080,1920);
+  const data=imgData.data;
+
+  for(let i=0;i<data.length;i+=4){
+    if(isMarkerGreen(data,i)){
+      data[i+3]=0;
+    }
+  }
+
+  tctx.putImageData(imgData,0,0);
+  ctx.drawImage(temp,0,0);
 }
 
 async function renderUploadedTemplate(){
