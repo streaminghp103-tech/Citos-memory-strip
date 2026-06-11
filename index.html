@@ -1279,9 +1279,13 @@ function isMarkerGreen(data,index){
   const r=data[index];
   const g=data[index+1];
   const b=data[index+2];
-  return g>180 && r<120 && b<120;
-}
 
+  return (
+    g > 150 &&
+    r < 180 &&
+    b < 180
+  );
+}
 // Template final untuk hasil akhir.
 // Untuk tes sekarang: template yang tersedia adalah preview-couple.png dan preview-birthday.png.
 // Nanti kalau file lain sudah di-upload, cukup ganti map ini ke preview-karaoke.png, dst.
@@ -1476,10 +1480,11 @@ async function renderUploadedTemplate(){
 
   const masks=detectGreenMasks(bg,src);
 
-  if(masks.length===0){
-    throw new Error("Area hijau #00FF00 tidak terdeteksi di "+src);
-  }
-
+  if(masks.length < 4){
+  throw new Error(
+    `Frame hijau kurang. Terdeteksi ${masks.length}/4 di ${src}`
+  );
+}
   masks.forEach((mask,i)=>{
     if(photos[i]){
       drawPhotoIntoMask(photos[i],mask);
@@ -1510,6 +1515,9 @@ function prepareBlob(){
 }
 
 startBtn.onclick=async()=>{
+  Object.keys(maskCache).forEach(k=>delete maskCache[k]);
+  Object.keys(transparentTemplateCache).forEach(k=>delete transparentTemplateCache[k]);
+
   photos=[];
   currentPhoto=1;
   lastBlob=null;
