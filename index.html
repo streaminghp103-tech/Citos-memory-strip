@@ -78,6 +78,8 @@ select option{color:black}
 .row{display:flex;gap:10px}
 .row>*{flex:1}
 #cameraScreen.active{justify-content:space-between}
+#cameraScreen{padding:0}
+#cameraScreen.active{justify-content:center}
 .fullCamera{
   position:relative;
   width:100vw;
@@ -229,18 +231,10 @@ select option{color:black}
 .shutterBtn.cancelMode #shutterIcon::after{
   transform:rotate(-45deg);
 }
-.shutterBtn.filter-natural{
-  background:white;
-}
-.shutterBtn.filter-bright{
-  background:#ffb6d8;
-}
-.shutterBtn.filter-party{
-  background:#8b5cf6;
-}
-.shutterBtn.filter-vintage{
-  background:#b8895b;
-}
+.shutterBtn.filter-natural{background:white}
+.shutterBtn.filter-bright{background:#ffb6d8}
+.shutterBtn.filter-party{background:#8b5cf6}
+.shutterBtn.filter-vintage{background:#b8895b}
 .miniRoundBtn{
   width:54px !important;
   height:54px;
@@ -275,12 +269,8 @@ select option{color:black}
   z-index:80;
   transition:opacity .12s ease;
 }
-#flashOverlay.show{
-  opacity:1;
-}
-#flashBtn.flashOn{
-  background:#ff2f92;
-}
+#flashOverlay.show{opacity:1}
+#flashBtn.flashOn{background:#ff2f92}
 #reviewScreen.active{
   justify-content:center;
   background:#000;
@@ -300,9 +290,7 @@ select option{color:black}
   display:flex;
   gap:10px;
 }
-.reviewActions button{
-  flex:1;
-}
+.reviewActions button{flex:1}
 .previewThumb{
   width:54px !important;
   height:54px;
@@ -320,9 +308,7 @@ select option{color:black}
   height:100%;
   object-fit:cover;
 }
-.fullCamera.shoot{
-  animation:cameraShoot .16s ease;
-}
+.fullCamera.shoot{animation:cameraShoot .16s ease}
 @keyframes cameraShoot{
   0%{transform:scale(1)}
   50%{transform:scale(1.015)}
@@ -487,7 +473,6 @@ canvas{
 </section>
 
 <script>
-// ========== DOM ELEMENTS ==========
 const startScreen=document.getElementById("startScreen");
 const formScreen=document.getElementById("formScreen");
 const cameraScreen=document.getElementById("cameraScreen");
@@ -524,7 +509,6 @@ const roomBadge=document.getElementById("roomBadge");
 const roomInput=document.getElementById("roomInput");
 const songInput=document.getElementById("songInput");
 
-// ========== STATE VARIABLES ==========
 let selectedFilter="natural";
 let selectedTimer=0;
 let currentFacingMode="user";
@@ -538,7 +522,6 @@ let isCountingDown=false;
 let countdownCancelled=false;
 let pendingPhoto=null;
 
-// ========== INITIALIZATION ==========
 const params=new URLSearchParams(window.location.search);
 const room=params.get("room")||"Lobby";
 roomBadge.textContent=`ROOM ${room}`;
@@ -555,7 +538,6 @@ const previewMap={
 
 templatePreviewImg.src=previewMap[selectedTemplate];
 
-// ========== FUNCTIONS ==========
 function showScreen(screen){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   screen.classList.add("active");
@@ -578,6 +560,30 @@ function updateShutterFilter(){
   captureBtn.classList.remove("filter-natural","filter-bright","filter-party","filter-vintage");
   captureBtn.classList.add(`filter-${selectedFilter}`);
 }
+
+document.querySelectorAll(".filterChip").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".filterChip").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedFilter=btn.dataset.filter;
+    updateVideoFilter();
+    updateShutterFilter();
+  });
+});
+
+timerToggleBtn.onclick=()=>{
+  timerPopup.classList.toggle("show");
+};
+
+document.querySelectorAll(".timerChip").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".timerChip").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedTimer=parseInt(btn.dataset.time,10);
+    timerToggleBtn.textContent=selectedTimer===0?"⏱️":`${selectedTimer}s`;
+    timerPopup.classList.remove("show");
+  });
+});
 
 async function startCamera(){
   try{
@@ -741,6 +747,20 @@ async function runCountdown(){
   return true;
 }
 
+function roundRect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
 function generateResult(){
   ctx.fillStyle="#000";
   ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -748,59 +768,98 @@ function generateResult(){
   const layout=getTemplateLayout(selectedTemplate);
   const photoW=layout.photoW;
   const photoH=layout.photoH;
+  const bgColor=layout.bgColor||"#1a1a1a";
+  
+  ctx.fillStyle=bgColor;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
   
   layout.positions.forEach((pos,i)=>{
     if(photos[i]){
-      const imgData=photos[i].toDataURL();
-      const img=new Image();
-      img.onload=function(){
-        ctx.drawImage(img,pos.x,pos.y,photoW,photoH);
-      };
-      img.src=imgData;
+      const canvas2=photos[i];
+      ctx.save();
+      roundRect(pos.x,pos.y,photoW,photoH,20);
+      ctx.clip();
+      ctx.drawImage(canvas2,pos.x,pos.y,photoW,photoH);
+      ctx.restore();
+      
+      ctx.strokeStyle="rgba(255,255,255,0.2)";
+      ctx.lineWidth=2;
+      roundRect(pos.x,pos.y,photoW,photoH,20);
+      ctx.stroke();
     }
   });
   
+  ctx.save();
   ctx.fillStyle="#ff2f92";
-  ctx.font="bold 48px Arial";
+  ctx.font="bold 60px Arial";
   ctx.textAlign="center";
-  ctx.fillText("HP103 Memory Strip",canvas.width/2,1850);
+  ctx.fillText("HP103",canvas.width/2,1750);
+  ctx.font="bold 48px Arial";
+  ctx.fillText("Memory Strip",canvas.width/2,1820);
   
   const song=songInput.value||"";
   if(song){
-    ctx.font="32px Arial";
-    ctx.fillStyle="#fff";
-    ctx.fillText(`🎵 ${song}`,canvas.width/2,1920);
+    ctx.font="36px Arial";
+    ctx.fillStyle="#ffc34d";
+    ctx.fillText(`🎵 ${song}`,canvas.width/2,1900);
   }
+  
+  ctx.restore();
 }
 
 function getTemplateLayout(template){
   const layouts={
-    karaoke:{photoW:500,photoH:600,positions:[
-      {x:40,y:100},{x:590,y:100},
-      {x:40,y:750},{x:590,y:750}
-    ]},
-    couple:{photoW:500,photoH:700,positions:[
-      {x:40,y:200},{x:590,y:200},
-      {x:40,y:950},{x:590,y:950}
-    ]},
-    bestfriend:{photoW:450,photoH:550,positions:[
-      {x:90,y:150},{x:640,y:150},
-      {x:90,y:750},{x:640,y:750}
-    ]},
-    birthday:{photoW:500,photoH:600,positions:[
-      {x:40,y:100},{x:590,y:100},
-      {x:40,y:750},{x:590,y:750}
-    ]},
-    receipt:{photoW:480,photoH:580,positions:[
-      {x:60,y:80},{x:600,y:80},
-      {x:60,y:720},{x:600,y:720}
-    ]}
+    karaoke:{
+      photoW:480,photoH:580,
+      bgColor:"#0a0a0f",
+      positions:[
+        {x:60,y:120},{x:600,y:120},
+        {x:60,y:760},{x:600,y:760}
+      ]
+    },
+    couple:{
+      photoW:480,photoH:680,
+      bgColor:"#1a0a1a",
+      positions:[
+        {x:60,y:80},{x:600,y:80},
+        {x:60,y:820},{x:600,y:820}
+      ]
+    },
+    bestfriend:{
+      photoW:480,photoH:560,
+      bgColor:"#0a1a1a",
+      positions:[
+        {x:60,y:140},{x:600,y:140},
+        {x:60,y:760},{x:600,y:760}
+      ]
+    },
+    birthday:{
+      photoW:480,photoH:580,
+      bgColor:"#1a0a0a",
+      positions:[
+        {x:60,y:120},{x:600,y:120},
+        {x:60,y:760},{x:600,y:760}
+      ]
+    },
+    receipt:{
+      photoW:440,photoH:540,
+      bgColor:"#0a0a0f",
+      positions:[
+        {x:100,y:160},{x:640,y:160},
+        {x:100,y:760},{x:640,y:760}
+      ]
+    }
   };
   return layouts[template]||layouts.karaoke;
 }
 
 async function prepareBlob(){
-  lastBlob=null;
+  return new Promise(resolve=>{
+    canvas.toBlob(blob=>{
+      lastBlob=blob;
+      resolve(blob);
+    });
+  });
 }
 
 function downloadResult(){
@@ -819,11 +878,11 @@ function openInstagram(){
     if(navigator.share){
       navigator.share({
         title:"HP103 Memory Strip",
-        text:"Lihat hasil Memory Strip ku!",
+        text:`Lihat Memory Strip ku! 🎤 ${room}`,
         files:[new File([blob],"memory.png",{type:"image/png"})]
       }).catch(err=>console.log(err));
     }else{
-      alert("Share tidak tersedia di browser ini. Silakan download dan upload manual ke Instagram.");
+      alert("Share tidak tersedia. Silakan download dan upload ke Instagram manual.");
     }
   });
 }
@@ -833,7 +892,7 @@ function shareResult(){
     canvas.toBlob(blob=>{
       navigator.share({
         title:"HP103 Memory Strip",
-        text:`🎤 ${room} - ${selectedTemplate} Theme`,
+        text:`🎤 ${room} - ${selectedTemplate.toUpperCase()} Theme`,
         files:[new File([blob],"memory.png",{type:"image/png"})]
       }).catch(err=>console.log(err));
     });
@@ -841,65 +900,6 @@ function shareResult(){
     downloadResult();
   }
 }
-
-// ========== EVENT LISTENERS ==========
-// Navigation
-goFormBtn.onclick=()=>{
-  photos=[];
-  currentPhoto=1;
-  showScreen(formScreen);
-};
-
-backHomeBtn.onclick=()=>{
-  showScreen(startScreen);
-};
-
-startBtn.onclick=async()=>{
-  photos=[];
-  currentPhoto=1;
-  photoCounter.textContent="Foto 1 / 4";
-  showScreen(cameraScreen);
-  await startCamera();
-};
-
-// Template Selection
-document.querySelectorAll(".template").forEach(el=>{
-  el.addEventListener("click",()=>{
-    document.querySelectorAll(".template").forEach(t=>t.classList.remove("active"));
-    el.classList.add("active");
-    selectedTemplate=el.dataset.template;
-    templatePreviewImg.src=previewMap[selectedTemplate];
-  });
-});
-
-// Filter Selection
-document.querySelectorAll(".filterChip").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".filterChip").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    selectedFilter=btn.dataset.filter;
-    updateVideoFilter();
-    updateShutterFilter();
-  });
-});
-
-// Timer Selection
-timerToggleBtn.onclick=()=>{
-  timerPopup.classList.toggle("show");
-};
-
-document.querySelectorAll(".timerChip").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".timerChip").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    selectedTimer=parseInt(btn.dataset.time,10);
-    timerToggleBtn.textContent=selectedTimer===0?"⏱️":`${selectedTimer}s`;
-    timerPopup.classList.remove("show");
-  });
-});
-
-// Camera Controls
-captureBtn.onclick=capturePhoto;
 
 async function capturePhoto(){
   if(isCountingDown){
@@ -952,6 +952,36 @@ async function capturePhoto(){
   }
 }
 
+// ===== EVENT LISTENERS =====
+goFormBtn.onclick=()=>{
+  photos=[];
+  currentPhoto=1;
+  showScreen(formScreen);
+};
+
+backHomeBtn.onclick=()=>{
+  showScreen(startScreen);
+};
+
+startBtn.onclick=async()=>{
+  photos=[];
+  currentPhoto=1;
+  photoCounter.textContent="Foto 1 / 4";
+  showScreen(cameraScreen);
+  await startCamera();
+};
+
+document.querySelectorAll(".template").forEach(el=>{
+  el.addEventListener("click",()=>{
+    document.querySelectorAll(".template").forEach(t=>t.classList.remove("active"));
+    el.classList.add("active");
+    selectedTemplate=el.dataset.template;
+    templatePreviewImg.src=previewMap[selectedTemplate];
+  });
+});
+
+captureBtn.onclick=capturePhoto;
+
 cancelBtn.onclick=()=>{
   if(isCountingDown){
     countdownCancelled=true;
@@ -969,7 +999,6 @@ flashBtn.onclick=()=>{
 
 switchCameraBtn.onclick=switchCamera;
 
-// Review Screen
 usePhotoBtn.onclick=()=>{
   showScreen(cameraScreen);
 };
@@ -985,7 +1014,6 @@ previewBtn.onclick=()=>{
   showScreen(reviewScreen);
 };
 
-// Result Screen
 downloadBtn.onclick=downloadResult;
 openIgBtn.onclick=openInstagram;
 shareBtn.onclick=shareResult;
@@ -997,7 +1025,6 @@ retryBtn.onclick=async()=>{
   showScreen(cameraScreen);
   await startCamera();
 };
-
 </script>
 
 </body>
