@@ -664,7 +664,7 @@ let torchEnabled=false;
     video.style.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
   }else{
   video.style.filter=
-  "brightness(1.18) contrast(.98) saturate(1.08)";
+  "brightness(1.02) contrast(1.00) saturate(1.02)";
 }
 }
 document.querySelectorAll(".filterChip").forEach(btn=>{
@@ -851,7 +851,7 @@ function applyFilterToContext(c){
   else if(f==="party") c.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
   else if(f==="vintage") c.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
   else c.filter=
-"brightness(1.18) contrast(.98) saturate(1.08)";
+"brightness(1.02) contrast(1.00) saturate(1.02)";
 }
 
 function playFlashEffect(){
@@ -1392,7 +1392,7 @@ function drawPhotoIntoMask(photo,mask){
 
   const lctx=layer.getContext("2d",{willReadFrequently:true});
 
-  const scale=Math.min(
+  const scale=Math.max(
   mask.w/photo.width,
   mask.h/photo.height
 );
