@@ -44,9 +44,10 @@ button{
   background:linear-gradient(135deg,#ff2f92,#ff7ac0);
   color:white;font-weight:700;font-size:15px;
   box-shadow:0 10px 26px rgba(255,47,146,.28);
+  cursor:pointer;
 }
 button.secondary{background:#252532;box-shadow:none}
-button:disabled{opacity:.5}
+button:disabled{opacity:.5;cursor:not-allowed}
 input,select{
   width:100%;border-radius:16px;padding:13px 14px;
   background:rgba(255,255,255,.1);color:white;font-size:15px;
@@ -66,6 +67,7 @@ select option{color:black}
   border:1px solid rgba(255,255,255,.16);
   background:rgba(255,255,255,.08);
   border-radius:18px;padding:12px;text-align:left;min-height:118px;
+  cursor:pointer;
 }
 .template.active{outline:2px solid #ff2f92;background:rgba(255,47,146,.18)}
 .thumb{
@@ -76,48 +78,180 @@ select option{color:black}
 .row{display:flex;gap:10px}
 .row>*{flex:1}
 #cameraScreen.active{justify-content:space-between}
-.topbar{
-  width:100%;max-width:430px;height:44px;
-  display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
+.fullCamera{
+  position:relative;
+  width:100vw;
+  height:100dvh;
+  overflow:hidden;
+  background:#000;
+}
+.fullCamera video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  background:#000;
+}
+.cameraTopOverlay{
+  position:absolute;
+  top:14px;
+  left:14px;
+  right:14px;
+  z-index:40;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.iconBtn{
+  width:44px !important;
+  height:44px;
+  max-width:44px;
+  padding:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.45);
+  box-shadow:none;
+  font-size:22px;
+  backdrop-filter:blur(10px);
+  cursor:pointer;
 }
 #photoCounter{
-  padding:9px 13px;border-radius:999px;
-  background:rgba(255,255,255,.12);font-weight:bold;
-}
-#cancelBtn{width:auto;padding:9px 14px}
-.cameraWrap{
-  position:relative;width:100%;max-width:430px;
-  height:calc(100dvh - 150px);max-height:680px;flex:1;
-  border-radius:28px;overflow:hidden;background:#000;
-  border:2px solid rgba(255,255,255,.18);
-}
-video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX(-1)}
-.cameraHint{
-  position:absolute;left:14px;right:14px;bottom:14px;
-  padding:11px;border-radius:18px;background:rgba(0,0,0,.45);
-  text-align:center;font-size:13px;
-}
-  .cameraSettings{
-  position:absolute;
-  top:12px;
-  left:12px;
-  right:12px;
-  display:flex;
-  gap:8px;
-  z-index:999;
-}
-
-.cameraSettings select{
-  flex:1;
-  position:relative;
-  z-index:999;
-  padding:10px 12px;
-  font-size:12px;
+  padding:10px 16px;
   border-radius:999px;
-  border:none;
-  background:rgba(0,0,0,.55);
+  background:rgba(0,0,0,.45);
+  font-weight:bold;
+  backdrop-filter:blur(10px);
+}
+.timerPopup{
+  position:absolute;
+  top:68px;
+  right:14px;
+  z-index:45;
+  display:none;
+  gap:8px;
+  padding:8px;
+  border-radius:999px;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(10px);
+}
+.timerPopup.show{
+  display:flex;
+}
+.cameraBottomOverlay{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:22px;
+  z-index:40;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+}
+.filterBar{
+  width:100%;
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding:0 18px;
+  scrollbar-width:none;
+}
+.filterBar::-webkit-scrollbar{
+  display:none;
+}
+.filterChip,.timerChip{
+  width:auto !important;
+  min-width:max-content;
+  padding:10px 16px;
+  border-radius:999px;
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:none;
   color:white;
-  backdrop-filter:blur(8px);
+  backdrop-filter:blur(10px);
+  cursor:pointer;
+}
+.filterChip.active,.timerChip.active{
+  background:#ff2f92;
+  border-color:#ff2f92;
+}
+.shutterRow{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:22px;
+}
+.shutterBtn{
+  width:78px !important;
+  min-width:78px;
+  height:78px;
+  max-width:78px;
+  padding:0;
+  border-radius:50%;
+  background:white;
+  border:6px solid rgba(255,255,255,.35);
+  box-shadow:0 0 0 6px rgba(255,255,255,.15), 0 12px 30px rgba(0,0,0,.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  cursor:pointer;
+}
+.shutterBtn #shutterIcon{
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  background:#fff;
+  border:3px solid #ff2f92;
+}
+.shutterBtn.cancelMode{
+  background:#ff2f92;
+}
+.shutterBtn.cancelMode #shutterIcon{
+  width:32px;
+  height:32px;
+  background:transparent;
+  border:none;
+  position:relative;
+}
+.shutterBtn.cancelMode #shutterIcon::before,
+.shutterBtn.cancelMode #shutterIcon::after{
+  content:"";
+  position:absolute;
+  left:15px;
+  top:0;
+  width:4px;
+  height:34px;
+  background:white;
+  border-radius:4px;
+}
+.shutterBtn.cancelMode #shutterIcon::before{
+  transform:rotate(45deg);
+}
+.shutterBtn.cancelMode #shutterIcon::after{
+  transform:rotate(-45deg);
+}
+.shutterBtn.filter-natural{
+  background:white;
+}
+.shutterBtn.filter-bright{
+  background:#ffb6d8;
+}
+.shutterBtn.filter-party{
+  background:#8b5cf6;
+}
+.shutterBtn.filter-vintage{
+  background:#b8895b;
+}
+.miniRoundBtn{
+  width:54px !important;
+  height:54px;
+  max-width:54px;
+  padding:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.45);
+  box-shadow:none;
+  font-size:24px;
+  backdrop-filter:blur(10px);
+  cursor:pointer;
 }
 #countdown{
   position:fixed;
@@ -132,288 +266,6 @@ video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX
   z-index:20;
   pointer-events:none;
 }
-  .shutterBtn{
-  position:relative;
-  z-index:30;
-}
-#resultScreen.active{
-  justify-content:flex-start;
-  padding:10px;
-  gap:10px;
-}
-
-#resultScreen h2{
-  font-size:28px;
-  margin-top:4px;
-}
-
-canvas{
-  width:auto;
-  height:calc(100dvh - 175px);
-  max-height:610px;
-  max-width:92vw;
-  border-radius:22px;
-  background:black;
-  box-shadow:0 18px 50px rgba(0,0,0,.45);
-}
-
-.actions{
-  width:100%;
-  max-width:430px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  padding:0 6px;
-}
-
-.actions button{
-  width:100%;
-  padding:10px 8px;
-  font-size:13px;
-  border-radius:18px;
-  white-space:nowrap;
-}
-  .shutterBtn{
-  width:78px;
-  height:78px;
-  max-width:78px;
-  padding:0;
-  border-radius:50%;
-  background:white;
-  border:6px solid rgba(255,255,255,.35);
-  box-shadow:0 0 0 6px rgba(255,255,255,.15), 0 12px 30px rgba(0,0,0,.45);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-shrink:0;
-}
-
-.shutterBtn #shutterIcon{
-  width:52px;
-  height:52px;
-  border-radius:50%;
-  background:#fff;
-  border:3px solid #ff2f92;
-}
-
-.shutterBtn.cancelMode{
-  background:#ff2f92;
-}
-
-.shutterBtn.cancelMode #shutterIcon{
-  width:32px;
-  height:32px;
-  background:transparent;
-  border:none;
-  position:relative;
-}
-
-.shutterBtn.cancelMode #shutterIcon::before,
-.shutterBtn.cancelMode #shutterIcon::after{
-  content:"";
-  position:absolute;
-  left:15px;
-  top:0;
-  width:4px;
-  height:34px;
-  background:white;
-  border-radius:4px;
-}
-
-.shutterBtn.cancelMode #shutterIcon::before{
-  transform:rotate(45deg);
-}
-
-.shutterBtn.cancelMode #shutterIcon::after{
-  transform:rotate(-45deg);
-}
-.filterBar,
-.timerBar{
-  display:flex;
-  gap:6px;
-  flex:1;
-}
-
-.filterChip,
-.timerChip{
-  width:auto;
-  min-width:44px;
-  height:44px;
-  padding:0 12px;
-  border-radius:999px;
-  background:rgba(0,0,0,.55);
-  border:1px solid rgba(255,255,255,.15);
-  box-shadow:none;
-  font-size:14px;
-  color:white;
-}
-
-.filterChip.active,
-.timerChip.active{
-  background:#ff2f92;
-  border-color:#ff2f92;
-}
-
-.shutterBtn{
-  width:78px !important;
-  min-width:78px;
-}
-  #cameraScreen{
-  padding:0;
-}
-
-#cameraScreen.active{
-  justify-content:center;
-}
-
-.fullCamera{
-  position:relative;
-  width:100vw;
-  height:100dvh;
-  overflow:hidden;
-  background:#000;
-}
-
-.fullCamera video{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  background:#000;
-}
-
-.cameraTopOverlay{
-  position:absolute;
-  top:14px;
-  left:14px;
-  right:14px;
-  z-index:40;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-.iconBtn{
-  width:44px !important;
-  height:44px;
-  max-width:44px;
-  padding:0;
-  border-radius:50%;
-  background:rgba(0,0,0,.45);
-  box-shadow:none;
-  font-size:22px;
-  backdrop-filter:blur(10px);
-}
-
-#photoCounter{
-  padding:10px 16px;
-  border-radius:999px;
-  background:rgba(0,0,0,.45);
-  font-weight:bold;
-  backdrop-filter:blur(10px);
-}
-
-.timerPopup{
-  position:absolute;
-  top:68px;
-  right:14px;
-  z-index:45;
-  display:none;
-  gap:8px;
-  padding:8px;
-  border-radius:999px;
-  background:rgba(0,0,0,.45);
-  backdrop-filter:blur(10px);
-}
-
-.timerPopup.show{
-  display:flex;
-}
-
-.cameraBottomOverlay{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:22px;
-  z-index:40;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:16px;
-}
-
-.filterBar{
-  width:100%;
-  display:flex;
-  gap:10px;
-  overflow-x:auto;
-  padding:0 18px;
-  scrollbar-width:none;
-}
-
-.filterBar::-webkit-scrollbar{
-  display:none;
-}
-
-.filterChip,
-.timerChip{
-  width:auto !important;
-  min-width:max-content;
-  padding:10px 16px;
-  border-radius:999px;
-  background:rgba(0,0,0,.45);
-  border:1px solid rgba(255,255,255,.18);
-  box-shadow:none;
-  color:white;
-  backdrop-filter:blur(10px);
-}
-
-.filterChip.active,
-.timerChip.active{
-  background:#ff2f92;
-  border-color:#ff2f92;
-}
-
-.shutterBtn{
-  width:78px !important;
-  min-width:78px;
-  height:78px;
-  max-width:78px;
-}
-
-.shutterBtn.filter-natural{
-  background:white;
-}
-
-.shutterBtn.filter-bright{
-  background:#ffb6d8;
-}
-
-.shutterBtn.filter-party{
-  background:#8b5cf6;
-}
-
-.shutterBtn.filter-vintage{
-  background:#b8895b;
-}
-.shutterRow{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:22px;
-}
-
-.miniRoundBtn{
-  width:54px !important;
-  height:54px;
-  max-width:54px;
-  padding:0;
-  border-radius:50%;
-  background:rgba(0,0,0,.45);
-  box-shadow:none;
-  font-size:24px;
-  backdrop-filter:blur(10px);
-}
-
 #flashOverlay{
   position:fixed;
   inset:0;
@@ -423,20 +275,17 @@ canvas{
   z-index:80;
   transition:opacity .12s ease;
 }
-
 #flashOverlay.show{
   opacity:1;
 }
-
 #flashBtn.flashOn{
   background:#ff2f92;
 }
-  #reviewScreen.active{
+#reviewScreen.active{
   justify-content:center;
   background:#000;
   padding:18px;
 }
-
 #reviewImage{
   width:100%;
   max-width:430px;
@@ -445,18 +294,16 @@ canvas{
   border-radius:24px;
   background:#000;
 }
-
 .reviewActions{
   width:100%;
   max-width:430px;
   display:flex;
   gap:10px;
 }
-
 .reviewActions button{
   flex:1;
 }
-  .previewThumb{
+.previewThumb{
   width:54px !important;
   height:54px;
   max-width:54px;
@@ -466,23 +313,22 @@ canvas{
   background:rgba(0,0,0,.45);
   box-shadow:none;
   border:2px solid rgba(255,255,255,.5);
+  cursor:pointer;
 }
-
 .previewThumb img{
   width:100%;
   height:100%;
   object-fit:cover;
 }
-  .fullCamera.shoot{
+.fullCamera.shoot{
   animation:cameraShoot .16s ease;
 }
-
 @keyframes cameraShoot{
   0%{transform:scale(1)}
   50%{transform:scale(1.015)}
   100%{transform:scale(1)}
 }
-  .templatePreview{
+.templatePreview{
   width:100%;
   height:180px;
   border-radius:20px;
@@ -490,13 +336,44 @@ canvas{
   background:rgba(255,255,255,.08);
   border:1px solid rgba(255,255,255,.12);
 }
-
 .templatePreview img{
   width:100%;
   height:100%;
   object-fit:cover;
 }
-  
+#resultScreen.active{
+  justify-content:flex-start;
+  padding:10px;
+  gap:10px;
+}
+#resultScreen h2{
+  font-size:28px;
+  margin-top:4px;
+}
+canvas{
+  width:auto;
+  height:calc(100dvh - 175px);
+  max-height:610px;
+  max-width:92vw;
+  border-radius:22px;
+  background:black;
+  box-shadow:0 18px 50px rgba(0,0,0,.45);
+}
+.actions{
+  width:100%;
+  max-width:430px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  padding:0 6px;
+}
+.actions button{
+  width:100%;
+  padding:10px 8px;
+  font-size:13px;
+  border-radius:18px;
+  white-space:nowrap;
+}
 </style>
 </head>
 
@@ -530,35 +407,31 @@ canvas{
     </div>
 
     <div id="templatePreview" class="templatePreview">
-  <img id="templatePreviewImg" src="" alt="">
-</div>
+      <img id="templatePreviewImg" src="" alt="">
+    </div>
 
     <div class="row">
       <input id="roomInput" readonly>
       <input id="songInput" placeholder="Lagu favorit">
     </div>
 
-    
     <button id="startBtn">Lanjut Ambil Foto</button>
     <button id="backHomeBtn" class="secondary">Kembali</button>
   </div>
 </section>
 
 <section id="cameraScreen" class="screen">
-
   <div class="fullCamera">
     <video id="video" autoplay playsinline muted></video>
 
     <div class="cameraTopOverlay">
-  <button id="cancelBtn" class="iconBtn">‹</button>
-
-  <span id="photoCounter">Foto 1 / 4</span>
-
-  <div style="display:flex;gap:8px;">
-    <button id="flashBtn" class="iconBtn">⚡</button>
-<button id="timerToggleBtn" class="iconBtn">⏱️</button>
-  </div>
-</div>
+      <button id="cancelBtn" class="iconBtn">‹</button>
+      <span id="photoCounter">Foto 1 / 4</span>
+      <div style="display:flex;gap:8px;">
+        <button id="flashBtn" class="iconBtn">⚡</button>
+        <button id="timerToggleBtn" class="iconBtn">⏱️</button>
+      </div>
+    </div>
 
     <div id="timerPopup" class="timerPopup">
       <button class="timerChip active" data-time="0">Off</button>
@@ -576,24 +449,24 @@ canvas{
       </div>
 
       <div class="shutterRow">
-  <button id="previewBtn" class="previewThumb" style="display:none;">
-  <img id="previewThumbImg">
-</button>
+        <button id="previewBtn" class="previewThumb" style="display:none;">
+          <img id="previewThumbImg">
+        </button>
 
-  <button id="captureBtn" class="shutterBtn filter-natural" aria-label="Ambil Foto">
-    <span id="shutterIcon"></span>
-  </button>
+        <button id="captureBtn" class="shutterBtn filter-natural" aria-label="Ambil Foto">
+          <span id="shutterIcon"></span>
+        </button>
 
-  <button id="switchCameraBtn" class="miniRoundBtn">🔄</button>
-</div>
+        <button id="switchCameraBtn" class="miniRoundBtn">🔄</button>
+      </div>
     </div>
   </div>
-
 </section>
 
 <div id="countdown">3</div>
-  <div id="flashOverlay"></div>
-  <section id="reviewScreen" class="screen">
+<div id="flashOverlay"></div>
+
+<section id="reviewScreen" class="screen">
   <img id="reviewImage" alt="Preview Foto">
   <div class="reviewActions">
     <button id="deletePhotoBtn" class="secondary">🗑️ Hapus</button>
@@ -614,6 +487,7 @@ canvas{
 </section>
 
 <script>
+// ========== DOM ELEMENTS ==========
 const startScreen=document.getElementById("startScreen");
 const formScreen=document.getElementById("formScreen");
 const cameraScreen=document.getElementById("cameraScreen");
@@ -636,7 +510,8 @@ const flashBtn=document.getElementById("flashBtn");
 const flashOverlay=document.getElementById("flashOverlay");
 const reviewImage=document.getElementById("reviewImage");
 const deletePhotoBtn=document.getElementById("deletePhotoBtn");
-const usePhotoBtn=document.getElementById("usePhotoBtn");const previewBtn=document.getElementById("previewBtn");
+const usePhotoBtn=document.getElementById("usePhotoBtn");
+const previewBtn=document.getElementById("previewBtn");
 const previewThumbImg=document.getElementById("previewThumbImg");
 
 const video=document.getElementById("video");
@@ -648,61 +523,12 @@ const ctx=canvas.getContext("2d");
 const roomBadge=document.getElementById("roomBadge");
 const roomInput=document.getElementById("roomInput");
 const songInput=document.getElementById("songInput");
+
+// ========== STATE VARIABLES ==========
 let selectedFilter="natural";
 let selectedTimer=0;
 let currentFacingMode="user";
 let torchEnabled=false;
-  
-  function updateVideoFilter(){
-  const f=selectedFilter;
-
-  if(f==="bright"){
-    video.style.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
-  }else if(f==="party"){
-    video.style.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
-  }else if(f==="vintage"){
-    video.style.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
-  }else{
-  video.style.filter=
-  "brightness(1.18) contrast(.98) saturate(1.08)";
-}
-}
-document.querySelectorAll(".filterChip").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".filterChip").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    selectedFilter=btn.dataset.filter;
-    updateVideoFilter();
-    updateShutterFilter();
-  });
-});
-
-timerToggleBtn.onclick=()=>{
-  timerPopup.classList.toggle("show");
-};
-
-document.querySelectorAll(".timerChip").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".timerChip").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-
-    selectedTimer=parseInt(btn.dataset.time,10);
-    timerToggleBtn.textContent = selectedTimer===0 ? "⏱️" : `${selectedTimer}s`;
-
-    timerPopup.classList.remove("show");
-  });
-});
-function updateShutterFilter(){
-  captureBtn.classList.remove(
-    "filter-natural",
-    "filter-bright",
-    "filter-party",
-    "filter-vintage"
-  );
-
-  captureBtn.classList.add(`filter-${selectedFilter}`);
-}
-  
 let stream=null;
 let photos=[];
 let currentPhoto=1;
@@ -711,18 +537,14 @@ let lastBlob=null;
 let isCountingDown=false;
 let countdownCancelled=false;
 let pendingPhoto=null;
-  
+
+// ========== INITIALIZATION ==========
 const params=new URLSearchParams(window.location.search);
 const room=params.get("room")||"Lobby";
 roomBadge.textContent=`ROOM ${room}`;
 roomInput.value=`ROOM ${room}`;
 
-function showScreen(screen){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  screen.classList.add("active");
-}
-const templatePreviewImg =
-document.getElementById("templatePreviewImg");
+const templatePreviewImg=document.getElementById("templatePreviewImg");
 const previewMap={
   karaoke:"preview-karaoke.jpg",
   couple:"preview-couple.jpg",
@@ -730,48 +552,52 @@ const previewMap={
   birthday:"preview-birthday.jpg",
   receipt:"preview-receipt.jpg"
 };
-  templatePreviewImg.src =
-  previewMap[selectedTemplate];
 
-document.querySelectorAll(".template").forEach(el=>{
-  el.addEventListener("click",()=>{
+templatePreviewImg.src=previewMap[selectedTemplate];
 
-    document.querySelectorAll(".template")
-    .forEach(t=>t.classList.remove("active"));
+// ========== FUNCTIONS ==========
+function showScreen(screen){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  screen.classList.add("active");
+}
 
-    el.classList.add("active");
+function updateVideoFilter(){
+  const f=selectedFilter;
+  if(f==="bright"){
+    video.style.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
+  }else if(f==="party"){
+    video.style.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
+  }else if(f==="vintage"){
+    video.style.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
+  }else{
+    video.style.filter="brightness(1.18) contrast(.98) saturate(1.08)";
+  }
+}
 
-    selectedTemplate=el.dataset.template;
-
-    templatePreviewImg.src=
-      previewMap[selectedTemplate];
-  });
-});
-
-goFormBtn.onclick=()=>showScreen(formScreen);
-backHomeBtn.onclick=()=>showScreen(startScreen);
+function updateShutterFilter(){
+  captureBtn.classList.remove("filter-natural","filter-bright","filter-party","filter-vintage");
+  captureBtn.classList.add(`filter-${selectedFilter}`);
+}
 
 async function startCamera(){
   try{
     stream=await navigator.mediaDevices.getUserMedia({
-      video:{
-  facingMode:{ ideal: currentFacingMode }
-},
+      video:{facingMode:{ideal:currentFacingMode}},
       audio:false
     });
     video.srcObject=stream;
-
+    
     await new Promise(resolve=>{
       if(video.readyState>=2) resolve();
       else video.onloadedmetadata=()=>resolve();
     });
-
+    
     await video.play();
     if(currentFacingMode==="user"){
-  video.style.transform="scaleX(-1)";
-}else{
-  video.style.transform="scaleX(1)";
-}
+      video.style.transform="scaleX(-1)";
+    }else{
+      video.style.transform="scaleX(1)";
+    }
     updateVideoFilter();
   }catch(e){
     alert("Kamera tidak bisa dibuka. Pastikan izin kamera aktif dan buka lewat HTTPS.");
@@ -785,62 +611,47 @@ function stopCamera(){
     stream=null;
   }
 }
-  async function setTorch(enabled){
+
+async function setTorch(enabled){
   if(!stream) return;
-
   const track=stream.getVideoTracks()[0];
-
   if(!track) return;
-
   const capabilities=track.getCapabilities();
-
+  
   if(!capabilities.torch){
     alert("Flash lampu tidak didukung di HP/browser ini.");
     torchEnabled=false;
     flashBtn.classList.remove("flashOn");
     return;
   }
-
+  
   try{
-    await track.applyConstraints({
-      advanced:[{torch:enabled}]
-    });
-
+    await track.applyConstraints({advanced:[{torch:enabled}]});
     torchEnabled=enabled;
-
     if(torchEnabled){
       flashBtn.classList.add("flashOn");
     }else{
       flashBtn.classList.remove("flashOn");
     }
-
   }catch(e){
     alert("Flash lampu tidak bisa dinyalakan di perangkat ini.");
   }
 }
-  
-  async function switchCamera(){
 
+async function switchCamera(){
   try{
-
     if(currentFacingMode==="user"){
       currentFacingMode="environment";
     }else{
       currentFacingMode="user";
     }
     torchEnabled=false;
-flashBtn.classList.remove("flashOn");
-
+    flashBtn.classList.remove("flashOn");
     stopCamera();
-
     await startCamera();
-
   }catch(e){
-
     currentFacingMode="user";
-
     stopCamera();
-
     await startCamera();
   }
 }
@@ -850,73 +661,68 @@ function applyFilterToContext(c){
   if(f==="bright") c.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
   else if(f==="party") c.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
   else if(f==="vintage") c.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
-  else c.filter=
-"brightness(1.18) contrast(.98) saturate(1.08)";
+  else c.filter="brightness(1.18) contrast(.98) saturate(1.08)";
 }
 
 function playFlashEffect(){
   document.querySelector(".fullCamera")?.classList.add("shoot");
   flashOverlay.classList.add("show");
-
   setTimeout(()=>{
     flashOverlay.classList.remove("show");
     document.querySelector(".fullCamera")?.classList.remove("shoot");
   },180);
 }
-  
+
 function takeSnapshot(){
   const temp=document.createElement("canvas");
   const tctx=temp.getContext("2d");
   temp.width=900;
   temp.height=1200;
-
+  
   const vw=video.videoWidth;
   const vh=video.videoHeight;
-
+  
   if(!vw || !vh){
     throw new Error("Video belum siap");
   }
-
+  
   const dw=temp.width;
   const dh=temp.height;
   const sourceRatio=vw/vh;
   const destRatio=dw/dh;
-
+  
   let sx,sy,sw,sh;
-
   if(sourceRatio>destRatio){
     sh=vh; sw=vh*destRatio; sx=(vw-sw)/2; sy=0;
   }else{
     sw=vw; sh=vw/destRatio; sx=0; sy=(vh-sh)/2;
   }
-
+  
   tctx.save();
   applyFilterToContext(tctx);
   if(currentFacingMode==="user"){
-  tctx.translate(dw,0);
-  tctx.scale(-1,1);
-}
-
-tctx.drawImage(video,sx,sy,sw,sh,0,0,dw,dh);
+    tctx.translate(dw,0);
+    tctx.scale(-1,1);
+  }
+  tctx.drawImage(video,sx,sy,sw,sh,0,0,dw,dh);
   tctx.restore();
-
+  
   return temp;
 }
 
 async function runCountdown(){
   let count=selectedTimer;
-
   countdownCancelled=false;
-
+  
   if(count===0){
     return true;
   }
-
+  
   isCountingDown=true;
   captureBtn.disabled=false;
   captureBtn.classList.add("cancelMode");
   countdown.style.display="flex";
-
+  
   while(count>0){
     if(countdownCancelled){
       countdown.style.display="none";
@@ -924,20 +730,176 @@ async function runCountdown(){
       captureBtn.classList.remove("cancelMode");
       return false;
     }
-
     countdown.textContent=count;
-
     await new Promise(resolve=>setTimeout(resolve,1000));
-
     count--;
   }
-
+  
   countdown.style.display="none";
   isCountingDown=false;
   captureBtn.classList.remove("cancelMode");
-
   return true;
 }
+
+function generateResult(){
+  ctx.fillStyle="#000";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  
+  const layout=getTemplateLayout(selectedTemplate);
+  const photoW=layout.photoW;
+  const photoH=layout.photoH;
+  
+  layout.positions.forEach((pos,i)=>{
+    if(photos[i]){
+      const imgData=photos[i].toDataURL();
+      const img=new Image();
+      img.onload=function(){
+        ctx.drawImage(img,pos.x,pos.y,photoW,photoH);
+      };
+      img.src=imgData;
+    }
+  });
+  
+  ctx.fillStyle="#ff2f92";
+  ctx.font="bold 48px Arial";
+  ctx.textAlign="center";
+  ctx.fillText("HP103 Memory Strip",canvas.width/2,1850);
+  
+  const song=songInput.value||"";
+  if(song){
+    ctx.font="32px Arial";
+    ctx.fillStyle="#fff";
+    ctx.fillText(`🎵 ${song}`,canvas.width/2,1920);
+  }
+}
+
+function getTemplateLayout(template){
+  const layouts={
+    karaoke:{photoW:500,photoH:600,positions:[
+      {x:40,y:100},{x:590,y:100},
+      {x:40,y:750},{x:590,y:750}
+    ]},
+    couple:{photoW:500,photoH:700,positions:[
+      {x:40,y:200},{x:590,y:200},
+      {x:40,y:950},{x:590,y:950}
+    ]},
+    bestfriend:{photoW:450,photoH:550,positions:[
+      {x:90,y:150},{x:640,y:150},
+      {x:90,y:750},{x:640,y:750}
+    ]},
+    birthday:{photoW:500,photoH:600,positions:[
+      {x:40,y:100},{x:590,y:100},
+      {x:40,y:750},{x:590,y:750}
+    ]},
+    receipt:{photoW:480,photoH:580,positions:[
+      {x:60,y:80},{x:600,y:80},
+      {x:60,y:720},{x:600,y:720}
+    ]}
+  };
+  return layouts[template]||layouts.karaoke;
+}
+
+async function prepareBlob(){
+  lastBlob=null;
+}
+
+function downloadResult(){
+  canvas.toBlob(blob=>{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=`HP103-Memory-${Date.now()}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+function openInstagram(){
+  canvas.toBlob(blob=>{
+    if(navigator.share){
+      navigator.share({
+        title:"HP103 Memory Strip",
+        text:"Lihat hasil Memory Strip ku!",
+        files:[new File([blob],"memory.png",{type:"image/png"})]
+      }).catch(err=>console.log(err));
+    }else{
+      alert("Share tidak tersedia di browser ini. Silakan download dan upload manual ke Instagram.");
+    }
+  });
+}
+
+function shareResult(){
+  if(navigator.share){
+    canvas.toBlob(blob=>{
+      navigator.share({
+        title:"HP103 Memory Strip",
+        text:`🎤 ${room} - ${selectedTemplate} Theme`,
+        files:[new File([blob],"memory.png",{type:"image/png"})]
+      }).catch(err=>console.log(err));
+    });
+  }else{
+    downloadResult();
+  }
+}
+
+// ========== EVENT LISTENERS ==========
+// Navigation
+goFormBtn.onclick=()=>{
+  photos=[];
+  currentPhoto=1;
+  showScreen(formScreen);
+};
+
+backHomeBtn.onclick=()=>{
+  showScreen(startScreen);
+};
+
+startBtn.onclick=async()=>{
+  photos=[];
+  currentPhoto=1;
+  photoCounter.textContent="Foto 1 / 4";
+  showScreen(cameraScreen);
+  await startCamera();
+};
+
+// Template Selection
+document.querySelectorAll(".template").forEach(el=>{
+  el.addEventListener("click",()=>{
+    document.querySelectorAll(".template").forEach(t=>t.classList.remove("active"));
+    el.classList.add("active");
+    selectedTemplate=el.dataset.template;
+    templatePreviewImg.src=previewMap[selectedTemplate];
+  });
+});
+
+// Filter Selection
+document.querySelectorAll(".filterChip").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".filterChip").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedFilter=btn.dataset.filter;
+    updateVideoFilter();
+    updateShutterFilter();
+  });
+});
+
+// Timer Selection
+timerToggleBtn.onclick=()=>{
+  timerPopup.classList.toggle("show");
+};
+
+document.querySelectorAll(".timerChip").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".timerChip").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedTimer=parseInt(btn.dataset.time,10);
+    timerToggleBtn.textContent=selectedTimer===0?"⏱️":`${selectedTimer}s`;
+    timerPopup.classList.remove("show");
+  });
+});
+
+// Camera Controls
+captureBtn.onclick=capturePhoto;
 
 async function capturePhoto(){
   if(isCountingDown){
@@ -948,729 +910,94 @@ async function capturePhoto(){
     captureBtn.disabled=false;
     return;
   }
-
+  
   if(captureBtn.disabled) return;
   captureBtn.disabled=true;
-
+  
   try{
-    const countdownDone = await runCountdown();
-
+    const countdownDone=await runCountdown();
+    
     if(!countdownDone){
       captureBtn.disabled=false;
       return;
     }
-
+    
     playFlashEffect();
-
-    pendingPhoto = takeSnapshot();
-
-photos.push(pendingPhoto);
-
-const imgData = pendingPhoto.toDataURL("image/png");
-
-reviewImage.src = imgData;
-previewThumbImg.src = imgData;
-previewBtn.style.display = "block";
-
-if(photos.length >= 4){
-  stopCamera();
-  await generateResult();
-await prepareBlob();
-  showScreen(resultScreen);
-  captureBtn.disabled=false;
-  return;
-}
-
-currentPhoto++;
-photoCounter.textContent = `Foto ${currentPhoto} / 4`;
-
-captureBtn.disabled=false;
-
-    }catch(e){
+    pendingPhoto=takeSnapshot();
+    photos.push(pendingPhoto);
+    
+    const imgData=pendingPhoto.toDataURL("image/png");
+    reviewImage.src=imgData;
+    previewThumbImg.src=imgData;
+    previewBtn.style.display="block";
+    
+    if(photos.length>=4){
+      stopCamera();
+      generateResult();
+      await prepareBlob();
+      showScreen(resultScreen);
+      captureBtn.disabled=false;
+      return;
+    }
+    
+    currentPhoto++;
+    photoCounter.textContent=`Foto ${currentPhoto} / 4`;
+    captureBtn.disabled=false;
+    showScreen(reviewScreen);
+    
+  }catch(e){
+    console.error(e);
     alert("Foto gagal diambil. Coba ulangi.");
     captureBtn.disabled=false;
   }
 }
 
-function roundRect(x,y,w,h,r){
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);
-  ctx.lineTo(x+w-r,y);
-  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r);
-  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  ctx.lineTo(x+r,y+h);
-  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-  ctx.lineTo(x,y+r);
-  ctx.quadraticCurveTo(x,y,x+r,y);
-  ctx.closePath();
-}
-
-function drawPhoto(img,x,y,w,h,r=18,rot=0,border="#fff"){
-  ctx.save();
-  ctx.translate(x+w/2,y+h/2);
-  ctx.rotate(rot*Math.PI/180);
-
-  ctx.shadowColor="rgba(0,0,0,.45)";
-  ctx.shadowBlur=24;
-  ctx.shadowOffsetY=12;
-
-  ctx.fillStyle=border;
-  roundRect(-w/2-10,-h/2-10,w+20,h+20,r+8);
-  ctx.fill();
-
-  ctx.shadowColor="transparent";
-  roundRect(-w/2,-h/2,w,h,r);
-  ctx.clip();
-
-  const sr=img.width/img.height;
-  const dr=w/h;
-  let sx,sy,sw,sh;
-
-  if(sr>dr){
-    sh=img.height; sw=img.height*dr; sx=(img.width-sw)/2; sy=0;
+cancelBtn.onclick=()=>{
+  if(isCountingDown){
+    countdownCancelled=true;
   }else{
-    sw=img.width; sh=img.width/dr; sx=0; sy=(img.height-sh)/2;
+    stopCamera();
+    photos=[];
+    currentPhoto=1;
+    showScreen(formScreen);
   }
-
-  ctx.drawImage(img,sx,sy,sw,sh,-w/2,-h/2,w,h);
-  ctx.restore();
-}
-
-function textCenter(txt,x,y,size,color="#fff",bold=true,font="Arial"){
-  ctx.fillStyle=color;
-  ctx.font=`${bold?"bold ":""}${size}px ${font}`;
-  ctx.textAlign="center";
-  ctx.fillText(txt,x,y);
-  ctx.textAlign="left";
-}
-
-function baseBg(c1,c2,c3){
-  const bg=ctx.createLinearGradient(0,0,0,1920);
-  bg.addColorStop(0,c1);
-  bg.addColorStop(.48,c2);
-  bg.addColorStop(1,c3);
-  ctx.fillStyle=bg;
-  ctx.fillRect(0,0,1080,1920);
-}
-
-function getDate(){
-  return new Date().toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
-}
-  function getDateParts(){
-  const d=new Date();
-  const day=String(d.getDate()).padStart(2,"0");
-  const month=d.toLocaleDateString("id-ID",{month:"short"}).toUpperCase();
-  const year=d.getFullYear();
-  return {day,month,year};
-}
-
-function getTime(){
-  return new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
-}
-
-function getSong(){
-  return songInput.value.trim() || "KARAOKE NIGHT";
-}
-
-function drawDoodles(color){
-  ctx.strokeStyle=color;
-  ctx.lineWidth=4;
-  for(let i=0;i<12;i++){
-    const x=80+(i*83)%900;
-    const y=180+(i*137)%1550;
-    ctx.beginPath();
-    ctx.arc(x,y,9+(i%4)*3,0,Math.PI*2);
-    ctx.stroke();
-  }
-}
-
-function drawDoodleText(txt,x,y,size,color="#fff",rot=0,font="Arial"){
-  ctx.save();
-  ctx.translate(x,y);
-  ctx.rotate(rot*Math.PI/180);
-  ctx.fillStyle=color;
-  ctx.font=`bold ${size}px ${font}`;
-  ctx.textAlign="center";
-  ctx.fillText(txt,0,0);
-  ctx.restore();
-}
-
-function drawStripLayout(theme){
-  baseBg(theme.bg1,theme.bg2,theme.bg3);
-
-  ctx.fillStyle=theme.glow;
-  ctx.beginPath();
-  ctx.arc(900,190,280,0,Math.PI*2);
-  ctx.fill();
-
-  textCenter(theme.icon+" "+theme.title,540,82,42,theme.main);
-textCenter(theme.subtitle,540,128,38,theme.sub);
-
-  const photoSize=370;
-const photoX=(1080-photoSize)/2;
-const photoW=photoSize;
-const photoH=photoSize;
-const gap=30;
-const startY=155;
-
-  drawPhoto(photos[0],photoX,startY,photoW,photoH,22,-1,theme.border);
-  drawPhoto(photos[1],photoX,startY+(photoH+gap),photoW,photoH,22,1,theme.border);
-  drawPhoto(photos[2],photoX,startY+(photoH+gap)*2,photoW,photoH,22,-1,theme.border);
-  drawPhoto(photos[3],photoX,startY+(photoH+gap)*3,photoW,photoH,22,1,theme.border);
-
-  drawDoodleText("ROOM",170,610,28,theme.main,-10);
-drawDoodleText(room.toUpperCase(),170,650,30,"#fff",-8);
-
-drawDoodleText("GOOD",900,760,28,"#fff",-10);
-drawDoodleText("MUSIC",900,800,34,theme.main,-10);
-
-const dateParts=getDateParts();
-
-drawDoodleText(dateParts.day,170,1325,36,theme.main,-6);
-drawDoodleText(dateParts.month,170,1365,26,"#fff",-6);
-drawDoodleText(dateParts.year,170,1400,26,"#fff",-6);
-
-drawDoodleText(getTime(),900,1350,30,"#fff",4);
-
-drawDoodleText("♪",900,430,30,theme.sub,12);
-drawDoodleText("✦",890,610,30,theme.sub,0);
-drawDoodleText("♡",900,690,34,theme.main,10);
-drawDoodleText("★",900,1120,26,theme.sub,0);
-drawDoodleText(theme.icon,900,1480,36,theme.main,-15);
-
-textCenter("@happup.samarinda.panjaitan",540,1825,22,"rgba(255,255,255,.85)",false);
-  
-}
-
-function renderKaraoke(){
-  drawStripLayout({
-    bg1:"#050408",
-    bg2:"#16071a",
-    bg3:"#030303",
-    glow:"rgba(255,47,146,.28)",
-    main:"#ff5dad",
-    sub:"#8bd9ff",
-    border:"#ff5dad",
-    icon:"🎤",
-    title:"KARAOKE",
-    subtitle:"NIGHT",
-    sideText1:"?",
-sideText2:getSong().substring(0,10)
-  });
-}
-
-function renderCouple(){
-  drawStripLayout({
-    bg1:"#1a0710",
-    bg2:"#3b1022",
-    bg3:"#090305",
-    glow:"rgba(255,150,190,.28)",
-    main:"#ff9ac7",
-    sub:"#ffd6e8",
-    border:"#ffb1d2",
-    icon:"♡",
-    title:"COUPLE",
-    subtitle:"MEMORY",
-    sideText1:"TOGETHER",
-    sideText2:"FOREVER"
-  });
-}
-
-function renderBestFriend(){
-  drawStripLayout({
-    bg1:"#090909",
-    bg2:"#191204",
-    bg3:"#020202",
-    glow:"rgba(255,214,75,.24)",
-    main:"#ffd64b",
-    sub:"#ff9f43",
-    border:"#ffd64b",
-    icon:"★",
-    title:"BEST",
-    subtitle:"FRIENDS",
-    sideText1:"BESTIES",
-    sideText2:"SQUAD"
-  });
-}
-
-function renderBirthday(){
-  drawStripLayout({
-    bg1:"#12051c",
-    bg2:"#341044",
-    bg3:"#050205",
-    glow:"rgba(255,122,192,.3)",
-    main:"#ff7ac0",
-    sub:"#ffd36a",
-    border:"#ff8bc5",
-    icon:"🎂",
-    title:"HAPPY",
-    subtitle:"BIRTHDAY",
-    sideText1:"MAKE",
-    sideText2:"A WISH"
-  });
-}
-
-function renderReceipt(){
-  ctx.fillStyle="#f4ead7";
-  ctx.fillRect(0,0,1080,1920);
-
-  ctx.fillStyle="#19120b";
-  textCenter("HAPPY PUPPY",540,100,42,"#19120b");
-  textCenter("103",540,145,32,"#19120b");
-
-  roundRect(220,190,640,58,10);
-  ctx.fill();
-  textCenter("KARAOKE RECEIPT",540,230,26,"#fff");
-
-  ctx.font="bold 36px monospace";
-  ctx.fillStyle="#19120b";
-  ctx.fillText(`ROOM     : ${room}`,120,340);
-  ctx.fillText(`CHECK IN : ${getTime()}`,120,405);
-  ctx.fillText(`DATE     : ${getDate()}`,120,470);
-  ctx.fillText(`PAX      : 4`,120,535);
-
-  ctx.setLineDash([10,10]);
-  ctx.beginPath();
-  ctx.moveTo(120,620);
-  ctx.lineTo(960,620);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  textCenter("TOP SONG",540,710,32,"#19120b");
-  textCenter(getSong().toUpperCase().slice(0,22),540,775,48,"#19120b");
-
-  drawPhoto(photos[0],150,850,360,300,6,0,"#fff");
-  drawPhoto(photos[1],570,850,360,300,6,0,"#fff");
-  drawPhoto(photos[2],150,1210,360,300,6,0,"#fff");
-  drawPhoto(photos[3],570,1210,360,300,6,0,"#fff");
-  
-
-  textCenter("THANK YOU",540,1650,36,"#19120b");
-  textCenter("SEE YOU AGAIN!",540,1700,34,"#19120b");
-
-  ctx.fillStyle="#19120b";
-  for(let i=0;i<38;i++){
-    const x=160+i*20;
-    const h=40+(i%5)*14;
-    ctx.fillRect(x,1770,8,h);
-  }
-}
-
-  function loadImage(src){
-  return new Promise((resolve,reject)=>{
-    const img=new Image();
-    img.onload=()=>resolve(img);
-    img.onerror=()=>reject(new Error("Template tidak ditemukan: "+src));
-    img.src=src+"?v="+Date.now();
-  });
-}
-
-const templateMap={
-  karaoke:"preview-couple.png",
-  couple:"preview-couple.png",
-  bestfriend:"preview-couple.png",
-  birthday:"preview-birthday.png",
-  receipt:"preview-couple.png"
-};
-function isMarkerGreen(data,index){
-  const r=data[index];
-  const g=data[index+1];
-  const b=data[index+2];
-
-  return g>180 && r<120 && b<120;
-}
-
-function detectGreenMasks(img){
-  const w=1080;
-  const h=1920;
-
-  const temp=document.createElement("canvas");
-  temp.width=w;
-  temp.height=h;
-
-  const tctx=temp.getContext("2d");
-  tctx.drawImage(img,0,0,w,h);
-
-  const imgData=tctx.getImageData(0,0,w,h);
-  const data=imgData.data;
-  const visited=new Uint8Array(w*h);
-  const masks=[];
-
-  for(let y=0;y<h;y++){
-    for(let x=0;x<w;x++){
-      const start=y*w+x;
-      if(visited[start]) continue;
-
-      const startIdx=start*4;
-      if(!isMarkerGreen(data,startIdx)) continue;
-
-      const pixels=[];
-      let minX=x,maxX=x,minY=y,maxY=y,count=0;
-
-      const stack=[start];
-      visited[start]=1;
-
-      while(stack.length){
-        const cur=stack.pop();
-        const cx=cur%w;
-        const cy=Math.floor(cur/w);
-
-        pixels.push(cur);
-        count++;
-
-        if(cx<minX) minX=cx;
-        if(cx>maxX) maxX=cx;
-        if(cy<minY) minY=cy;
-        if(cy>maxY) maxY=cy;
-
-        const neighbors=[cur-1,cur+1,cur-w,cur+w];
-
-        for(const n of neighbors){
-          if(n<0 || n>=w*h) continue;
-          if(visited[n]) continue;
-
-          const nx=n%w;
-          const ny=Math.floor(n/w);
-
-          if(Math.abs(nx-cx)+Math.abs(ny-cy)!==1) continue;
-
-          const ni=n*4;
-
-          if(isMarkerGreen(data,ni)){
-            visited[n]=1;
-            stack.push(n);
-          }
-        }
-      }
-
-      const fw=maxX-minX+1;
-      const fh=maxY-minY+1;
-
-      if(count>5000 && fw>80 && fh>80){
-        masks.push({
-          x:minX,
-          y:minY,
-          w:fw,
-          h:fh,
-          pixels
-        });
-      }
-    }
-  }
-
-  return masks.sort((a,b)=>{
-    if(Math.abs(a.y-b.y)>40) return a.y-b.y;
-    return a.x-b.x;
-  }).slice(0,4);
-}
-
-function drawPhotoIntoMask(photo,mask){
-  const w=1080;
-  const h=1920;
-
-  const layer=document.createElement("canvas");
-  layer.width=w;
-  layer.height=h;
-
-  const lctx=layer.getContext("2d");
-
-  const sr=photo.width/photo.height;
-  const dr=mask.w/mask.h;
-
-  let sx,sy,sw,sh;
-
-  if(sr>dr){
-    sh=photo.height;
-    sw=photo.height*dr;
-    sx=(photo.width-sw)/2;
-    sy=0;
-  }else{
-    sw=photo.width;
-    sh=photo.width/dr;
-    sx=0;
-    sy=(photo.height-sh)/2;
-  }
-
-  lctx.drawImage(
-    photo,
-    sx,sy,sw,sh,
-    mask.x,mask.y,mask.w,mask.h
-  );
-
-  const layerData=lctx.getImageData(0,0,w,h);
-  const d=layerData.data;
-
-  const keep=new Uint8Array(w*h);
-
-  mask.pixels.forEach(p=>{
-    keep[p]=1;
-  });
-
-  for(let p=0;p<w*h;p++){
-    if(!keep[p]){
-      d[p*4+3]=0;
-    }
-  }
-
-  lctx.putImageData(layerData,0,0);
-  ctx.drawImage(layer,0,0);
-}
-
-async function renderUploadedTemplate(){
-  ctx.clearRect(0,0,1080,1920);
-
-  const src=templateMap[selectedTemplate];
-  const bg=await loadImage(src);
-
-  const masks=detectGreenMasks(bg);
-
-  if(masks.length===0){
-    throw new Error("Area hijau #00FF00 tidak terdeteksi.");
-  }
-
-  masks.forEach((mask,i)=>{
-    if(photos[i]){
-      drawPhotoIntoMask(photos[i],mask);
-    }
-  });
-
-  const temp=document.createElement("canvas");
-  temp.width=1080;
-  temp.height=1920;
-
-  const tctx=temp.getContext("2d");
-  tctx.drawImage(bg,0,0,1080,1920);
-
-  const imgData=tctx.getImageData(0,0,1080,1920);
-  const data=imgData.data;
-
-  for(let i=0;i<data.length;i+=4){
-    if(isMarkerGreen(data,i)){
-      data[i+3]=0;
-    }
-  }
-
-  tctx.putImageData(imgData,0,0);
-  ctx.drawImage(temp,0,0);
-}
-
-async function renderUploadedTemplate(){
-  ctx.clearRect(0,0,1080,1920);
-
-  const src=templateMap[selectedTemplate];
-  const bg=await loadImage(src);
-
-  const temp=document.createElement("canvas");
-  temp.width=1080;
-  temp.height=1920;
-  const tctx=temp.getContext("2d");
-  tctx.drawImage(bg,0,0,1080,1920);
-
-  const imgData=tctx.getImageData(0,0,1080,1920);
-  const data=imgData.data;
-
-  const frames=detectFramesFromTemplate(bg);
-
-  frames.forEach((f,i)=>{
-    if(!photos[i]) return;
-
-    const photoLayer=document.createElement("canvas");
-    photoLayer.width=1080;
-    photoLayer.height=1920;
-    const pctx=photoLayer.getContext("2d");
-
-    const sr=photos[i].width/photos[i].height;
-    const dr=f.w/f.h;
-
-    let sx,sy,sw,sh;
-
-    if(sr>dr){
-      sh=photos[i].height;
-      sw=photos[i].height*dr;
-      sx=(photos[i].width-sw)/2;
-      sy=0;
-    }else{
-      sw=photos[i].width;
-      sh=photos[i].width/dr;
-      sx=0;
-      sy=(photos[i].height-sh)/2;
-    }
-
-    pctx.drawImage(photos[i],sx,sy,sw,sh,f.x,f.y,f.w,f.h);
-
-    const mask=pctx.getImageData(0,0,1080,1920);
-    const m=mask.data;
-
-    for(let y=f.y;y<f.y+f.h;y++){
-      for(let x=f.x;x<f.x+f.w;x++){
-        const idx=(y*1080+x)*4;
-        const r=data[idx];
-        const g=data[idx+1];
-        const b=data[idx+2];
-
-        if(!(g>180 && r<120 && b<120)){
-          m[idx+3]=0;
-        }
-      }
-    }
-
-    pctx.putImageData(mask,0,0);
-    ctx.drawImage(photoLayer,0,0);
-  });
-
-  for(let i=0;i<data.length;i+=4){
-    const r=data[i];
-    const g=data[i+1];
-    const b=data[i+2];
-
-    if(g>180 && r<120 && b<120){
-      data[i+3]=0;
-    }
-  }
-
-  tctx.putImageData(imgData,0,0);
-  ctx.drawImage(temp,0,0);
-}
-
-async function generateResult(){
-  await renderUploadedTemplate();
-}
-
-function prepareBlob(){
-  return new Promise(resolve=>{
-    canvas.toBlob(blob=>{
-      lastBlob=blob;
-      resolve(blob);
-    },"image/png",1);
-  });
-}
-
-startBtn.onclick=async()=>{
-  photos=[];
-  currentPhoto=1;
-  lastBlob=null;
-  pendingPhoto=null;
-  previewBtn.style.display="none";
-  reviewImage.src="";
-  previewThumbImg.src="";
-  photoCounter.textContent="Foto 1 / 4";
-  showScreen(cameraScreen);
-  await startCamera();
 };
 
-captureBtn.onclick=capturePhoto;
-  previewBtn.onclick=()=>{
-  if(!pendingPhoto) return;
-  showScreen(reviewScreen);
-};
-  
-  deletePhotoBtn.onclick=()=>{
-  if(photos.length > 0){
-    photos.pop();
-  }
-
-  pendingPhoto = photos.length > 0
-    ? photos[photos.length - 1]
-    : null;
-
-  if(pendingPhoto){
-    const imgData = pendingPhoto.toDataURL("image/png");
-
-    reviewImage.src = imgData;
-    previewThumbImg.src = imgData;
-    previewBtn.style.display = "block";
-  }else{
-    reviewImage.src = "";
-    previewThumbImg.src = "";
-    previewBtn.style.display = "none";
-  }
-
-  currentPhoto = photos.length + 1;
-  photoCounter.textContent = `Foto ${currentPhoto} / 4`;
-
-  showScreen(cameraScreen);
+flashBtn.onclick=()=>{
+  setTorch(!torchEnabled);
 };
 
+switchCameraBtn.onclick=switchCamera;
+
+// Review Screen
 usePhotoBtn.onclick=()=>{
   showScreen(cameraScreen);
 };
-  flashBtn.onclick=async()=>{
-  if(currentFacingMode!=="environment"){
-    alert("Flash hanya bisa dipakai saat kamera belakang aktif.");
-    return;
-  }
 
-  await setTorch(!torchEnabled);
-};
-  
-  switchCameraBtn.onclick=async()=>{
-
-  if(isCountingDown) return;
-
-  await switchCamera();
-
+deletePhotoBtn.onclick=()=>{
+  photos.pop();
+  currentPhoto--;
+  photoCounter.textContent=`Foto ${currentPhoto} / 4`;
+  showScreen(cameraScreen);
 };
 
-cancelBtn.onclick=()=>{
-  countdownCancelled=true;
-
-  isCountingDown=false;
-  countdown.style.display="none";
-  captureBtn.disabled=false;
-
-  stopCamera();
-  showScreen(formScreen);
+previewBtn.onclick=()=>{
+  showScreen(reviewScreen);
 };
+
+// Result Screen
+downloadBtn.onclick=downloadResult;
+openIgBtn.onclick=openInstagram;
+shareBtn.onclick=shareResult;
 
 retryBtn.onclick=async()=>{
-  stopCamera();
-
   photos=[];
   currentPhoto=1;
-  lastBlob=null;
-  pendingPhoto=null;
-previewBtn.style.display="none";
-reviewImage.src="";
-previewThumbImg.src="";
-
-  captureBtn.disabled=false;
   photoCounter.textContent="Foto 1 / 4";
-
   showScreen(cameraScreen);
   await startCamera();
 };
 
-downloadBtn.onclick=()=>{
-  const link=document.createElement("a");
-  link.download=`HP103-${selectedTemplate}-ROOM-${room}.png`;
-  link.href=canvas.toDataURL("image/png");
-  link.click();
-};
-
-openIgBtn.onclick=()=>{
-  window.location.href="instagram://app";
-};
-
-shareBtn.onclick=async()=>{
-  if(!lastBlob){
-    await prepareBlob();
-  }
-
-  const file=new File([lastBlob],`HP103-${room}.png`,{type:"image/png"});
-
-  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-    try{
-      await navigator.share({
-        title:"HP103 Memory Strip",
-        text:"Happy Puppy Karaoke Night!",
-        files:[file]
-      });
-    }catch(e){}
-  }else{
-    alert("HP ini belum mendukung share langsung. Gunakan tombol Simpan Foto lalu upload manual.");
-  }
-};
 </script>
 
 </body>
