@@ -1303,8 +1303,8 @@ const transparentTemplateCache={};
 function detectGreenMasks(img,src){
   if(maskCache[src]) return maskCache[src];
 
-  const w=1080;
-  const h=1920;
+  const w=img.naturalWidth || img.width;
+const h=img.naturalHeight || img.height;
 
   const temp=document.createElement("canvas");
   temp.width=w;
@@ -1391,8 +1391,8 @@ function detectGreenMasks(img,src){
 }
 
 function drawPhotoIntoMask(photo,mask){
-  const w=1080;
-  const h=1920;
+  const w=canvas.width;
+const h=canvas.height;
 
   const layer=document.createElement("canvas");
   layer.width=w;
@@ -1440,8 +1440,8 @@ lctx.drawImage(
 function makeTransparentTemplate(bg,src){
   if(transparentTemplateCache[src]) return transparentTemplateCache[src];
 
-  const w=1080;
-  const h=1920;
+  const w=bg.naturalWidth || bg.width;
+const h=bg.naturalHeight || bg.height;
 
   const temp=document.createElement("canvas");
   temp.width=w;
@@ -1478,7 +1478,10 @@ async function renderUploadedTemplate(){
   const src=templateMap[selectedTemplate];
   const bg=await loadImage(src);
 
-  const masks=detectGreenMasks(bg,src);
+canvas.width = bg.naturalWidth || bg.width;
+canvas.height = bg.naturalHeight || bg.height;
+
+const masks=detectGreenMasks(bg,src);
 
   if(masks.length < 4){
   throw new Error(
