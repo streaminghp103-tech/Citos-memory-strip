@@ -1397,31 +1397,82 @@ function drawPhotoCover(img,x,y,w,h){
   ctx.restore();
 }
 
-async function renderUploadedTemplate(){
+async function async function renderUploadedTemplate(){
   ctx.clearRect(0,0,1080,1920);
 
   const src=templateMap[selectedTemplate];
   const bg=await loadImage(src);
 
+  const temp=document.createElement("canvas");
+  temp.width=1080;
+  temp.height=1920;
+  const tctx=temp.getContext("2d");
+  tctx.drawImage(bg,0,0,1080,1920);
+
+  const imgData=tctx.getImageData(0,0,1080,1920);
+  const data=imgData.data;
+
   const frames=detectFramesFromTemplate(bg);
-
-  if(frames.length===0){
-    throw new Error("Tidak ada area hijau #00FF00 yang terdeteksi.");
-  }
-
-  ctx.drawImage(bg,0,0,1080,1920);
 
   frames.forEach((f,i)=>{
     if(!photos[i]) return;
 
-    drawPhotoCover(
-      photos[i],
-      f.x,
-      f.y,
-      f.w,
-      f.h
-    );
+    const photoLayer=document.createElement("canvas");
+    photoLayer.width=1080;
+    photoLayer.height=1920;
+    const pctx=photoLayer.getContext("2d");
+
+    const sr=photos[i].width/photos[i].height;
+    const dr=f.w/f.h;
+
+    let sx,sy,sw,sh;
+
+    if(sr>dr){
+      sh=photos[i].height;
+      sw=photos[i].height*dr;
+      sx=(photos[i].width-sw)/2;
+      sy=0;
+    }else{
+      sw=photos[i].width;
+      sh=photos[i].width/dr;
+      sx=0;
+      sy=(photos[i].height-sh)/2;
+    }
+
+    pctx.drawImage(photos[i],sx,sy,sw,sh,f.x,f.y,f.w,f.h);
+
+    const mask=pctx.getImageData(0,0,1080,1920);
+    const m=mask.data;
+
+    for(let y=f.y;y<f.y+f.h;y++){
+      for(let x=f.x;x<f.x+f.w;x++){
+        const idx=(y*1080+x)*4;
+        const r=data[idx];
+        const g=data[idx+1];
+        const b=data[idx+2];
+
+        if(!(g>180 && r<120 && b<120)){
+          m[idx+3]=0;
+        }
+      }
+    }
+
+    pctx.putImageData(mask,0,0);
+    ctx.drawImage(photoLayer,0,0);
   });
+
+  for(let i=0;i<data.length;i+=4){
+    const r=data[i];
+    const g=data[i+1];
+    const b=data[i+2];
+
+    if(g>180 && r<120 && b<120){
+      data[i+3]=0;
+    }
+  }
+
+  tctx.putImageData(imgData,0,0);
+  ctx.drawImage(temp,0,0);
 }
 
 async function generateResult(){
