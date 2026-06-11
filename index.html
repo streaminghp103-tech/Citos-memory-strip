@@ -791,7 +791,10 @@ function stopCamera(){
   const track=stream.getVideoTracks()[0];
 
   if(!track) return;
-
+if(!track.getCapabilities){
+  alert("Browser tidak mendukung flash.");
+  return;
+}
   const capabilities=track.getCapabilities();
 
   if(!capabilities.torch){
@@ -1608,7 +1611,8 @@ downloadBtn.onclick=()=>{
 };
 
 openIgBtn.onclick=()=>{
-  window.location.href="instagram://app";
+  window.location.href =
+"https://www.instagram.com/";
 };
 
 shareBtn.onclick=async()=>{
