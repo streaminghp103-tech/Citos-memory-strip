@@ -724,11 +724,11 @@ function showScreen(screen){
 const templatePreviewImg =
 document.getElementById("templatePreviewImg");
 const previewMap={
-  karaoke:"preview-couple.png",
+  karaoke:"preview-karaoke.png",
   couple:"preview-couple.png",
-  bestfriend:"preview-couple.png",
+  bestfriend:"preview-bestfriend.png",
   birthday:"preview-birthday.png",
-  receipt:"preview-couple.png"
+  receipt:"preview-receipt.png"
 };
   templatePreviewImg.src =
   previewMap[selectedTemplate];
@@ -974,7 +974,10 @@ previewBtn.style.display = "block";
 
 if(photos.length >= 4){
   stopCamera();
-  await generateResult();
+  console.log("TOTAL FOTO", photos.length);
+console.log(photos);
+
+await generateResult();
 await prepareBlob();
   showScreen(resultScreen);
   captureBtn.disabled=false;
@@ -1389,7 +1392,7 @@ function drawPhotoIntoMask(photo,mask){
 
   const lctx=layer.getContext("2d",{willReadFrequently:true});
 
-  const scale=Math.max(
+  const scale=Math.min(
   mask.w/photo.width,
   mask.h/photo.height
 );
