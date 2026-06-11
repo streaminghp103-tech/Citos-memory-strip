@@ -711,6 +711,7 @@ let lastBlob=null;
 let isCountingDown=false;
 let countdownCancelled=false;
 let pendingPhoto=null;
+  let reviewIndex=-1;
   
 const params=new URLSearchParams(window.location.search);
 const room=params.get("room")||"Lobby";
@@ -724,11 +725,11 @@ function showScreen(screen){
 const templatePreviewImg =
 document.getElementById("templatePreviewImg");
 const previewMap={
-  karaoke:"preview-karaoke.png",
+  karaoke:"preview-couple.png",
   couple:"preview-couple.png",
-  bestfriend:"preview-bestfriend.png",
+  bestfriend:"preview-couple.png",
   birthday:"preview-birthday.png",
-  receipt:"preview-receipt.png"
+  receipt:"preview-couple.png"
 };
   templatePreviewImg.src =
   previewMap[selectedTemplate];
@@ -1523,33 +1524,40 @@ startBtn.onclick=async()=>{
 
 captureBtn.onclick=capturePhoto;
   previewBtn.onclick=()=>{
-  if(!pendingPhoto) return;
+  if(photos.length===0) return;
+
+  reviewIndex=photos.length-1;
+
+  const imgData=photos[reviewIndex].toDataURL("image/png");
+  reviewImage.src=imgData;
+
   showScreen(reviewScreen);
 };
   
   deletePhotoBtn.onclick=()=>{
-  if(photos.length > 0){
-    photos.pop();
+  if(reviewIndex>=0 && reviewIndex<photos.length){
+    photos.splice(reviewIndex,1);
   }
 
-  pendingPhoto = photos.length > 0
-    ? photos[photos.length - 1]
+  reviewIndex=-1;
+
+  pendingPhoto=photos.length>0
+    ? photos[photos.length-1]
     : null;
 
   if(pendingPhoto){
-    const imgData = pendingPhoto.toDataURL("image/png");
-
-    reviewImage.src = imgData;
-    previewThumbImg.src = imgData;
-    previewBtn.style.display = "block";
+    const imgData=pendingPhoto.toDataURL("image/png");
+    reviewImage.src=imgData;
+    previewThumbImg.src=imgData;
+    previewBtn.style.display="block";
   }else{
-    reviewImage.src = "";
-    previewThumbImg.src = "";
-    previewBtn.style.display = "none";
+    reviewImage.src="";
+    previewThumbImg.src="";
+    previewBtn.style.display="none";
   }
 
-  currentPhoto = photos.length + 1;
-  photoCounter.textContent = `Foto ${currentPhoto} / 4`;
+  currentPhoto=photos.length+1;
+  photoCounter.textContent=`Foto ${currentPhoto} / 4`;
 
   showScreen(cameraScreen);
 };
