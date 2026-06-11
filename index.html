@@ -987,7 +987,8 @@ photoCounter.textContent = `Foto ${currentPhoto} / 4`;
 captureBtn.disabled=false;
 
     }catch(e){
-    alert("Foto gagal diambil. Coba ulangi.");
+    console.error(e);
+    alert("Foto gagal diambil: " + e.message);
     captureBtn.disabled=false;
   }
 }
@@ -1266,13 +1267,7 @@ function renderReceipt(){
   });
 }
 
-const templateMap={
-  karaoke:"preview-couple.png",
-  couple:"preview-couple.png",
-  bestfriend:"preview-couple.png",
-  birthday:"preview-birthday.png",
-  receipt:"preview-couple.png"
-};
+
 function isMarkerGreen(data,index){
   const r=data[index];
   const g=data[index+1];
@@ -1363,7 +1358,7 @@ function detectGreenMasks(img,src){
       const fw=maxX-minX+1;
       const fh=maxY-minY+1;
 
-      if(count>5000 && fw>80 && fh>80){
+      if(count>1000 && fw>50 && fh>50){
         masks.push({
           x:minX,
           y:minY,
