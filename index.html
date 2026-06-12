@@ -1560,7 +1560,13 @@ async function renderUploadedTemplate(){
 
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
+  // 1. Gambar template dulu
+  ctx.drawImage(finalImg,0,0,canvas.width,canvas.height);
+
+  // 2. Deteksi area hijau dari mask
   const masks=detectGreenMasks(maskImg,tpl.mask);
+
+  console.log("MASK TERDETEKSI:", masks.length, masks);
 
   if(masks.length<4){
     throw new Error(
@@ -1568,11 +1574,13 @@ async function renderUploadedTemplate(){
     );
   }
 
+  // 3. Baru tempel foto di atas area putih
   masks.forEach((mask,i)=>{
     if(photos[i]){
       drawPhotoIntoMask(photos[i],mask);
     }
   });
+}
 
   ctx.drawImage(finalImg,0,0,canvas.width,canvas.height);
 }
