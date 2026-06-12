@@ -1590,10 +1590,28 @@ function prepareBlob(){
 backFromAdminBtn.onclick=()=>{
   showScreen(formScreen);
 };
+  async function uploadTemplateFile(slug,type,file){
+  const ext=file.name.split(".").pop().toLowerCase();
+  const path=`${slug}/${type}.${ext}`;
+
+  const { error } = await supabaseClient
+    .storage
+    .from("templates")
+    .upload(path,file,{upsert:true});
+
+  if(error) throw error;
+
+  const { data } = supabaseClient
+    .storage
+    .from("templates")
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+}
 saveTemplateBtn.onclick=async()=>{
   try{
     saveTemplateBtn.disabled=true;
-    saveTemplateBtn.textContent="Menyimpan...";
+    saveTemplateBtn.textContent="Mengupload...";
 
     const name=templateNameInput.value.trim();
 
@@ -1603,45 +1621,43 @@ saveTemplateBtn.onclick=async()=>{
     }
 
     if(!previewFileInput.files[0] || !finalFileInput.files[0] || !maskFileInput.files[0]){
-  alert("Preview, final, dan mask wajib diupload.");
-  return;
-}
+      alert("Preview, final, dan mask wajib diupload.");
+      return;
+    }
 
-    const id=name.toLowerCase()
+    const slug=name.toLowerCase()
       .replace(/[^a-z0-9]+/g,"-")
       .replace(/^-+|-+$/g,"");
 
-    const previewData=await fileToDataURL(previewFileInput.files[0]);
-const finalData=await fileToDataURL(finalFileInput.files[0]);
-const maskData=await fileToDataURL(maskFileInput.files[0]);
+    const previewUrl=await uploadTemplateFile(slug,"preview",previewFileInput.files[0]);
+    const finalUrl=await uploadTemplateFile(slug,"final",finalFileInput.files[0]);
+    const maskUrl=await uploadTemplateFile(slug,"mask",maskFileInput.files[0]);
 
-    templates=templates.filter(t=>t.id!==id);
+    const { error } = await supabaseClient
+      .from("templates")
+      .upsert({
+        name,
+        slug,
+        preview_url:previewUrl,
+        final_url:finalUrl,
+        mask_url:maskUrl,
+        is_active:true
+      },{onConflict:"slug"});
 
-    templates.push({
-  id,
-  name,
-  preview:previewData,
-  final:finalData,
-  mask:maskData
-});
+    if(error) throw error;
 
-    selectedTemplate=id;
-
-    localStorage.setItem("hp103_templates",JSON.stringify(templates));
-    localStorage.setItem("hp103_selected_template",id);
-
-    alert("Template berhasil disimpan.");
+    alert("Template berhasil diupload.");
 
     templateNameInput.value="";
     previewFileInput.value="";
-finalFileInput.value="";
-maskFileInput.value="";
+    finalFileInput.value="";
+    maskFileInput.value="";
 
-    renderTemplatePicker();
+    await loadTemplates();
     showScreen(formScreen);
 
   }catch(e){
-    alert("Gagal simpan template: " + (e.message || e.name || "Error tidak diketahui"));
+    alert("Gagal upload template: " + (e.message || e.name || "Error tidak diketahui"));
   }finally{
     saveTemplateBtn.disabled=false;
     saveTemplateBtn.textContent="Simpan Template";
