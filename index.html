@@ -809,7 +809,6 @@ function fileToDataURL(file){
 }
 
 async function loadTemplates(){
-
   const { data, error } = await supabaseClient
     .from("templates")
     .select("*")
@@ -837,8 +836,10 @@ async function loadTemplates(){
   selectedTemplate=templates[0].id;
 
   renderTemplatePicker();
+
   if(adminTemplateList){
-  renderAdminTemplateList();
+    renderAdminTemplateList();
+  }
 }
 
 function getSelectedTemplate(){
@@ -849,7 +850,7 @@ function renderTemplatePicker(){
   const grid=document.querySelector(".templateGrid");
   grid.innerHTML="";
 
-  templates.forEach((tpl,index)=>{
+  templates.forEach(tpl=>{
     const div=document.createElement("div");
     div.className="template"+(tpl.id===selectedTemplate?" active":"");
     div.dataset.template=tpl.id;
@@ -871,7 +872,8 @@ function renderTemplatePicker(){
     grid.appendChild(div);
   });
 }
-  function renderAdminTemplateList(){
+
+function renderAdminTemplateList(){
   adminTemplateList.innerHTML="";
 
   templates.forEach(tpl=>{
@@ -908,12 +910,10 @@ function renderTemplatePicker(){
 
       alert("Template berhasil dinonaktifkan.");
       await loadTemplates();
-      renderAdminTemplateList();
     };
   });
 }
-
-goFormBtn.onclick=()=>showScreen(formScreen);
+  goFormBtn.onclick=()=>showScreen(formScreen);
 backHomeBtn.onclick=()=>showScreen(startScreen);
 
 async function startCamera(){
