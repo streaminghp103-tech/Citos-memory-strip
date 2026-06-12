@@ -601,7 +601,8 @@ canvas{
     </div>
 
     <input id="templateNameInput" placeholder="Nama template, contoh: World Cup">
-
+<label class="small">Preview PNG</label>
+<input id="previewFileInput" type="file" accept="image/png,image/jpeg">
     <label class="small">Final PNG</label>
     <input id="finalFileInput" type="file" accept="image/png,image/jpeg">
 
@@ -642,6 +643,7 @@ const saveTemplateBtn=document.getElementById("saveTemplateBtn");
 const templateNameInput=document.getElementById("templateNameInput");
 const finalFileInput=document.getElementById("finalFileInput");
 const maskFileInput=document.getElementById("maskFileInput");
+  const previewFileInput=document.getElementById("previewFileInput");
 const captureBtn=document.getElementById("captureBtn");
 const cancelBtn=document.getElementById("cancelBtn");
 const retryBtn=document.getElementById("retryBtn");
@@ -1592,26 +1594,28 @@ saveTemplateBtn.onclick=async()=>{
       return;
     }
 
-    if(!finalFileInput.files[0] || !maskFileInput.files[0]){
-      alert("Final dan mask wajib diupload.");
-      return;
-    }
+    if(!previewFileInput.files[0] || !finalFileInput.files[0] || !maskFileInput.files[0]){
+  alert("Preview, final, dan mask wajib diupload.");
+  return;
+}
 
     const id=name.toLowerCase()
       .replace(/[^a-z0-9]+/g,"-")
       .replace(/^-+|-+$/g,"");
 
-    const finalData=await fileToDataURL(finalFileInput.files[0]);
-    const maskData=await fileToDataURL(maskFileInput.files[0]);
+    const previewData=await fileToDataURL(previewFileInput.files[0]);
+const finalData=await fileToDataURL(finalFileInput.files[0]);
+const maskData=await fileToDataURL(maskFileInput.files[0]);
 
     templates=templates.filter(t=>t.id!==id);
 
     templates.push({
-      id,
-      name,
-      final:finalData,
-      mask:maskData
-    });
+  id,
+  name,
+  preview:previewData,
+  final:finalData,
+  mask:maskData
+});
 
     selectedTemplate=id;
 
@@ -1621,8 +1625,9 @@ saveTemplateBtn.onclick=async()=>{
     alert("Template berhasil disimpan.");
 
     templateNameInput.value="";
-    finalFileInput.value="";
-    maskFileInput.value="";
+    previewFileInput.value="";
+finalFileInput.value="";
+maskFileInput.value="";
 
     renderTemplatePicker();
     showScreen(formScreen);
