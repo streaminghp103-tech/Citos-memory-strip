@@ -1569,9 +1569,60 @@ function prepareBlob(){
 backFromAdminBtn.onclick=()=>{
   showScreen(formScreen);
 };
-
 saveTemplateBtn.onclick=async()=>{
-  
+  try{
+    saveTemplateBtn.disabled=true;
+    saveTemplateBtn.textContent="Menyimpan...";
+
+    const name=templateNameInput.value.trim();
+
+    if(!name){
+      alert("Nama template wajib diisi.");
+      return;
+    }
+
+    if(!finalFileInput.files[0] || !maskFileInput.files[0]){
+      alert("Final dan mask wajib diupload.");
+      return;
+    }
+
+    const id=name.toLowerCase()
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-+|-+$/g,"");
+
+    const finalData=await fileToDataURL(finalFileInput.files[0]);
+    const maskData=await fileToDataURL(maskFileInput.files[0]);
+
+    templates=templates.filter(t=>t.id!==id);
+
+    templates.push({
+      id,
+      name,
+      final:finalData,
+      mask:maskData
+    });
+
+    selectedTemplate=id;
+
+    localStorage.setItem("hp103_templates",JSON.stringify(templates));
+    localStorage.setItem("hp103_selected_template",id);
+
+    alert("Template berhasil disimpan.");
+
+    templateNameInput.value="";
+    finalFileInput.value="";
+    maskFileInput.value="";
+
+    renderTemplatePicker();
+    showScreen(formScreen);
+
+  }catch(e){
+    alert("Gagal simpan template: " + e.message);
+  }finally{
+    saveTemplateBtn.disabled=false;
+    saveTemplateBtn.textContent="Simpan Template";
+  }
+};
 startBtn.onclick=async()=>{
   Object.keys(maskCache).forEach(k=>delete maskCache[k]);
   
