@@ -521,13 +521,7 @@ canvas{
       <p class="small">Pilih gaya hasil foto kamu.</p>
     </div>
 
-    <div class="templateGrid">
-      <div class="template active" data-template="karaoke"><div class="thumb">🎤</div><b>Karaoke Night</b><p class="small">Neon pink HP103</p></div>
-      <div class="template" data-template="couple"><div class="thumb">💕</div><b>Couple</b><p class="small">Pink romantic</p></div>
-      <div class="template" data-template="bestfriend"><div class="thumb">👯</div><b>Best Friend</b><p class="small">Fun & playful</p></div>
-      <div class="template" data-template="birthday"><div class="thumb">🎂</div><b>Birthday</b><p class="small">Party celebration</p></div>
-      <div class="template" data-template="receipt"><div class="thumb">🧾</div><b>Karaoke Receipt</b><p class="small">Unik seperti struk</p></div>
-    </div>
+    <div class="templateGrid"></div>
 
     <div id="templatePreview" class="templatePreview">
   <img id="templatePreviewImg" src="" alt="">
@@ -783,7 +777,10 @@ function loadTemplates(){
     ];
   }
 
-  selectedTemplate=templates[0].id;
+  selectedTemplate=
+  localStorage.getItem("hp103_selected_template")
+  || templates[0].id;
+  
   renderTemplatePicker();
 }
 
@@ -797,7 +794,7 @@ function renderTemplatePicker(){
 
   templates.forEach((tpl,index)=>{
     const div=document.createElement("div");
-    div.className="template"+(index===0?" active":"");
+    div.className="template"+(tpl.id===selectedTemplate?" active":"");
     div.dataset.template=tpl.id;
 
     div.innerHTML=`
@@ -812,13 +809,20 @@ function renderTemplatePicker(){
       document.querySelectorAll(".template").forEach(t=>t.classList.remove("active"));
       div.classList.add("active");
       selectedTemplate=tpl.id;
-      templatePreviewImg.src=tpl.preview;
+
+localStorage.setItem(
+  "hp103_selected_template",
+  tpl.id
+);
+
+templatePreviewImg.src=tpl.preview;
     };
 
     grid.appendChild(div);
   });
 
-  templatePreviewImg.src=templates[0].preview;
+  const activeTemplate=getSelectedTemplate() || templates[0];
+templatePreviewImg.src=activeTemplate.preview;
 }
 
 goFormBtn.onclick=()=>showScreen(formScreen);
@@ -1363,7 +1367,7 @@ function isMarkerGreen(data,index){
 // Nanti kalau file lain sudah di-upload, cukup ganti map ini ke preview-karaoke.png, dst.
 
 const maskCache={};
-const transparentTemplateCache={};
+
 
 function detectGreenMasks(img,src){
   if(maskCache[src]) return maskCache[src];
@@ -1512,35 +1516,7 @@ lctx.drawImage(
   ctx.drawImage(layer,0,0);
 }
 
-function makeTransparentTemplate(bg,src){
-  if(transparentTemplateCache[src]) return transparentTemplateCache[src];
 
-  const w=bg.naturalWidth || bg.width;
-const h=bg.naturalHeight || bg.height;
-
-  const temp=document.createElement("canvas");
-  temp.width=w;
-  temp.height=h;
-
-  const tctx=temp.getContext("2d",{willReadFrequently:true});
-  tctx.drawImage(bg,0,0,w,h);
-
-  const imgData=tctx.getImageData(0,0,w,h);
-  const data=imgData.data;
-
-  for(let i=0;i<data.length;i+=4){
-    const r=data[i];
-const g=data[i+1];
-const b=data[i+2];
-
-if(
-  g>150 &&
-  r<180 &&
-  b<180
-){
-  data[i+3]=0;
-}
-  }
 
   tctx.putImageData(imgData,0,0);
   transparentTemplateCache[src]=temp;
@@ -1653,7 +1629,7 @@ saveTemplateBtn.onclick=async()=>{
   
 startBtn.onclick=async()=>{
   Object.keys(maskCache).forEach(k=>delete maskCache[k]);
-  Object.keys(transparentTemplateCache).forEach(k=>delete transparentTemplateCache[k]);
+  
 
   photos=[];
   currentPhoto=1;
