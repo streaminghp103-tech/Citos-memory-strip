@@ -1384,11 +1384,14 @@ function isMarkerGreen(data,index){
 
   return (
     a > 180 &&
-    g > 120 &&
-    g > r * 1.25 &&
-    g > b * 1.25
+    g > 150 &&
+    r < 120 &&
+    b < 120 &&
+    g - r > 45 &&
+    g - b > 45
   );
 }
+  
 // Template final untuk hasil akhir.
 // Untuk tes sekarang: template yang tersedia adalah preview-couple.png dan preview-birthday.png.
 // Nanti kalau file lain sudah di-upload, cukup ganti map ini ke preview-karaoke.png, dst.
@@ -1552,18 +1555,17 @@ async function renderUploadedTemplate(){
     throw new Error("Template belum dipilih.");
   }
 
-  const finalImg=await loadImage(tpl.final);
   const maskImg=await loadImage(tpl.mask);
 
-  canvas.width=finalImg.naturalWidth || finalImg.width;
-  canvas.height=finalImg.naturalHeight || finalImg.height;
+  canvas.width=maskImg.naturalWidth || maskImg.width;
+  canvas.height=maskImg.naturalHeight || maskImg.height;
 
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // 1. Gambar template final dulu
-  ctx.drawImage(finalImg,0,0,canvas.width,canvas.height);
+  // 1. Gambar template mask sebagai dasar
+  ctx.drawImage(maskImg,0,0,canvas.width,canvas.height);
 
-  // 2. Deteksi area hijau dari mask
+  // 2. Deteksi area hijau
   const masks=detectGreenMasks(maskImg,tpl.mask);
 
   console.log("MASK TERDETEKSI:", masks.length, masks);
@@ -1574,7 +1576,7 @@ async function renderUploadedTemplate(){
     );
   }
 
-  // 3. Tempel foto DI ATAS template final
+  // 3. Timpa area hijau dengan foto
   masks.forEach((mask,i)=>{
     if(photos[i]){
       drawPhotoIntoMask(photos[i],mask);
