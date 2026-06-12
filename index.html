@@ -774,25 +774,34 @@ function fileToDataURL(file){
   });
 }
 
-function loadTemplates(){
-  templates=JSON.parse(localStorage.getItem("hp103_templates")||"[]");
+async function loadTemplates(){
 
-  if(templates.length===0){
-    templates=[
-      {
-        id:"worldcup",
-        name:"World Cup 2026",
-        final:"worldcup-final.png",
-        mask:"worldcup-mask.png",
-        preview:"worldcup-final.png"
-      }
-    ];
+  const { data, error } = await supabaseClient
+    .from("templates")
+    .select("*")
+    .eq("is_active", true)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    console.error(error);
+    alert(error.message);
+    return;
   }
 
-  selectedTemplate=
-  localStorage.getItem("hp103_selected_template")
-  || templates[0].id;
-  
+  templates = data.map(t=>({
+    id:t.slug,
+    name:t.name,
+    preview:t.preview_url,
+    final:t.final_url,
+    mask:t.mask_url
+  }));
+
+  if(templates.length===0){
+    return;
+  }
+
+  selectedTemplate=templates[0].id;
+
   renderTemplatePicker();
 }
 
@@ -1799,7 +1808,9 @@ shareBtn.onclick=async()=>{
     alert("HP ini belum mendukung share langsung. Gunakan tombol Simpan Foto lalu upload manual.");
   }
 };
-  loadTemplates();
+  (async()=>{
+  await loadTemplates();
+})();
   
 </script>
 
