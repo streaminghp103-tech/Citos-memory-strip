@@ -608,7 +608,7 @@ canvas{
     <input id="finalFileInput" type="file" accept="image/png,image/jpeg">
 
     <label class="small">Mask PNG</label>
-    <input id="maskFileInput" type="file" accept="image/png,image/jpeg">
+    <input id="maskFileInput" type="file" accept="image/png">
 
     <button id="saveTemplateBtn">Simpan Template</button>
     <button id="backFromAdminBtn" class="secondary">Kembali</button>
@@ -830,12 +830,6 @@ function renderTemplatePicker(){
       document.querySelectorAll(".template").forEach(t=>t.classList.remove("active"));
       div.classList.add("active");
       selectedTemplate=tpl.id;
-
-localStorage.setItem(
-  "hp103_selected_template",
-  tpl.id
-);
-
     };
 
     grid.appendChild(div);
