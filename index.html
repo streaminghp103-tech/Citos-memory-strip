@@ -540,7 +540,8 @@ canvas{
 
     
     <button id="startBtn">Lanjut Ambil Foto</button>
-    <button id="backHomeBtn" class="secondary">Kembali</button>
+<button id="adminBtn" class="secondary">⚙️ Admin Template</button>
+<button id="backHomeBtn" class="secondary">Kembali</button>
   </div>
 </section>
 
@@ -601,6 +602,30 @@ canvas{
   </div>
 </section>
 
+  <section id="adminScreen" class="screen">
+  <div class="card">
+    <div>
+      <div class="logo">ADMIN TEMPLATE</div>
+      <h2>Tambah Template</h2>
+      <p class="small">Upload final, mask, dan preview.</p>
+    </div>
+
+    <input id="templateNameInput" placeholder="Nama template, contoh: World Cup">
+
+    <label class="small">Final PNG</label>
+    <input id="finalFileInput" type="file" accept="image/png,image/jpeg">
+
+    <label class="small">Mask PNG</label>
+    <input id="maskFileInput" type="file" accept="image/png,image/jpeg">
+
+    <label class="small">Preview PNG</label>
+    <input id="previewFileInput" type="file" accept="image/png,image/jpeg">
+
+    <button id="saveTemplateBtn">Simpan Template</button>
+    <button id="backFromAdminBtn" class="secondary">Kembali</button>
+  </div>
+</section>
+  
 <section id="resultScreen" class="screen">
   <h2>Hasilmu Siap ✨</h2>
   <canvas id="resultCanvas" width="1080" height="1920"></canvas>
@@ -619,10 +644,18 @@ const formScreen=document.getElementById("formScreen");
 const cameraScreen=document.getElementById("cameraScreen");
 const resultScreen=document.getElementById("resultScreen");
 const reviewScreen=document.getElementById("reviewScreen");
+const adminScreen=document.getElementById("adminScreen");
 
 const goFormBtn=document.getElementById("goFormBtn");
 const backHomeBtn=document.getElementById("backHomeBtn");
 const startBtn=document.getElementById("startBtn");
+const adminBtn=document.getElementById("adminBtn");
+const backFromAdminBtn=document.getElementById("backFromAdminBtn");
+const saveTemplateBtn=document.getElementById("saveTemplateBtn");
+const templateNameInput=document.getElementById("templateNameInput");
+const finalFileInput=document.getElementById("finalFileInput");
+const maskFileInput=document.getElementById("maskFileInput");
+const previewFileInput=document.getElementById("previewFileInput");
 const captureBtn=document.getElementById("captureBtn");
 const cancelBtn=document.getElementById("cancelBtn");
 const retryBtn=document.getElementById("retryBtn");
@@ -724,15 +757,69 @@ function showScreen(screen){
 }
 const templatePreviewImg =
 document.getElementById("templatePreviewImg");
-const previewMap={
-  karaoke:"preview-couple.png",
-  couple:"preview-couple.png",
-  bestfriend:"preview-couple.png",
-  birthday:"preview-birthday.png",
-  receipt:"preview-couple.png"
-};
-  templatePreviewImg.src =
-  previewMap[selectedTemplate];
+let templates=[];
+
+function fileToDataURL(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadTemplates(){
+  templates=JSON.parse(localStorage.getItem("hp103_templates")||"[]");
+
+  if(templates.length===0){
+    templates=[
+      {
+        id:"worldcup",
+        name:"World Cup 2026",
+        final:"worldcup-final.png",
+        mask:"worldcup-mask.png",
+        preview:"worldcup-final.png"
+      }
+    ];
+  }
+
+  selectedTemplate=templates[0].id;
+  renderTemplatePicker();
+}
+
+function getSelectedTemplate(){
+  return templates.find(t=>t.id===selectedTemplate);
+}
+
+function renderTemplatePicker(){
+  const grid=document.querySelector(".templateGrid");
+  grid.innerHTML="";
+
+  templates.forEach((tpl,index)=>{
+    const div=document.createElement("div");
+    div.className="template"+(index===0?" active":"");
+    div.dataset.template=tpl.id;
+
+    div.innerHTML=`
+      <div class="thumb">
+        <img src="${tpl.preview}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">
+      </div>
+      <b>${tpl.name}</b>
+      <p class="small">Memory Template</p>
+    `;
+
+    div.onclick=()=>{
+      document.querySelectorAll(".template").forEach(t=>t.classList.remove("active"));
+      div.classList.add("active");
+      selectedTemplate=tpl.id;
+      templatePreviewImg.src=tpl.preview;
+    };
+
+    grid.appendChild(div);
+  });
+
+  templatePreviewImg.src=templates[0].preview;
+}
 
 document.querySelectorAll(".template").forEach(el=>{
   el.addEventListener("click",()=>{
@@ -1289,13 +1376,7 @@ function isMarkerGreen(data,index){
 // Template final untuk hasil akhir.
 // Untuk tes sekarang: template yang tersedia adalah preview-couple.png dan preview-birthday.png.
 // Nanti kalau file lain sudah di-upload, cukup ganti map ini ke preview-karaoke.png, dst.
-const templateMap={
-  karaoke:"preview-karaoke.png",
-  couple:"preview-couple.png",
-  bestfriend:"preview-bestfriend.png",
-  birthday:"preview-birthday.png",
-  receipt:"preview-receipt.png"
-};
+
 const maskCache={};
 const transparentTemplateCache={};
 
@@ -1482,20 +1563,35 @@ if(
 }
 
 async function renderUploadedTemplate(){
-  ctx.clearRect(0,0,1080,1920);
+  const tpl=getSelectedTemplate();
 
-  const src=templateMap[selectedTemplate];
-  const bg=await loadImage(src);
+  if(!tpl){
+    throw new Error("Template belum dipilih.");
+  }
 
-canvas.width = bg.naturalWidth || bg.width;
-canvas.height = bg.naturalHeight || bg.height;
+  const finalImg=await loadImage(tpl.final);
+  const maskImg=await loadImage(tpl.mask);
 
-const masks=detectGreenMasks(bg,src);
+  canvas.width=finalImg.naturalWidth || finalImg.width;
+  canvas.height=finalImg.naturalHeight || finalImg.height;
 
-  if(masks.length < 4){
-  throw new Error(
-    `Frame hijau kurang. Terdeteksi ${masks.length}/4 di ${src}`
-  );
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const masks=detectGreenMasks(maskImg,tpl.mask);
+
+  if(masks.length<4){
+    throw new Error(
+      `Frame hijau kurang. Terdeteksi ${masks.length}/4`
+    );
+  }
+
+  masks.forEach((mask,i)=>{
+    if(photos[i]){
+      drawPhotoIntoMask(photos[i],mask);
+    }
+  });
+
+  ctx.drawImage(finalImg,0,0,canvas.width,canvas.height);
 }
   masks.forEach((mask,i)=>{
     if(photos[i]){
@@ -1526,6 +1622,56 @@ function prepareBlob(){
   });
 }
 
+  adminBtn.onclick=()=>{
+  showScreen(adminScreen);
+};
+
+backFromAdminBtn.onclick=()=>{
+  showScreen(formScreen);
+};
+
+saveTemplateBtn.onclick=async()=>{
+  const name=templateNameInput.value.trim();
+
+  if(!name){
+    alert("Nama template wajib diisi.");
+    return;
+  }
+
+  if(!finalFileInput.files[0] || !maskFileInput.files[0] || !previewFileInput.files[0]){
+    alert("Final, mask, dan preview wajib diupload.");
+    return;
+  }
+
+  const id=name.toLowerCase()
+    .replace(/[^a-z0-9]+/g,"-")
+    .replace(/^-+|-+$/g,"");
+
+  const finalData=await fileToDataURL(finalFileInput.files[0]);
+  const maskData=await fileToDataURL(maskFileInput.files[0]);
+  const previewData=await fileToDataURL(previewFileInput.files[0]);
+
+  templates.push({
+    id,
+    name,
+    final:finalData,
+    mask:maskData,
+    preview:previewData
+  });
+
+  localStorage.setItem("hp103_templates",JSON.stringify(templates));
+
+  alert("Template berhasil disimpan.");
+
+  templateNameInput.value="";
+  finalFileInput.value="";
+  maskFileInput.value="";
+  previewFileInput.value="";
+
+  renderTemplatePicker();
+  showScreen(formScreen);
+};
+  
 startBtn.onclick=async()=>{
   Object.keys(maskCache).forEach(k=>delete maskCache[k]);
   Object.keys(transparentTemplateCache).forEach(k=>delete transparentTemplateCache[k]);
@@ -1662,6 +1808,8 @@ shareBtn.onclick=async()=>{
     alert("HP ini belum mendukung share langsung. Gunakan tombol Simpan Foto lalu upload manual.");
   }
 };
+  loadTemplates();
+  
 </script>
 
 </body>
