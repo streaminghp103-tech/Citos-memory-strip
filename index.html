@@ -1346,12 +1346,14 @@ function isMarkerGreen(data,index){
   const r=data[index];
   const g=data[index+1];
   const b=data[index+2];
+  const a=data[index+3];
 
   return (
-  g > 220 &&
-  r < 60 &&
-  b < 60
-);
+    a > 180 &&
+    g > 120 &&
+    g > r * 1.25 &&
+    g > b * 1.25
+  );
 }
 // Template final untuk hasil akhir.
 // Untuk tes sekarang: template yang tersedia adalah preview-couple.png dan preview-birthday.png.
