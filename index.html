@@ -1069,11 +1069,17 @@ reviewImage.src = imgData;
 previewThumbImg.src = imgData;
 previewBtn.style.display = "block";
 
-if(photos.length >= 4){
+if(photos.length === 4){
   stopCamera();
   console.log("TOTAL FOTO", photos.length);
 console.log(photos);
 
+  if(!photos[0] || !photos[1] || !photos[2] || !photos[3]){
+  alert("Foto belum lengkap. Ulangi ambil foto.");
+  captureBtn.disabled=false;
+  return;
+}
+  
 await generateResult();
 await prepareBlob();
   showScreen(resultScreen);
