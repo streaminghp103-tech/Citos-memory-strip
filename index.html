@@ -523,10 +523,6 @@ canvas{
 
     <div class="templateGrid"></div>
 
-    <div id="templatePreview" class="templatePreview">
-  <img id="templatePreviewImg" src="" alt="">
-</div>
-
     <div class="row">
       <input id="roomInput" readonly>
       <input id="songInput" placeholder="Lagu favorit">
@@ -612,9 +608,6 @@ canvas{
     <label class="small">Mask PNG</label>
     <input id="maskFileInput" type="file" accept="image/png,image/jpeg">
 
-    <label class="small">Preview PNG</label>
-    <input id="previewFileInput" type="file" accept="image/png,image/jpeg">
-
     <button id="saveTemplateBtn">Simpan Template</button>
     <button id="backFromAdminBtn" class="secondary">Kembali</button>
   </div>
@@ -649,7 +642,6 @@ const saveTemplateBtn=document.getElementById("saveTemplateBtn");
 const templateNameInput=document.getElementById("templateNameInput");
 const finalFileInput=document.getElementById("finalFileInput");
 const maskFileInput=document.getElementById("maskFileInput");
-const previewFileInput=document.getElementById("previewFileInput");
 const captureBtn=document.getElementById("captureBtn");
 const cancelBtn=document.getElementById("cancelBtn");
 const retryBtn=document.getElementById("retryBtn");
@@ -749,8 +741,7 @@ function showScreen(screen){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   screen.classList.add("active");
 }
-const templatePreviewImg =
-document.getElementById("templatePreviewImg");
+
 let templates=[];
 
 function fileToDataURL(file){
@@ -799,7 +790,7 @@ function renderTemplatePicker(){
 
     div.innerHTML=`
       <div class="thumb">
-        <img src="${tpl.preview}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">
+        <img src="${tpl.final}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">
       </div>
       <b>${tpl.name}</b>
       <p class="small">Memory Template</p>
@@ -815,14 +806,10 @@ localStorage.setItem(
   tpl.id
 );
 
-templatePreviewImg.src=tpl.preview;
     };
 
     grid.appendChild(div);
   });
-
-  const activeTemplate=getSelectedTemplate() || templates[0];
-templatePreviewImg.src=activeTemplate.preview;
 }
 
 goFormBtn.onclick=()=>showScreen(formScreen);
@@ -1517,12 +1504,6 @@ lctx.drawImage(
 }
 
 
-
-  tctx.putImageData(imgData,0,0);
-  transparentTemplateCache[src]=temp;
-  return temp;
-}
-
 async function renderUploadedTemplate(){
   const tpl=getSelectedTemplate();
 
@@ -1591,10 +1572,10 @@ saveTemplateBtn.onclick=async()=>{
     return;
   }
 
-  if(!finalFileInput.files[0] || !maskFileInput.files[0] || !previewFileInput.files[0]){
-    alert("Final, mask, dan preview wajib diupload.");
-    return;
-  }
+  if(!finalFileInput.files[0] || !maskFileInput.files[0]){
+  alert("Final dan mask wajib diupload.");
+  return;
+}
 
   const id=name.toLowerCase()
     .replace(/[^a-z0-9]+/g,"-")
@@ -1602,15 +1583,13 @@ saveTemplateBtn.onclick=async()=>{
 
   const finalData=await fileToDataURL(finalFileInput.files[0]);
   const maskData=await fileToDataURL(maskFileInput.files[0]);
-  const previewData=await fileToDataURL(previewFileInput.files[0]);
-
+  
   templates.push({
-    id,
-    name,
-    final:finalData,
-    mask:maskData,
-    preview:previewData
-  });
+  id,
+  name,
+  final:finalData,
+  mask:maskData
+});
   selectedTemplate=id;
 
   localStorage.setItem("hp103_templates",JSON.stringify(templates));
@@ -1620,10 +1599,8 @@ saveTemplateBtn.onclick=async()=>{
   templateNameInput.value="";
   finalFileInput.value="";
   maskFileInput.value="";
-  previewFileInput.value="";
-
+  
   renderTemplatePicker();
-  templatePreviewImg.src=previewData;
   showScreen(formScreen);
 };
   
