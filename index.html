@@ -505,6 +505,7 @@ canvas{
 
 <section id="startScreen" class="screen active">
   <div class="card center">
+    <button id="menuBtn" class="iconBtn" style="position:absolute;top:18px;right:18px;">⋮</button>
     <div class="logo">HAPPY PUPPY PANJAITAN</div>
     <h1>HP103 Memory Strip</h1>
     <p>Buat kenangan karaoke malam ini dengan template spesial.</p>
@@ -531,7 +532,7 @@ canvas{
 
     
     <button id="startBtn">Lanjut Ambil Foto</button>
-<button id="adminBtn" class="secondary">⚙️ Admin Template</button>
+<button id="adminBtn" class="secondary" style="display:none;">⚙️ Admin Template</button>
 <button id="backHomeBtn" class="secondary">Kembali</button>
   </div>
 </section>
@@ -626,7 +627,16 @@ canvas{
     <button id="retryBtn" class="secondary">🔄 Ambil Ulang</button>
   </div>
 </section>
-
+<div id="adminLoginModal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:18px;">
+  <div style="width:100%;max-width:360px;background:#151520;border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:12px;">
+    <h2>Mode Admin</h2>
+    <p class="small">Masukkan password admin.</p>
+    <input id="adminPasswordInput" type="password" placeholder="Password admin">
+    <button id="adminLoginBtn">Masuk Admin</button>
+    <button id="adminCancelBtn" class="secondary">Batal</button>
+  </div>
+</div>
+  
 <script>
   const SUPABASE_URL = "https://fcqohfuehvgkuutwffhy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_b4Lqx32Fhwtuz_eaZfmagA_FyZPvrgF";
@@ -641,6 +651,11 @@ const cameraScreen=document.getElementById("cameraScreen");
 const resultScreen=document.getElementById("resultScreen");
 const reviewScreen=document.getElementById("reviewScreen");
 const adminScreen=document.getElementById("adminScreen");
+  const menuBtn=document.getElementById("menuBtn");
+const adminLoginModal=document.getElementById("adminLoginModal");
+const adminPasswordInput=document.getElementById("adminPasswordInput");
+const adminLoginBtn=document.getElementById("adminLoginBtn");
+const adminCancelBtn=document.getElementById("adminCancelBtn");
 
 const goFormBtn=document.getElementById("goFormBtn");
 const backHomeBtn=document.getElementById("backHomeBtn");
@@ -1603,7 +1618,35 @@ function prepareBlob(){
   });
 }
 
-  adminBtn.onclick=()=>{
+  menuBtn.onclick=()=>{
+  adminPasswordInput.value="";
+  adminLoginModal.style.display="flex";
+  setTimeout(()=>adminPasswordInput.focus(),100);
+};
+
+adminCancelBtn.onclick=()=>{
+  adminLoginModal.style.display="none";
+};
+
+adminLoginBtn.onclick=()=>{
+  const pass=adminPasswordInput.value.trim();
+
+  if(pass!=="HP1032026"){
+    alert("Password salah.");
+    return;
+  }
+
+  adminLoginModal.style.display="none";
+  showScreen(adminScreen);
+};
+
+adminPasswordInput.addEventListener("keydown",(e)=>{
+  if(e.key==="Enter"){
+    adminLoginBtn.click();
+  }
+});
+
+adminBtn.onclick=()=>{
   showScreen(adminScreen);
 };
 
