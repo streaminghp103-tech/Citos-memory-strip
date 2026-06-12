@@ -821,21 +821,6 @@ function renderTemplatePicker(){
   templatePreviewImg.src=templates[0].preview;
 }
 
-document.querySelectorAll(".template").forEach(el=>{
-  el.addEventListener("click",()=>{
-
-    document.querySelectorAll(".template")
-    .forEach(t=>t.classList.remove("active"));
-
-    el.classList.add("active");
-
-    selectedTemplate=el.dataset.template;
-
-    templatePreviewImg.src=
-      previewMap[selectedTemplate];
-  });
-});
-
 goFormBtn.onclick=()=>showScreen(formScreen);
 backHomeBtn.onclick=()=>showScreen(startScreen);
 
@@ -1368,10 +1353,10 @@ function isMarkerGreen(data,index){
   const b=data[index+2];
 
   return (
-    g > 150 &&
-    r < 180 &&
-    b < 180
-  );
+  g > 220 &&
+  r < 60 &&
+  b < 60
+);
 }
 // Template final untuk hasil akhir.
 // Untuk tes sekarang: template yang tersedia adalah preview-couple.png dan preview-birthday.png.
@@ -1593,15 +1578,7 @@ async function renderUploadedTemplate(){
 
   ctx.drawImage(finalImg,0,0,canvas.width,canvas.height);
 }
-  masks.forEach((mask,i)=>{
-    if(photos[i]){
-      drawPhotoIntoMask(photos[i],mask);
-    }
-  });
-
-  const overlay=makeTransparentTemplate(bg,src);
-  ctx.drawImage(overlay,0,0);
-}
+  
 
 async function generateResult(){
 
@@ -1658,6 +1635,7 @@ saveTemplateBtn.onclick=async()=>{
     mask:maskData,
     preview:previewData
   });
+  selectedTemplate=id;
 
   localStorage.setItem("hp103_templates",JSON.stringify(templates));
 
@@ -1669,6 +1647,7 @@ saveTemplateBtn.onclick=async()=>{
   previewFileInput.value="";
 
   renderTemplatePicker();
+  templatePreviewImg.src=previewData;
   showScreen(formScreen);
 };
   
