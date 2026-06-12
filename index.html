@@ -498,6 +498,7 @@ canvas{
 }
   
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -627,6 +628,13 @@ canvas{
 </section>
 
 <script>
+  const SUPABASE_URL = "https://fcqohfuehvgkuutwffhy.supabase.co";
+const SUPABASE_KEY = "sb_publishable_b4Lqx32Fhwtuz_eaZfmagA_FyZPvrgF";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 const startScreen=document.getElementById("startScreen");
 const formScreen=document.getElementById("formScreen");
 const cameraScreen=document.getElementById("cameraScreen");
@@ -803,7 +811,7 @@ function renderTemplatePicker(){
 
     div.innerHTML=`
       <div class="thumb">
-        <img src="${tpl.final}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">
+        <img src="${tpl.preview || tpl.final}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">
       </div>
       <b>${tpl.name}</b>
       <p class="small">Memory Template</p>
