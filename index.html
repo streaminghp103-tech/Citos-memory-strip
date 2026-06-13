@@ -627,7 +627,7 @@ canvas{
   <input id="previewFileInput" type="file" accept="image/png,image/jpeg">
 
   <label class="small">Mask PNG</label>
-  <input id="maskFileInput" type="file" accept="image/png">
+  <input id="maskFileInput" type="file" accept="image/*">
 
   <button id="saveTemplateBtn">Simpan Template</button>
 </div>
@@ -638,10 +638,6 @@ canvas{
   <div id="adminTemplateList" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;min-height:0;flex:1;"></div>
 </div>
     <button id="backFromAdminBtn" class="secondary">Kembali</button>
-    <hr style="width:100%;border-color:rgba(255,255,255,.12);">
-
-<h3>Template Aktif</h3>
-<div id="adminTemplateList" style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;"></div>
     
   </div>
 </section>
@@ -728,8 +724,6 @@ const switchCameraBtn=document.getElementById("switchCameraBtn");
 const flashBtn=document.getElementById("flashBtn");
 const flashOverlay=document.getElementById("flashOverlay");
 const reviewImage=document.getElementById("reviewImage");
-const deletePhotoBtn=document.getElementById("deletePhotoBtn");
-const usePhotoBtn=document.getElementById("usePhotoBtn");
 const reviewGrid=document.getElementById("reviewGrid");
 const finishReviewBtn=document.getElementById("finishReviewBtn");
 const reviewBackBtn=document.getElementById("reviewBackBtn");
@@ -1914,6 +1908,10 @@ saveTemplateBtn.onclick=async()=>{
       alert("Nama template wajib diisi.");
       return;
     }
+    if(!maskFileInput.files[0].type.includes("png")){
+  alert("Mask wajib file PNG.");
+  return;
+}
 
     if(!previewFileInput.files[0] || !maskFileInput.files[0]){
   alert("Preview dan mask wajib diupload.");
@@ -2003,11 +2001,6 @@ reviewBackBtn.onclick=async()=>{
   showScreen(reviewScreen);
 };
   
-  deletePhotoBtn.onclick=()=>{
-  if(reviewIndex>=0 && reviewIndex<photos.length){
-    photos.splice(reviewIndex,1);
-  }
-
   reviewIndex=-1;
 
   pendingPhoto=photos.length>0
@@ -2031,9 +2024,6 @@ reviewBackBtn.onclick=async()=>{
   showScreen(cameraScreen);
 };
 
-usePhotoBtn.onclick=()=>{
-  showScreen(cameraScreen);
-};
   flashBtn.onclick=async()=>{
   if(currentFacingMode!=="environment"){
     alert("Flash hanya bisa dipakai saat kamera belakang aktif.");
