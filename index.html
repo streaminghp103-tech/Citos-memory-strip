@@ -803,7 +803,7 @@ const previewBtn=document.getElementById("previewBtn");
 const previewThumbImg=document.getElementById("previewThumbImg");
 
 const video=document.getElementById("video");
-cconst countdown=document.getElementById("countdown");
+const countdown=document.getElementById("countdown");
 const photoCounter=document.getElementById("photoCounter");
 const photoDots=document.querySelectorAll("#photoDots span");
 const canvas=document.getElementById("resultCanvas");
@@ -1411,6 +1411,7 @@ showPhotoReview();
 
 currentPhoto++;
 photoCounter.textContent = `Foto ${currentPhoto} / 4`;
+    updatePhotoProgress();
 
 captureBtn.disabled=false;
 
