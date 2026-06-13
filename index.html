@@ -54,22 +54,60 @@ input,select{
 }
 select option{color:black}
 .badge{
-  display:inline-flex;align-items:center;gap:6px;padding:9px 13px;
-  border-radius:999px;background:rgba(255,47,146,.18);
-  color:#ffc1dc;font-weight:bold;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:8px 16px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.14);
+  color:#ffd1e6;
+  font-weight:bold;
+  font-size:14px;
 }
 .templateGrid{
-  display:grid;grid-template-columns:1fr 1fr;gap:10px;
-  overflow-y:auto;min-height:0;flex:1;padding-right:2px;
+  display:flex;
+  gap:14px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  min-height:0;
+  flex:1;
+  padding:6px 2px 12px;
+  scroll-snap-type:x mandatory;
 }
+
+.templateGrid::-webkit-scrollbar{
+  display:none;
+}
+
 .template{
+  min-width:82%;
   border:1px solid rgba(255,255,255,.16);
-  background:rgba(255,255,255,.08);
-  border-radius:18px;padding:12px;text-align:left;min-height:118px;
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
+  border-radius:26px;
+  padding:14px;
+  text-align:left;
+  scroll-snap-align:center;
+  box-shadow:0 18px 45px rgba(0,0,0,.28);
 }
-.template.active{outline:2px solid #ff2f92;background:rgba(255,47,146,.18)}
+
+.template.active{
+  outline:2px solid #ff2f92;
+  background:linear-gradient(180deg,rgba(255,47,146,.22),rgba(255,255,255,.07));
+}
+
 .thumb{
-  height:70px;border-radius:14px;margin-bottom:8px;
+  height:320px;
+  border-radius:22px;
+  margin-bottom:12px;
+  background:linear-gradient(135deg,#ff2f92,#111);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  overflow:hidden;
+}
   background:linear-gradient(135deg,#ff2f92,#111);
   display:flex;align-items:center;justify-content:center;font-size:28px;
 }
@@ -339,7 +377,7 @@ canvas{
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:16px;
+  gap:12px;
 }
 
 .filterBar{
@@ -359,7 +397,7 @@ canvas{
 .timerChip{
   width:auto !important;
   min-width:max-content;
-  padding:10px 16px;
+  padding:9px 13px;
   border-radius:999px;
   background:rgba(0,0,0,.45);
   border:1px solid rgba(255,255,255,.18);
@@ -512,8 +550,8 @@ canvas{
   <div class="card center">
     <button id="menuBtn" class="iconBtn" style="position:absolute;top:18px;right:18px;">⋮</button>
     <div class="logo">HAPPY PUPPY PANJAITAN</div>
-    <h1>HP103 Memory Strip</h1>
-    <p>Buat kenangan karaoke malam ini dengan template spesial.</p>
+    <h1>Abadikan Momen Karaoke ✨</h1>
+<p>Buat photostrip serumu, simpan, lalu upload ke Instagram.</p>
     <div class="badge" id="roomBadge">ROOM -</div>
     <button id="goFormBtn">📸 Mulai Buat Foto</button>
     <p class="small">Scan QR • Ambil 4 foto • Download • Upload Instagram</p>
@@ -652,7 +690,7 @@ canvas{
   
 <section id="resultScreen" class="screen">
   <h2>Hasilmu Siap ✨</h2>
-  <p class="small">Tap foto di hasil untuk ambil ulang foto itu.</p>
+  <p class="small">👆 Tap foto yang ingin diganti, lalu simpan jika sudah cocok.</p>
   <canvas id="resultCanvas" width="1080" height="1920"></canvas>
 
   <div class="actions">
