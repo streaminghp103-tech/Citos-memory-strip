@@ -723,7 +723,6 @@ const timerPopup=document.getElementById("timerPopup");
 const switchCameraBtn=document.getElementById("switchCameraBtn");
 const flashBtn=document.getElementById("flashBtn");
 const flashOverlay=document.getElementById("flashOverlay");
-const reviewImage=document.getElementById("reviewImage");
 const reviewGrid=document.getElementById("reviewGrid");
 const finishReviewBtn=document.getElementById("finishReviewBtn");
 const reviewBackBtn=document.getElementById("reviewBackBtn");
@@ -1274,7 +1273,6 @@ async function capturePhoto(){
 
 const imgData = pendingPhoto.toDataURL("image/png");
 
-reviewImage.src = imgData;
 previewThumbImg.src = imgData;
 previewBtn.style.display = "block";
 
@@ -1992,13 +1990,7 @@ reviewBackBtn.onclick=async()=>{
 };
   previewBtn.onclick=()=>{
   if(photos.length===0) return;
-
-  reviewIndex=photos.length-1;
-
-  const imgData=photos[reviewIndex].toDataURL("image/png");
-  reviewImage.src=imgData;
-
-  showScreen(reviewScreen);
+  showPhotoReview();
 };
   
   flashBtn.onclick=async()=>{
