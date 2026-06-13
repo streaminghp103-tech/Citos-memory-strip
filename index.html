@@ -624,10 +624,18 @@ canvas{
   <input id="templateNameInput" placeholder="Nama template">
 
   <label class="small">Preview</label>
-  <input id="previewFileInput" type="file" accept="image/png,image/jpeg">
+<input id="previewFileInput" type="file" accept="image/png,image/jpeg">
 
-  <label class="small">Mask PNG</label>
-  <input id="maskFileInput" type="file" accept="image/*">
+<div class="templatePreview">
+  <img id="previewImagePreview" style="display:none;">
+</div>
+
+<label class="small">Mask PNG</label>
+<input id="maskFileInput" type="file" accept="image/*">
+
+<div class="templatePreview">
+  <img id="maskImagePreview" style="display:none;">
+</div>
 
   <button id="saveTemplateBtn">Simpan Template</button>
 </div>
@@ -712,6 +720,8 @@ const templateNameInput=document.getElementById("templateNameInput");
 
 const maskFileInput=document.getElementById("maskFileInput");
   const previewFileInput=document.getElementById("previewFileInput");
+  const previewImagePreview=document.getElementById("previewImagePreview");
+const maskImagePreview=document.getElementById("maskImagePreview");
 const captureBtn=document.getElementById("captureBtn");
 const cancelBtn=document.getElementById("cancelBtn");
 const retryBtn=document.getElementById("retryBtn");
@@ -1877,6 +1887,38 @@ adminBtn.onclick=()=>{
 backFromAdminBtn.onclick=()=>{
   showScreen(formScreen);
 };
+  previewFileInput.addEventListener("change",()=>{
+
+  const file=previewFileInput.files[0];
+
+  if(!file) return;
+
+  const reader=new FileReader();
+
+  reader.onload=e=>{
+    previewImagePreview.src=e.target.result;
+    previewImagePreview.style.display="block";
+  };
+
+  reader.readAsDataURL(file);
+});
+
+maskFileInput.addEventListener("change",()=>{
+
+  const file=maskFileInput.files[0];
+
+  if(!file) return;
+
+  const reader=new FileReader();
+
+  reader.onload=e=>{
+    maskImagePreview.src=e.target.result;
+    maskImagePreview.style.display="block";
+  };
+
+  reader.readAsDataURL(file);
+});
+  
   async function uploadTemplateFile(slug,type,file){
   const ext=file.name.split(".").pop().toLowerCase();
   const path=`${slug}/${type}.${ext}`;
@@ -1942,6 +1984,11 @@ if(!maskFileInput.files[0].type.includes("png")){
     previewFileInput.value="";
     
     maskFileInput.value="";
+    previewImagePreview.src="";
+previewImagePreview.style.display="none";
+
+maskImagePreview.src="";
+maskImagePreview.style.display="none";
 
     await loadTemplates();
     showScreen(formScreen);
