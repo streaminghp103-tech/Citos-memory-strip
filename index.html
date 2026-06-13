@@ -555,6 +555,14 @@ canvas{
   height:100%;
   object-fit:cover;
 }
+  .filterName{
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(0,0,0,.35);
+  font-size:12px;
+  color:rgba(255,255,255,.85);
+  backdrop-filter:blur(10px);
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -629,11 +637,12 @@ canvas{
 
     <div class="cameraBottomOverlay">
       <div class="filterBar">
-        <button class="filterChip active" data-filter="natural">✨ Natural</button>
-        <button class="filterChip" data-filter="bright">🌸 Bright</button>
-        <button class="filterChip" data-filter="party">💜 Party</button>
-        <button class="filterChip" data-filter="vintage">📸 Vintage</button>
-        <button class="filterChip" data-filter="beauty">💎 Beauty</button>
+        <div id="filterName" class="filterName">Natural</div>
+        <button class="filterChip active" data-filter="natural" title="Natural">✨</button>
+<button class="filterChip" data-filter="bright" title="Bright">🌸</button>
+<button class="filterChip" data-filter="party" title="Party">💜</button>
+<button class="filterChip" data-filter="vintage" title="Vintage">📸</button>
+<button class="filterChip" data-filter="beauty" title="Beauty">💎</button>
       </div>
 
       <div class="shutterRow">
@@ -801,6 +810,7 @@ const reviewBackBtn=document.getElementById("reviewBackBtn");
 const usageStatsBox=document.getElementById("usageStatsBox");
 const previewBtn=document.getElementById("previewBtn");
 const previewThumbImg=document.getElementById("previewThumbImg");
+  const filterName=document.getElementById("filterName");
 
 const video=document.getElementById("video");
 const countdown=document.getElementById("countdown");
@@ -838,8 +848,19 @@ document.querySelectorAll(".filterChip").forEach(btn=>{
     document.querySelectorAll(".filterChip").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     selectedFilter=btn.dataset.filter;
-    updateVideoFilter();
-    updateShutterFilter();
+
+const labelMap={
+  natural:"Natural",
+  bright:"Bright",
+  party:"Party",
+  vintage:"Vintage",
+  beauty:"Beauty"
+};
+
+filterName.textContent=labelMap[selectedFilter] || "Natural";
+
+updateVideoFilter();
+updateShutterFilter();
   });
 });
 
