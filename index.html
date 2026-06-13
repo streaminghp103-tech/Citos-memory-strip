@@ -31,6 +31,7 @@ body{
   backdrop-filter:blur(14px);
   box-shadow:0 20px 60px rgba(0,0,0,.35);
   display:flex;flex-direction:column;gap:12px;min-height:0;
+  overflow:auto;
 }
 .center{justify-content:center;align-items:center;text-align:center}
 .logo{font-size:12px;letter-spacing:2px;color:#ffc34d;font-weight:bold}
@@ -521,7 +522,7 @@ canvas{
   max-width:54px;
   padding:0;
   border-radius:14px;
-  overflow:auto;
+  overflow:hidden;
   background:rgba(0,0,0,.45);
   box-shadow:none;
   border:2px solid rgba(255,255,255,.5);
@@ -672,7 +673,9 @@ canvas{
 
 <div id="countdown">3</div>
   <div id="flashOverlay"></div>
-  <div id="loadingOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);align-items:center;justify-content:center;flex-direction:column;gap:12px;">
+  <div id="loadingOverlay"
+style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72);align-items:center;justify-content:center;flex-direction:column;gap:12px;"
+>
   <div style="width:54px;height:54px;border:5px solid rgba(255,255,255,.25);border-top-color:#ff2f92;border-radius:50%;animation:spin 1s linear infinite;"></div>
   <b id="loadingText">Memproses hasil...</b>
 </div>
@@ -696,7 +699,7 @@ canvas{
     <div>
       <div class="logo">ADMIN TEMPLATE</div>
       <h2>Tambah Template</h2>
-      <p class="small">Upload preview, final, dan mask. Mask wajib PNG.</p>
+      <p class="small">Upload preview dan mask. Mask wajib PNG.</p>
     </div>
 
     <div class="row">
@@ -1463,10 +1466,11 @@ photoCounter.textContent = `Foto ${currentPhoto} / 4`;
 captureBtn.disabled=false;
 
     }catch(e){
-    console.error(e);
-    alert("Foto gagal diambil: " + e.message);
-    captureBtn.disabled=false;
-  }
+  hideLoading();
+  console.error(e);
+  alert("Foto gagal diambil: " + e.message);
+  captureBtn.disabled=false;
+}
 }
 
 function roundRect(x,y,w,h,r){
@@ -2083,7 +2087,10 @@ saveTemplateBtn.onclick=async()=>{
   return;
 }
 
-if(!maskFileInput.files[0].type.includes("png")){
+const maskFile = maskFileInput.files[0];
+const maskName = maskFile.name.toLowerCase();
+
+if(!maskName.endsWith(".png")){
   alert("Mask wajib file PNG.");
   return;
 }
