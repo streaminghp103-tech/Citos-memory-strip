@@ -563,6 +563,10 @@ canvas{
   color:rgba(255,255,255,.85);
   backdrop-filter:blur(10px);
 }
+  @keyframes spin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -663,6 +667,10 @@ canvas{
 
 <div id="countdown">3</div>
   <div id="flashOverlay"></div>
+  <div id="loadingOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);align-items:center;justify-content:center;flex-direction:column;gap:12px;">
+  <div style="width:54px;height:54px;border:5px solid rgba(255,255,255,.25);border-top-color:#ff2f92;border-radius:50%;animation:spin 1s linear infinite;"></div>
+  <b id="loadingText">Memproses hasil...</b>
+</div>
   <section id="reviewScreen" class="screen">
   <div class="card">
     <div>
@@ -804,6 +812,8 @@ const timerPopup=document.getElementById("timerPopup");
 const switchCameraBtn=document.getElementById("switchCameraBtn");
 const flashBtn=document.getElementById("flashBtn");
 const flashOverlay=document.getElementById("flashOverlay");
+  const loadingOverlay=document.getElementById("loadingOverlay");
+const loadingText=document.getElementById("loadingText");
 const reviewGrid=document.getElementById("reviewGrid");
 const finishReviewBtn=document.getElementById("finishReviewBtn");
 const reviewBackBtn=document.getElementById("reviewBackBtn");
@@ -912,6 +922,14 @@ roomInput.value=`ROOM ${room}`;
 function showScreen(screen){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   screen.classList.add("active");
+}
+  function showLoading(text="Memproses hasil..."){
+  loadingText.textContent=text;
+  loadingOverlay.style.display="flex";
+}
+
+function hideLoading(){
+  loadingOverlay.style.display="none";
 }
   function updatePhotoProgress(){
   photoDots.forEach((dot,index)=>{
@@ -1404,10 +1422,13 @@ if(retakeIndex >= 0){
     return;
   }
 
-  await generateResult();
-  await prepareBlob();
+  showLoading("Memperbarui foto...");
 
-  showScreen(resultScreen);
+await generateResult();
+await prepareBlob();
+
+hideLoading();
+showScreen(resultScreen);
   captureBtn.disabled=false;
   return;
 }
@@ -2128,11 +2149,20 @@ finishReviewBtn.onclick=async()=>{
     return;
   }
 
-  await generateResult();
-  await prepareBlob();
-  await logUsage();
+  try{
+    showLoading("Membuat photostrip...");
 
-  showScreen(resultScreen);
+    await generateResult();
+    await prepareBlob();
+    await logUsage();
+
+    hideLoading();
+    showScreen(resultScreen);
+
+  }catch(e){
+    hideLoading();
+    alert("Gagal membuat hasil: " + e.message);
+  }
 };
 
 reviewBackBtn.onclick=async()=>{
