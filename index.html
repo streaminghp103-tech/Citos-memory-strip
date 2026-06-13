@@ -1908,13 +1908,13 @@ saveTemplateBtn.onclick=async()=>{
       alert("Nama template wajib diisi.");
       return;
     }
-    if(!maskFileInput.files[0].type.includes("png")){
-  alert("Mask wajib file PNG.");
+    if(!previewFileInput.files[0] || !maskFileInput.files[0]){
+  alert("Preview dan mask wajib diupload.");
   return;
 }
 
-    if(!previewFileInput.files[0] || !maskFileInput.files[0]){
-  alert("Preview dan mask wajib diupload.");
+if(!maskFileInput.files[0].type.includes("png")){
+  alert("Mask wajib file PNG.");
   return;
 }
     const slug=name.toLowerCase()
@@ -2001,29 +2001,6 @@ reviewBackBtn.onclick=async()=>{
   showScreen(reviewScreen);
 };
   
-  reviewIndex=-1;
-
-  pendingPhoto=photos.length>0
-    ? photos[photos.length-1]
-    : null;
-
-  if(pendingPhoto){
-    const imgData=pendingPhoto.toDataURL("image/png");
-    reviewImage.src=imgData;
-    previewThumbImg.src=imgData;
-    previewBtn.style.display="block";
-  }else{
-    reviewImage.src="";
-    previewThumbImg.src="";
-    previewBtn.style.display="none";
-  }
-
-  currentPhoto=photos.length+1;
-  photoCounter.textContent=`Foto ${currentPhoto} / 4`;
-
-  showScreen(cameraScreen);
-};
-
   flashBtn.onclick=async()=>{
   if(currentFacingMode!=="environment"){
     alert("Flash hanya bisa dipakai saat kamera belakang aktif.");
