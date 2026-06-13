@@ -108,9 +108,7 @@ select option{color:black}
   font-size:28px;
   overflow:hidden;
 }
-  background:linear-gradient(135deg,#ff2f92,#111);
-  display:flex;align-items:center;justify-content:center;font-size:28px;
-}
+
 .row{display:flex;gap:10px}
 .row>*{flex:1}
 #cameraScreen.active{justify-content:space-between}
@@ -805,7 +803,8 @@ const previewBtn=document.getElementById("previewBtn");
 const previewThumbImg=document.getElementById("previewThumbImg");
 
 const video=document.getElementById("video");
-const countdown=document.getElementById("countdown");
+cconst countdown=document.getElementById("countdown");
+const photoCounter=document.getElementById("photoCounter");
 const photoDots=document.querySelectorAll("#photoDots span");
 const canvas=document.getElementById("resultCanvas");
 const ctx=canvas.getContext("2d");
