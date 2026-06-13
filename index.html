@@ -122,6 +122,24 @@ select option{color:black}
   padding:9px 13px;border-radius:999px;
   background:rgba(255,255,255,.12);font-weight:bold;
 }
+  .photoDots{
+  display:flex;
+  gap:6px;
+  justify-content:center;
+}
+
+.photoDots span{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:rgba(255,255,255,.28);
+}
+
+.photoDots span.active{
+  background:#ff2f92;
+  box-shadow:0 0 10px rgba(255,47,146,.9);
+}
+  
 #cancelBtn{width:auto;padding:9px 14px}
 .cameraWrap{
   position:relative;width:100%;max-width:430px;
@@ -588,7 +606,15 @@ canvas{
     <div class="cameraTopOverlay">
   <button id="cancelBtn" class="iconBtn">‹</button>
 
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
   <span id="photoCounter">Foto 1 / 4</span>
+  <div id="photoDots" class="photoDots">
+    <span class="active"></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
 
   <div style="display:flex;gap:8px;">
     <button id="flashBtn" class="iconBtn">⚡</button>
@@ -780,7 +806,7 @@ const previewThumbImg=document.getElementById("previewThumbImg");
 
 const video=document.getElementById("video");
 const countdown=document.getElementById("countdown");
-const photoCounter=document.getElementById("photoCounter");
+const photoDots=document.querySelectorAll("#photoDots span");
 const canvas=document.getElementById("resultCanvas");
 const ctx=canvas.getContext("2d");
 
@@ -866,6 +892,11 @@ roomInput.value=`ROOM ${room}`;
 function showScreen(screen){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   screen.classList.add("active");
+}
+  function updatePhotoProgress(){
+  photoDots.forEach((dot,index)=>{
+    dot.classList.toggle("active", index < currentPhoto);
+  });
 }
 
 let templates=[];
@@ -1226,6 +1257,7 @@ function showPhotoReview(){
       retakeFromReview=true;
       currentPhoto=index+1;
       photoCounter.textContent=`Ulang Foto ${currentPhoto} / 4`;
+      updatePhotoProgress();
 
       stopCamera();
       showScreen(cameraScreen);
@@ -2062,6 +2094,7 @@ startBtn.onclick=async()=>{
   previewBtn.style.display="none";
   previewThumbImg.src="";
   photoCounter.textContent="Foto 1 / 4";
+  updatePhotoProgress();
   showScreen(cameraScreen);
   await startCamera();
 };
@@ -2130,6 +2163,7 @@ previewThumbImg.src="";
 
   captureBtn.disabled=false;
   photoCounter.textContent="Foto 1 / 4";
+  updatePhotoProgress();
 
   showScreen(cameraScreen);
   await startCamera();
@@ -2162,6 +2196,7 @@ canvas.onclick=async(e)=>{
   retakeFromReview=false;
   currentPhoto=index+1;
   photoCounter.textContent=`Ulang Foto ${currentPhoto} / 4`;
+  updatePhotoProgress();
 
   stopCamera();
   showScreen(cameraScreen);
