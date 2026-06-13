@@ -602,16 +602,27 @@ canvas{
       <p class="small">Upload preview, final, dan mask. Mask wajib PNG.</p>
     </div>
 
-    <input id="templateNameInput" placeholder="Nama template, contoh: World Cup">
-<label class="small">Preview PNG</label>
-<input id="previewFileInput" type="file" accept="image/png,image/jpeg">
-    <label class="small">Final PNG</label>
-    <input id="finalFileInput" type="file" accept="image/png,image/jpeg">
+    <div class="row">
+  <button id="adminTabAdd">Tambah</button>
+  <button id="adminTabManage" class="secondary">Kelola</button>
+</div>
 
-    <label class="small">Mask PNG</label>
-    <input id="maskFileInput" type="file" accept="image/png">
+<div id="adminAddPanel" style="display:flex;flex-direction:column;gap:8px;">
+  <input id="templateNameInput" placeholder="Nama template">
 
-    <button id="saveTemplateBtn">Simpan Template</button>
+  <label class="small">Preview</label>
+  <input id="previewFileInput" type="file" accept="image/png,image/jpeg">
+
+  <label class="small">Mask PNG</label>
+  <input id="maskFileInput" type="file" accept="image/png">
+
+  <button id="saveTemplateBtn">Simpan Template</button>
+</div>
+
+<div id="adminManagePanel" style="display:none;flex-direction:column;gap:8px;min-height:0;flex:1;">
+  <h3>Template Aktif</h3>
+  <div id="adminTemplateList" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;min-height:0;flex:1;"></div>
+</div>
     <button id="backFromAdminBtn" class="secondary">Kembali</button>
     <hr style="width:100%;border-color:rgba(255,255,255,.12);">
 
@@ -682,8 +693,12 @@ const adminBtn=document.getElementById("adminBtn");
 const backFromAdminBtn=document.getElementById("backFromAdminBtn");
 const saveTemplateBtn=document.getElementById("saveTemplateBtn");
   const adminTemplateList=document.getElementById("adminTemplateList");
+  const adminTabAdd=document.getElementById("adminTabAdd");
+const adminTabManage=document.getElementById("adminTabManage");
+const adminAddPanel=document.getElementById("adminAddPanel");
+const adminManagePanel=document.getElementById("adminManagePanel");
 const templateNameInput=document.getElementById("templateNameInput");
-const finalFileInput=document.getElementById("finalFileInput");
+
 const maskFileInput=document.getElementById("maskFileInput");
   const previewFileInput=document.getElementById("previewFileInput");
 const captureBtn=document.getElementById("captureBtn");
@@ -916,6 +931,21 @@ function renderAdminTemplateList(){
   goFormBtn.onclick=()=>showScreen(formScreen);
 backHomeBtn.onclick=()=>showScreen(startScreen);
 
+  adminTabAdd.onclick=()=>{
+  adminAddPanel.style.display="flex";
+  adminManagePanel.style.display="none";
+  adminTabAdd.classList.remove("secondary");
+  adminTabManage.classList.add("secondary");
+};
+
+adminTabManage.onclick=()=>{
+  adminAddPanel.style.display="none";
+  adminManagePanel.style.display="flex";
+  adminTabAdd.classList.add("secondary");
+  adminTabManage.classList.remove("secondary");
+  renderAdminTemplateList();
+};
+  
 async function startCamera(){
   try{
     stream=await navigator.mediaDevices.getUserMedia({
@@ -1746,17 +1776,16 @@ saveTemplateBtn.onclick=async()=>{
       return;
     }
 
-    if(!previewFileInput.files[0] || !finalFileInput.files[0] || !maskFileInput.files[0]){
-      alert("Preview, final, dan mask wajib diupload.");
-      return;
-    }
-
+    if(!previewFileInput.files[0] || !maskFileInput.files[0]){
+  alert("Preview dan mask wajib diupload.");
+  return;
+}
     const slug=name.toLowerCase()
       .replace(/[^a-z0-9]+/g,"-")
       .replace(/^-+|-+$/g,"");
 
     const previewUrl=await uploadTemplateFile(slug,"preview",previewFileInput.files[0]);
-    const finalUrl=await uploadTemplateFile(slug,"final",finalFileInput.files[0]);
+    
     const maskUrl=await uploadTemplateFile(slug,"mask",maskFileInput.files[0]);
 
     const { error } = await supabaseClient
@@ -1765,7 +1794,7 @@ saveTemplateBtn.onclick=async()=>{
         name,
         slug,
         preview_url:previewUrl,
-        final_url:finalUrl,
+        final_url:maskUrl,
         mask_url:maskUrl,
         is_active:true
       },{onConflict:"slug"});
@@ -1776,7 +1805,7 @@ saveTemplateBtn.onclick=async()=>{
 
     templateNameInput.value="";
     previewFileInput.value="";
-    finalFileInput.value="";
+    
     maskFileInput.value="";
 
     await loadTemplates();
