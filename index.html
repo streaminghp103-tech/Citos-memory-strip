@@ -1225,7 +1225,7 @@ async function renderUsageStats(){
     .from("usage_logs")
     .select("template_slug, template_name, room, created_at")
     .order("created_at",{ascending:false})
-    .limit(500);
+    .limit(1000);
 
   if(error){
     usageStatsBox.innerHTML="Statistik belum aktif. Jalankan SQL usage_logs dulu.";
@@ -1237,22 +1237,35 @@ async function renderUsageStats(){
   const todayCount=data.filter(x=>(x.created_at||"").slice(0,10)===today).length;
 
   const byTemplate={};
+  const byRoom={};
+
   data.forEach(x=>{
-    const key=x.template_name || x.template_slug || "Unknown";
-    byTemplate[key]=(byTemplate[key]||0)+1;
+    const templateKey=x.template_name || x.template_slug || "Unknown";
+    byTemplate[templateKey]=(byTemplate[templateKey]||0)+1;
+
+    const roomKey=x.room || "Lobby";
+    byRoom[roomKey]=(byRoom[roomKey]||0)+1;
   });
 
-  const top=Object.entries(byTemplate)
+  const topTemplate=Object.entries(byTemplate)
     .sort((a,b)=>b[1]-a[1])
-    .slice(0,3)
+    .slice(0,5)
     .map(([name,count])=>`${name}: ${count}x`)
     .join("<br>");
 
+  const topRoom=Object.entries(byRoom)
+    .sort((a,b)=>String(a[0]).localeCompare(String(b[0]),"id",{numeric:true}))
+    .map(([roomName,count])=>`${roomName}: ${count}x`)
+    .join("<br>");
+
   usageStatsBox.innerHTML=`
-    <b>Statistik</b><br>
+    <b>Statistik Penggunaan</b><br>
     Hari ini: ${todayCount}x<br>
     Total tersimpan: ${total}x<br>
-    ${top ? "<br><b>Top Template</b><br>"+top : ""}
+
+    ${topTemplate ? "<br><b>Template Terpakai</b><br>"+topTemplate : ""}
+
+    ${topRoom ? "<br><b>Penggunaan Per Room</b><br>"+topRoom : ""}
   `;
 }
 
