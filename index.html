@@ -1629,6 +1629,151 @@ canvas{
   flex-shrink:0;
   border-radius:24px !important;
 }
+  /* ===============================
+   TEMPLATE PICKER COMPACT FIX
+================================ */
+
+/* Header lebih compact */
+#formScreen .card{
+  padding:18px 18px 12px !important;
+  gap:10px !important;
+}
+
+#formScreen .logo{
+  font-size:12px !important;
+  letter-spacing:4px !important;
+}
+
+#formScreen h2{
+  font-size:30px !important;
+  line-height:1 !important;
+}
+
+#formScreen .small{
+  font-size:14px !important;
+}
+
+/* Area template lebih lega dan scroll nyaman */
+.templateGrid{
+  flex:1 !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  padding:0 0 10px !important;
+}
+
+/* Jarak antar section diperkecil */
+.templateSection{
+  margin-bottom:22px !important;
+}
+
+.templateSectionTitle{
+  margin-bottom:10px !important;
+}
+
+.templateSectionTitle h3{
+  font-size:24px !important;
+}
+
+.templateSectionTitle span{
+  font-size:14px !important;
+}
+
+/* Card template diperkecil */
+.templateRow{
+  gap:14px !important;
+  padding:0 2px 6px !important;
+}
+
+.templateCard{
+  min-width:128px !important;
+  width:128px !important;
+  flex:0 0 128px !important;
+}
+
+/* Preview jangan kepotong: tampilkan full */
+.templateImageBox{
+  width:128px !important;
+  height:168px !important;
+  border-radius:16px !important;
+  background:#111 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+.templateImageBox img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  display:block !important;
+  background:#111 !important;
+}
+
+/* Nama template lebih kecil */
+.templateName{
+  font-size:14px !important;
+  margin-top:7px !important;
+}
+
+/* Badge Free/Pro lebih kecil */
+.templateBadge{
+  top:7px !important;
+  left:7px !important;
+  padding:4px 8px !important;
+  font-size:11px !important;
+  border-radius:8px !important;
+}
+
+/* Bottom control compact */
+.formBottomBar{
+  flex-shrink:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:10px !important;
+  padding-top:4px !important;
+  background:#07070b !important;
+}
+
+.formBottomBar #songInput{
+  width:100% !important;
+  background:#252631 !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  color:white !important;
+  border-radius:18px !important;
+  font-size:16px !important;
+  padding:14px 16px !important;
+}
+
+/* Tombol kembali + ambil foto sejajar */
+.formActionRow{
+  display:grid !important;
+  grid-template-columns:1fr 1.35fr !important;
+  gap:10px !important;
+}
+
+.formActionRow button{
+  width:100% !important;
+  margin:0 !important;
+  padding:14px 12px !important;
+  border-radius:22px !important;
+  font-size:16px !important;
+  white-space:nowrap !important;
+}
+
+#startBtn{
+  background:linear-gradient(135deg,#ff2f92,#ff7ac0) !important;
+  color:white !important;
+}
+
+#backHomeBtn{
+  background:#242631 !important;
+  color:white !important;
+}
+
+/* Room input disembunyikan */
+#roomInput[type="hidden"]{
+  display:none !important;
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1741,15 +1886,18 @@ canvas{
 
     <div class="templateGrid"></div>
 
-    <div class="row">
-      <input id="roomInput" readonly>
-      <input id="songInput" placeholder="Lagu favorit">
-    </div>
+    <input id="roomInput" type="hidden" readonly>
 
-    
-    <button id="startBtn">Lanjut Ambil Foto</button>
-<button id="adminBtn" class="secondary" style="display:none;">⚙️ Admin Template</button>
-<button id="backHomeBtn" class="secondary">Kembali</button>
+<div class="formBottomBar">
+  <input id="songInput" placeholder="Lagu favorit">
+
+  <div class="formActionRow">
+    <button id="backHomeBtn" class="secondary">Kembali</button>
+    <button id="startBtn">Ambil Foto</button>
+  </div>
+
+  <button id="adminBtn" class="secondary" style="display:none;">⚙️ Admin Template</button>
+</div>
   </div>
 </section>
 
