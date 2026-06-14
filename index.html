@@ -1433,6 +1433,202 @@ canvas{
   top:76px !important;
   right:12px !important;
 }
+  /* ===============================
+   TEMPLATE PICKER UI - APP STYLE
+================================ */
+
+#formScreen{
+  padding:0 !important;
+  background:#07070b !important;
+}
+
+#formScreen.active{
+  justify-content:flex-start !important;
+}
+
+#formScreen .card{
+  width:100% !important;
+  max-width:none !important;
+  height:100dvh !important;
+  max-height:none !important;
+  border-radius:0 !important;
+  padding:24px 18px 18px !important;
+  background:#07070b !important;
+  border:none !important;
+  box-shadow:none !important;
+  overflow:hidden !important;
+  gap:14px !important;
+}
+
+#formScreen .logo{
+  color:#ffd84d !important;
+  font-size:14px !important;
+  letter-spacing:4px !important;
+}
+
+#formScreen h2{
+  font-size:34px !important;
+  line-height:1 !important;
+  color:white !important;
+}
+
+#formScreen .small{
+  font-size:17px !important;
+  color:rgba(255,255,255,.68) !important;
+}
+
+.templateGrid{
+  display:block !important;
+  flex:1 !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  padding:4px 0 14px !important;
+  scroll-snap-type:none !important;
+}
+
+.templateGrid::-webkit-scrollbar{
+  display:none;
+}
+
+.templateSection{
+  margin-bottom:30px;
+}
+
+.templateSectionTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+
+.templateSectionTitle h3{
+  font-size:24px;
+  color:white;
+  margin:0;
+}
+
+.templateSectionTitle span{
+  font-size:16px;
+  color:#f8ff3a;
+  font-weight:900;
+  letter-spacing:.4px;
+}
+
+.templateRow{
+  display:flex;
+  gap:18px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding:0 2px 8px;
+  scroll-snap-type:x mandatory;
+}
+
+.templateRow::-webkit-scrollbar{
+  display:none;
+}
+
+.templateCard{
+  position:relative;
+  min-width:150px;
+  width:150px;
+  flex:0 0 150px;
+  scroll-snap-align:start;
+  border-radius:18px;
+  overflow:visible;
+  color:white;
+}
+
+.templateImageBox{
+  width:150px;
+  height:150px;
+  border-radius:14px;
+  overflow:hidden;
+  background:#171720;
+  border:2px solid rgba(255,255,255,.12);
+  box-shadow:0 14px 28px rgba(0,0,0,.35);
+}
+
+.templateImageBox img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.templateCard.active .templateImageBox{
+  border-color:#ff2f92;
+  box-shadow:
+    0 0 0 3px rgba(255,47,146,.45),
+    0 16px 34px rgba(255,47,146,.22);
+}
+
+.templateBadge{
+  position:absolute;
+  top:8px;
+  left:8px;
+  z-index:4;
+  padding:5px 9px;
+  border-radius:9px;
+  font-size:12px;
+  font-weight:900;
+  color:white;
+  box-shadow:0 6px 12px rgba(0,0,0,.25);
+}
+
+.templateBadge.free{
+  background:#17c58f;
+}
+
+.templateBadge.pro{
+  background:#f59e0b;
+}
+
+.templateName{
+  margin-top:8px;
+  font-size:15px;
+  font-weight:900;
+  color:white;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+#formScreen .row{
+  flex-shrink:0;
+}
+
+#formScreen input{
+  background:#252631 !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  color:white !important;
+  border-radius:18px !important;
+  font-size:16px !important;
+  padding:15px 16px !important;
+}
+
+#startBtn{
+  flex-shrink:0;
+  background:linear-gradient(135deg,#ff2f92,#ff7ac0) !important;
+  color:white !important;
+  font-size:18px !important;
+  padding:16px 18px !important;
+  border-radius:24px !important;
+}
+
+#backHomeBtn{
+  flex-shrink:0;
+  background:#242631 !important;
+  color:white !important;
+  font-size:17px !important;
+  padding:15px 18px !important;
+  border-radius:24px !important;
+}
+
+#adminBtn{
+  flex-shrink:0;
+  border-radius:24px !important;
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1966,30 +2162,99 @@ function getSelectedTemplate(){
   return templates.find(t=>t.id===selectedTemplate);
 }
 
+function getTemplateCategory(tpl){
+  const text = `${tpl.id || ""} ${tpl.name || ""}`.toLowerCase();
+
+  if(
+    text.includes("square") ||
+    text.includes("1x1") ||
+    text.includes("1:1") ||
+    text.includes("couple")
+  ){
+    return "Square";
+  }
+
+  if(
+    text.includes("2x6") ||
+    text.includes("2 x 6") ||
+    text.includes("strip")
+  ){
+    return "Layout 2x6";
+  }
+
+  if(
+    text.includes("4x6") ||
+    text.includes("4 x 6") ||
+    text.includes("layout 4x6")
+  ){
+    return "Layout 4x6";
+  }
+
+  return "Lainnya";
+}
+
 function renderTemplatePicker(){
   const grid=document.querySelector(".templateGrid");
   grid.innerHTML="";
 
-  templates.forEach(tpl=>{
-    const div=document.createElement("div");
-    div.className="template"+(tpl.id===selectedTemplate?" active":"");
-    div.dataset.template=tpl.id;
+  const categoryOrder=["Square","Layout 2x6","Layout 4x6","Lainnya"];
 
-    div.innerHTML=`
-      <div class="thumb">
-        <img src="${tpl.preview || tpl.mask}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">
-      </div>
-      <b>${tpl.name}</b>
-      <p class="small">Memory Template</p>
+  const grouped={};
+
+  categoryOrder.forEach(cat=>{
+    grouped[cat]=[];
+  });
+
+  templates.forEach(tpl=>{
+    const cat=getTemplateCategory(tpl);
+    grouped[cat].push(tpl);
+  });
+
+  categoryOrder.forEach(cat=>{
+    if(!grouped[cat] || grouped[cat].length===0) return;
+
+    const section=document.createElement("div");
+    section.className="templateSection";
+
+    const title=document.createElement("div");
+    title.className="templateSectionTitle";
+    title.innerHTML=`
+      <h3>${cat}</h3>
+      <span>LAINNYA</span>
     `;
 
-    div.onclick=()=>{
-      document.querySelectorAll(".template").forEach(t=>t.classList.remove("active"));
-      div.classList.add("active");
-      selectedTemplate=tpl.id;
-    };
+    const row=document.createElement("div");
+    row.className="templateRow";
 
-    grid.appendChild(div);
+    grouped[cat].forEach((tpl,index)=>{
+      const div=document.createElement("div");
+      div.className="templateCard"+(tpl.id===selectedTemplate?" active":"");
+      div.dataset.template=tpl.id;
+
+      div.innerHTML=`
+        <div class="templateBadge ${index===0 ? "free" : "pro"}">
+          ${index===0 ? "✓ Free" : "♕ Pro"}
+        </div>
+
+        <div class="templateImageBox">
+          <img src="${tpl.preview || tpl.mask}" alt="${tpl.name}">
+        </div>
+
+        <div class="templateName">${tpl.name}</div>
+      `;
+
+      div.onclick=()=>{
+        document.querySelectorAll(".templateCard").forEach(t=>t.classList.remove("active"));
+        div.classList.add("active");
+        selectedTemplate=tpl.id;
+      };
+
+      row.appendChild(div);
+    });
+
+    section.appendChild(title);
+    section.appendChild(row);
+    grid.appendChild(section);
   });
 }
 
