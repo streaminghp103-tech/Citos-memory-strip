@@ -752,6 +752,7 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
   <button id="shareBtn">📤 Share</button>
   <button id="retryBtn" class="secondary">🔄 Ambil Ulang</button>
   <button id="makeAgainBtn" class="secondary">✨ Buat Lagi</button>
+  <button id="doneBtn" class="secondary">✅ Selesai</button>
 </div>
 </section>
 <div id="adminLoginModal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:18px;">
@@ -818,6 +819,7 @@ const captureBtn=document.getElementById("captureBtn");
 const cancelBtn=document.getElementById("cancelBtn");
 const retryBtn=document.getElementById("retryBtn");
 const makeAgainBtn=document.getElementById("makeAgainBtn");
+  const doneBtn=document.getElementById("doneBtn");
 const downloadBtn=document.getElementById("downloadBtn");
 const openIgBtn=document.getElementById("openIgBtn");
 const shareBtn=document.getElementById("shareBtn");
@@ -947,6 +949,19 @@ function showScreen(screen){
 
 function hideLoading(){
   loadingOverlay.style.display="none";
+}
+  async function startCameraWithLoading(text="Membuka kamera..."){
+  try{
+    showLoading(text);
+
+    showScreen(cameraScreen);
+    await startCamera();
+
+    hideLoading();
+  }catch(e){
+    hideLoading();
+    throw e;
+  }
 }
   function updatePhotoProgress(){
   photoDots.forEach((dot,index)=>{
@@ -1321,8 +1336,7 @@ function showPhotoReview(){
       updatePhotoProgress();
 
       stopCamera();
-      showScreen(cameraScreen);
-      await startCamera();
+      await startCameraWithLoading("Membuka kamera retake...");
     };
 
     wrap.appendChild(img);
@@ -2202,9 +2216,7 @@ startBtn.onclick=async()=>{
   previewThumbImg.src="";
   photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
   updatePhotoProgress();
-  showScreen(cameraScreen);
-  await startCamera();
-};
+  await startCameraWithLoading("Membuka kamera...");
 
 captureBtn.onclick=capturePhoto;
 
@@ -2232,8 +2244,7 @@ finishReviewBtn.onclick=async()=>{
 reviewBackBtn.onclick=async()=>{
   stopCamera();
 
-  showScreen(cameraScreen);
-  await startCamera();
+  await startCameraWithLoading("Membuka kamera...");
 };
   previewBtn.onclick=()=>{
   if(photos.length===0) return;
@@ -2269,8 +2280,30 @@ cancelBtn.onclick=()=>{
   stopCamera();
   showScreen(formScreen);
 };
+  function resetPhotoSession(){
+  stopCamera();
+
+  photos=[];
+  currentPhoto=1;
+  lastBlob=null;
+  hasDownloaded=false;
+  pendingPhoto=null;
+  retakeIndex=-1;
+  retakeFromReview=false;
+  lastMasks=[];
+
+  previewBtn.style.display="none";
+  previewThumbImg.src="";
+
+  captureBtn.disabled=false;
+  photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
+  updatePhotoProgress();
+}
 
 retryBtn.onclick=async()=>{
+  resetPhotoSession();
+  await startCameraWithLoading("Membuka kamera ulang...");
+};
   stopCamera();
   hasDownloaded=false;
 
@@ -2289,11 +2322,22 @@ retryBtn.onclick=async()=>{
   photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
   updatePhotoProgress();
 
-  showScreen(cameraScreen);
-  await startCamera();
+  await startCameraWithLoading("Membuka kamera ulang...");
 };
 
 makeAgainBtn.onclick=()=>{
+  resetPhotoSession();
+  showScreen(formScreen);
+};
+  doneBtn.onclick=async()=>{
+  await logInteraction("done");
+
+  resetPhotoSession();
+  songInput.value="";
+
+  showScreen(startScreen);
+};
+  
   stopCamera();
   hasDownloaded=false;
 
@@ -2328,7 +2372,7 @@ makeAgainBtn.onclick=()=>{
   return `HP103-ROOM-${safeRoom}-${dateStr}_${timeStr}.png`;
 }
 
-function downloadResultPhoto(showMessage=true){
+async function downloadResultPhoto(showMessage=true, actionName="download"){
   const link=document.createElement("a");
 
   link.download=getDownloadFileName();
@@ -2336,6 +2380,8 @@ function downloadResultPhoto(showMessage=true){
   link.click();
 
   hasDownloaded=true;
+
+  await logInteraction(actionName);
 
   if(showMessage){
     setTimeout(()=>{
@@ -2347,9 +2393,8 @@ function downloadResultPhoto(showMessage=true){
     },400);
   }
 }
-
-downloadBtn.onclick=()=>{
-  downloadResultPhoto(true);
+downloadBtn.onclick=async()=>{
+  await downloadResultPhoto(true,"download");
 };
   
 canvas.onclick=async(e)=>{
@@ -2379,11 +2424,13 @@ canvas.onclick=async(e)=>{
   await startCamera();
 };
 
-openIgBtn.onclick=()=>{
+openIgBtn.onclick=async()=>{
   if(!hasDownloaded){
-    downloadResultPhoto(false);
+    await downloadResultPhoto(false,"story_auto_download");
 
-    setTimeout(()=>{
+    setTimeout(async()=>{
+      await logInteraction("open_story");
+
       alert(
         "Foto otomatis disimpan dulu ✨\n\n" +
         "Sekarang pilih foto HP103 dari galeri saat membuat Story Instagram.\n" +
@@ -2395,6 +2442,8 @@ openIgBtn.onclick=()=>{
 
     return;
   }
+
+  await logInteraction("open_story");
 
   alert(
     "Buka Instagram Story ✨\n\n" +
@@ -2427,10 +2476,12 @@ const file=new File(
   if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
     try{
       await navigator.share({
-        title:"HP103 Memory Strip",
-        text:"Happy Puppy Karaoke Night!",
-        files:[file]
-      });
+  title:"HP103 Memory Strip",
+  text:"Happy Puppy Karaoke Night!",
+  files:[file]
+});
+
+await logInteraction("share");
     }catch(e){}
   }else{
     alert("HP ini belum mendukung share langsung. Gunakan tombol Simpan Foto lalu upload manual.");
