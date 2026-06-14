@@ -1091,6 +1091,8 @@ adminTabManage.onclick=async()=>{
   
 async function startCamera(){
   try{
+    stopCamera();
+
     stream=await navigator.mediaDevices.getUserMedia({
       video:{
   facingMode:{ ideal: currentFacingMode }
@@ -2178,11 +2180,15 @@ finishReviewBtn.onclick=async()=>{
 };
 
 reviewBackBtn.onclick=async()=>{
+  stopCamera();
+
   showScreen(cameraScreen);
   await startCamera();
 };
   previewBtn.onclick=()=>{
   if(photos.length===0) return;
+
+  stopCamera();
   showPhotoReview();
 };
   
