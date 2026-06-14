@@ -909,6 +909,8 @@ function updateShutterFilter(){
   captureBtn.classList.add(`filter-${selectedFilter}`);
 }
   
+const MAX_PHOTOS = 4;
+
 let stream=null;
 let photos=[];
 let currentPhoto=1;
@@ -1386,6 +1388,11 @@ async function renderUsageStats(){
 }
 
 async function capturePhoto(){
+  if(retakeIndex < 0 && photos.length >= MAX_PHOTOS){
+    captureBtn.disabled=false;
+    return;
+  }
+
   if(isCountingDown){
     countdownCancelled=true;
     countdown.style.display="none";
@@ -1441,27 +1448,43 @@ showScreen(resultScreen);
   return;
 }
 
+// Jangan biarkan foto lebih dari 4
+if(photos.length >= MAX_PHOTOS){
+  captureBtn.disabled=false;
+  return;
+}
+
 photos.push(pendingPhoto);
 
-if(photos.length === 4){
+// Kalau sudah 4 foto atau lebih, langsung masuk review
+if(photos.length >= MAX_PHOTOS){
+  photos = photos.slice(0, MAX_PHOTOS);
+
   stopCamera();
+
   console.log("TOTAL FOTO", photos.length);
-console.log(photos);
+  console.log(photos);
 
   if(!photos[0] || !photos[1] || !photos[2] || !photos[3]){
-  alert("Foto belum lengkap. Ulangi ambil foto.");
-  captureBtn.disabled=false;
-  return;
-}
-  
-showPhotoReview();
+    alert("Foto belum lengkap. Ulangi ambil foto.");
+    captureBtn.disabled=false;
+    return;
+  }
+
+  currentPhoto = MAX_PHOTOS;
+  photoCounter.textContent = `Foto ${MAX_PHOTOS} / ${MAX_PHOTOS}`;
+  updatePhotoProgress();
+
+  showPhotoReview();
+
   captureBtn.disabled=false;
   return;
 }
 
-currentPhoto++;
-photoCounter.textContent = `Foto ${currentPhoto} / 4`;
-    updatePhotoProgress();
+// Update counter normal
+currentPhoto = photos.length + 1;
+photoCounter.textContent = `Foto ${currentPhoto} / ${MAX_PHOTOS}`;
+updatePhotoProgress();
 
 captureBtn.disabled=false;
 
