@@ -2110,6 +2110,260 @@ canvas{
   max-width:150px !important;
   text-align:center !important;
 }
+  /* ===============================
+   TEMPLATE PICKER ULTRA COMPACT
+   + LAINNYA FULL SCREEN
+================================ */
+
+/* Halaman pilih template lebih padat */
+#formScreen .card{
+  padding:14px 14px 10px !important;
+  gap:8px !important;
+}
+
+#formScreen .logo{
+  font-size:10px !important;
+  letter-spacing:3px !important;
+}
+
+#formScreen h2{
+  font-size:24px !important;
+}
+
+#formScreen .small{
+  font-size:12px !important;
+}
+
+/* Section lebih rapat */
+.templateGrid{
+  padding:0 0 6px !important;
+}
+
+.templateSection{
+  margin-bottom:16px !important;
+}
+
+.templateSectionTitle{
+  margin-bottom:7px !important;
+}
+
+.templateSectionTitle h3{
+  font-size:19px !important;
+}
+
+.categoryMoreBtn{
+  font-size:12px !important;
+}
+
+/* Row lebih compact */
+.templateRow{
+  gap:10px !important;
+  padding:0 2px 4px !important;
+}
+
+/* Ukuran preview utama diperkecil */
+.templateCard.catSquare{
+  min-width:96px !important;
+  width:96px !important;
+  flex:0 0 96px !important;
+}
+
+.templateCard.catSquare .templateImageBox{
+  width:96px !important;
+  height:96px !important;
+  border-radius:14px !important;
+}
+
+.templateCard.cat2x6{
+  min-width:78px !important;
+  width:78px !important;
+  flex:0 0 78px !important;
+}
+
+.templateCard.cat2x6 .templateImageBox{
+  width:78px !important;
+  height:170px !important;
+  border-radius:14px !important;
+}
+
+.templateCard.cat4x6{
+  min-width:108px !important;
+  width:108px !important;
+  flex:0 0 108px !important;
+}
+
+.templateCard.cat4x6 .templateImageBox{
+  width:108px !important;
+  height:144px !important;
+  border-radius:14px !important;
+}
+
+.templateName{
+  font-size:12px !important;
+  margin-top:5px !important;
+}
+
+.templateCard.catSquare .templateName{
+  max-width:96px !important;
+}
+
+.templateCard.cat2x6 .templateName{
+  max-width:78px !important;
+}
+
+.templateCard.cat4x6 .templateName{
+  max-width:108px !important;
+}
+
+/* Bottom control ikut compact */
+.formBottomBar{
+  gap:7px !important;
+  padding-top:6px !important;
+}
+
+.formBottomBar #songInput{
+  font-size:14px !important;
+  padding:11px 14px !important;
+  border-radius:16px !important;
+}
+
+.formActionRow{
+  gap:8px !important;
+}
+
+.formActionRow button{
+  padding:12px 10px !important;
+  font-size:14px !important;
+  border-radius:18px !important;
+}
+
+/* ===============================
+   POPUP LAINNYA FULL SCREEN
+================================ */
+
+#categorySheet{
+  align-items:stretch !important;
+  justify-content:stretch !important;
+}
+
+.categorySheetPanel{
+  width:100vw !important;
+  max-width:none !important;
+  height:100dvh !important;
+  max-height:100dvh !important;
+  border-radius:0 !important;
+  padding:16px 14px calc(14px + env(safe-area-inset-bottom)) !important;
+  gap:10px !important;
+}
+
+/* Header popup lebih kecil */
+.categorySheetHeader p{
+  font-size:10px !important;
+  letter-spacing:1.6px !important;
+}
+
+.categorySheetHeader h3{
+  font-size:23px !important;
+}
+
+#closeCategorySheet{
+  width:38px !important;
+  height:38px !important;
+  max-width:38px !important;
+  font-size:24px !important;
+}
+
+/* Grid popup lebih banyak muat */
+.categorySheetGrid{
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px 8px !important;
+  padding:4px 0 18px !important;
+  align-items:start !important;
+}
+
+/* Preview popup diperkecil */
+.categorySheetGrid .templateCard.catSquare{
+  width:92px !important;
+  min-width:92px !important;
+  flex:0 0 92px !important;
+}
+
+.categorySheetGrid .templateCard.catSquare .templateImageBox{
+  width:92px !important;
+  height:92px !important;
+  border-radius:14px !important;
+}
+
+.categorySheetGrid .templateCard.cat2x6{
+  width:72px !important;
+  min-width:72px !important;
+  flex:0 0 72px !important;
+}
+
+.categorySheetGrid .templateCard.cat2x6 .templateImageBox{
+  width:72px !important;
+  height:158px !important;
+  border-radius:14px !important;
+}
+
+.categorySheetGrid .templateCard.cat4x6{
+  width:96px !important;
+  min-width:96px !important;
+  flex:0 0 96px !important;
+}
+
+.categorySheetGrid .templateCard.cat4x6 .templateImageBox{
+  width:96px !important;
+  height:128px !important;
+  border-radius:14px !important;
+}
+
+.categorySheetGrid .templateName{
+  max-width:96px !important;
+  font-size:11px !important;
+  margin-top:5px !important;
+}
+
+/* Kalau layar kecil, popup tetap rapi */
+@media(max-width:380px){
+  .categorySheetGrid{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:12px 6px !important;
+  }
+
+  .categorySheetGrid .templateCard.catSquare{
+    width:86px !important;
+    min-width:86px !important;
+    flex:0 0 86px !important;
+  }
+
+  .categorySheetGrid .templateCard.catSquare .templateImageBox{
+    width:86px !important;
+    height:86px !important;
+  }
+
+  .categorySheetGrid .templateCard.cat2x6{
+    width:66px !important;
+    min-width:66px !important;
+    flex:0 0 66px !important;
+  }
+
+  .categorySheetGrid .templateCard.cat2x6 .templateImageBox{
+    width:66px !important;
+    height:146px !important;
+  }
+
+  .categorySheetGrid .templateCard.cat4x6{
+    width:88px !important;
+    min-width:88px !important;
+    flex:0 0 88px !important;
+  }
+
+  .categorySheetGrid .templateCard.cat4x6 .templateImageBox{
+    width:88px !important;
+    height:118px !important;
+  }
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
