@@ -2192,7 +2192,7 @@ startBtn.onclick=async()=>{
   }
 
   Object.keys(maskCache).forEach(k=>delete maskCache[k]);
-  
+  hasDownloaded=false;
 
   photos=[];
   currentPhoto=1;
@@ -2401,9 +2401,6 @@ openIgBtn.onclick=()=>{
     "Pilih foto HP103 yang tadi sudah disimpan dari galeri.\n" +
     "Jangan lupa tag @happup.samarinda.panjaitan"
   );
-
-  window.location.href = "instagram://story-camera";
-};
 
   window.location.href = "instagram://story-camera";
 };
