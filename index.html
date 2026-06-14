@@ -1172,18 +1172,19 @@ canvas{
 }
   /* ===============================
    HOME FINAL OVERRIDE - FIX LAYOUT
-   Tambahkan paling bawah sebelum </style>
 ================================ */
 
-/* Supaya halaman awal tidak kepotong di Chrome HP */
+/* Pastikan start screen full dan rapi */
 .homeHero{
   height:100dvh !important;
   min-height:100dvh !important;
   padding:12px 14px 8px !important;
   overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
 }
 
-/* Naikkan badge room sedikit */
+/* Badge room */
 .roomSticker{
   top:78px !important;
   right:14px !important;
@@ -1192,16 +1193,16 @@ canvas{
 }
 
 .roomSticker b{
-  font-size:23px !important;
+  font-size:22px !important;
 }
 
-/* Kecilkan area judul sedikit */
+/* Judul */
 .heroTitle{
   margin-top:24px !important;
 }
 
 .heroTitle span{
-  font-size:25px !important;
+  font-size:24px !important;
 }
 
 .heroTitle strong{
@@ -1214,11 +1215,12 @@ canvas{
   padding:7px 16px !important;
 }
 
-/* Area strip dibuat lebih compact */
+/* Strip preview */
 .stripArea{
   height:238px !important;
   min-height:238px !important;
   margin-top:6px !important;
+  flex-shrink:0 !important;
 }
 
 .miniStripPreview{
@@ -1245,7 +1247,7 @@ canvas{
   margin-bottom:6px !important;
 }
 
-/* Crop gambar sample jadi 4 bagian rapi */
+/* Foto sample 4 grid */
 .photoCell{
   background-image:
     linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.20)),
@@ -1259,7 +1261,7 @@ canvas{
 .photoCell.p3{ background-position:0% 100% !important; }
 .photoCell.p4{ background-position:100% 100% !important; }
 
-/* Card kiri kanan jangan nutup terlalu banyak */
+/* Card kiri kanan */
 .infoCard{
   width:78px !important;
   min-height:78px !important;
@@ -1291,17 +1293,23 @@ canvas{
   bottom:72px !important;
 }
 
-/* Tombol mulai dan step bar dibuat masuk layar */
+/* Tombol mulai */
 .homeCta{
   font-size:18px !important;
   padding:12px 14px !important;
   width:90% !important;
+  margin-top:8px !important;
+  margin-bottom:8px !important;
+  flex-shrink:0 !important;
 }
 
+/* Step bar dikunci ke bawah */
 .homeSteps{
-  margin-top:7px !important;
+  margin-top:auto !important;
+  margin-bottom:18px !important;
   padding:7px 6px !important;
   width:92% !important;
+  flex-shrink:0 !important;
 }
 
 .homeSteps i{
@@ -1324,7 +1332,7 @@ canvas{
   width:9px !important;
 }
 
-/* Dekor yang terlalu ganggu dibuat lebih aman */
+/* Dekor */
 .decorStickerSing{
   bottom:178px !important;
   right:14px !important;
@@ -1341,6 +1349,42 @@ canvas{
 .decorHeart{
   top:288px !important;
   right:34px !important;
+}
+
+/* ===============================
+   FIX BACKGROUND PAGE FORM & ADMIN
+   Supaya tidak ada tulisan/visual nyangkut di belakang
+================================ */
+
+#formScreen,
+#adminScreen{
+  background:
+    radial-gradient(circle at top left,rgba(255,47,146,.26),transparent 34%),
+    radial-gradient(circle at bottom right,rgba(255,212,0,.16),transparent 38%),
+    #07070b !important;
+  z-index:20 !important;
+}
+
+#cameraScreen,
+#reviewScreen,
+#resultScreen{
+  z-index:20 !important;
+}
+
+#startScreen{
+  z-index:10 !important;
+}
+
+#adminLoginModal{
+  z-index:999 !important;
+}
+
+/* Card form/admin dibuat lebih solid agar tidak tembus */
+#formScreen .card,
+#adminScreen .card{
+  background:rgba(15,15,24,.96) !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  backdrop-filter:blur(14px) !important;
 }
   
 </style>
