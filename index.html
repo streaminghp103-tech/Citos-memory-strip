@@ -2206,17 +2206,11 @@ startBtn.onclick=async()=>{
   }
 
   Object.keys(maskCache).forEach(k=>delete maskCache[k]);
-  hasDownloaded=false;
 
-  photos=[];
-  currentPhoto=1;
-  lastBlob=null;
-  pendingPhoto=null;
-  previewBtn.style.display="none";
-  previewThumbImg.src="";
-  photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
-  updatePhotoProgress();
+  resetPhotoSession();
+
   await startCameraWithLoading("Membuka kamera...");
+};
 
 captureBtn.onclick=capturePhoto;
 
@@ -2225,6 +2219,7 @@ finishReviewBtn.onclick=async()=>{
     alert("Foto belum lengkap.");
     return;
   }
+
   try{
     showLoading("Membuat photostrip...");
 
@@ -2243,17 +2238,17 @@ finishReviewBtn.onclick=async()=>{
 
 reviewBackBtn.onclick=async()=>{
   stopCamera();
-
   await startCameraWithLoading("Membuka kamera...");
 };
-  previewBtn.onclick=()=>{
+
+previewBtn.onclick=()=>{
   if(photos.length===0) return;
 
   stopCamera();
   showPhotoReview();
 };
-  
-  flashBtn.onclick=async()=>{
+
+flashBtn.onclick=async()=>{
   if(currentFacingMode!=="environment"){
     alert("Flash hanya bisa dipakai saat kamera belakang aktif.");
     return;
@@ -2261,18 +2256,15 @@ reviewBackBtn.onclick=async()=>{
 
   await setTorch(!torchEnabled);
 };
-  
-  switchCameraBtn.onclick=async()=>{
 
+switchCameraBtn.onclick=async()=>{
   if(isCountingDown) return;
 
   await switchCamera();
-
 };
 
 cancelBtn.onclick=()=>{
   countdownCancelled=true;
-
   isCountingDown=false;
   countdown.style.display="none";
   captureBtn.disabled=false;
@@ -2280,7 +2272,8 @@ cancelBtn.onclick=()=>{
   stopCamera();
   showScreen(formScreen);
 };
-  function resetPhotoSession(){
+
+function resetPhotoSession(){
   stopCamera();
 
   photos=[];
@@ -2304,32 +2297,13 @@ retryBtn.onclick=async()=>{
   resetPhotoSession();
   await startCameraWithLoading("Membuka kamera ulang...");
 };
-  stopCamera();
-  hasDownloaded=false;
-
-  photos=[];
-  currentPhoto=1;
-  lastBlob=null;
-  pendingPhoto=null;
-  retakeIndex=-1;
-  retakeFromReview=false;
-  lastMasks=[];
-
-  previewBtn.style.display="none";
-  previewThumbImg.src="";
-
-  captureBtn.disabled=false;
-  photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
-  updatePhotoProgress();
-
-  await startCameraWithLoading("Membuka kamera ulang...");
-};
 
 makeAgainBtn.onclick=()=>{
   resetPhotoSession();
   showScreen(formScreen);
 };
-  doneBtn.onclick=async()=>{
+
+doneBtn.onclick=async()=>{
   await logInteraction("done");
 
   resetPhotoSession();
@@ -2337,28 +2311,8 @@ makeAgainBtn.onclick=()=>{
 
   showScreen(startScreen);
 };
-  
-  stopCamera();
-  hasDownloaded=false;
 
-  photos=[];
-  currentPhoto=1;
-  lastBlob=null;
-  pendingPhoto=null;
-  retakeIndex=-1;
-  retakeFromReview=false;
-  lastMasks=[];
-
-  previewBtn.style.display="none";
-  previewThumbImg.src="";
-
-  captureBtn.disabled=false;
-  photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
-  updatePhotoProgress();
-
-  showScreen(formScreen);
-};
-  function getDownloadFileName(){
+function getDownloadFileName(){
   const now = new Date();
 
   const pad = (n)=>String(n).padStart(2,"0");
@@ -2370,6 +2324,23 @@ makeAgainBtn.onclick=()=>{
   const safeRoom = String(room).replace(/[^a-z0-9]/gi,"-").toUpperCase();
 
   return `HP103-ROOM-${safeRoom}-${dateStr}_${timeStr}.png`;
+}
+
+async function logInteraction(action){
+  try{
+    const tpl=getSelectedTemplate();
+
+    await supabaseClient
+      .from("interaction_logs")
+      .insert({
+        room:room,
+        template_slug:tpl ? tpl.id : selectedTemplate,
+        template_name:tpl ? tpl.name : selectedTemplate,
+        action:action
+      });
+  }catch(e){
+    console.warn("Gagal simpan interaction log:", action, e);
+  }
 }
 
 async function downloadResultPhoto(showMessage=true, actionName="download"){
@@ -2393,10 +2364,11 @@ async function downloadResultPhoto(showMessage=true, actionName="download"){
     },400);
   }
 }
+
 downloadBtn.onclick=async()=>{
   await downloadResultPhoto(true,"download");
 };
-  
+
 canvas.onclick=async(e)=>{
   if(!lastMasks || lastMasks.length===0) return;
 
@@ -2420,8 +2392,7 @@ canvas.onclick=async(e)=>{
   updatePhotoProgress();
 
   stopCamera();
-  showScreen(cameraScreen);
-  await startCamera();
+  await startCameraWithLoading("Membuka kamera retake...");
 };
 
 openIgBtn.onclick=async()=>{
@@ -2459,31 +2430,27 @@ shareBtn.onclick=async()=>{
     await prepareBlob();
   }
 
-  const now = new Date();
-const pad = (n)=>String(n).padStart(2,"0");
-const ms = String(now.getMilliseconds()).padStart(3,"0");
-
-const dateStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-const timeStr = `${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}-${ms}`;
-const safeRoom = String(room).replace(/[^a-z0-9]/gi,"-").toUpperCase();
-
-const file=new File(
-  [lastBlob],
-  `HP103-ROOM-${safeRoom}-${dateStr}_${timeStr}.png`,
-  {type:"image/png"}
-);
+  const file=new File(
+    [lastBlob],
+    getDownloadFileName(),
+    {type:"image/png"}
+  );
 
   if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
     try{
       await navigator.share({
-  title:"HP103 Memory Strip",
-  text:"Happy Puppy Karaoke Night!",
-  files:[file]
-});
+        title:"HP103 Memory Strip",
+        text:"Happy Puppy Karaoke Night!",
+        files:[file]
+      });
 
-await logInteraction("share");
-    }catch(e){}
+      await logInteraction("share");
+
+    }catch(e){
+      console.warn("Share dibatalkan/gagal", e);
+    }
   }else{
+    await logInteraction("share_not_supported");
     alert("HP ini belum mendukung share langsung. Gunakan tombol Simpan Foto lalu upload manual.");
   }
 };
