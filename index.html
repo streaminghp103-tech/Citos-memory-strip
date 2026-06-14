@@ -2010,11 +2010,11 @@ async function renderUploadedTemplate(){
 
 async function generateResult(){
 
-  if(photos.length < 4){
-    throw new Error(
-      `Foto belum lengkap (${photos.length}/4)`
-    );
-  }
+  if(photos.length < MAX_PHOTOS){
+  throw new Error(
+    `Foto belum lengkap (${photos.length}/${MAX_PHOTOS})`
+  );
+}
 
   await renderUploadedTemplate();
 }
@@ -2208,11 +2208,10 @@ startBtn.onclick=async()=>{
 captureBtn.onclick=capturePhoto;
 
 finishReviewBtn.onclick=async()=>{
-  if(photos.length<4){
+  if(photos.length < MAX_PHOTOS){
     alert("Foto belum lengkap.");
     return;
   }
-
   try{
     showLoading("Membuat photostrip...");
 
@@ -2273,7 +2272,26 @@ cancelBtn.onclick=()=>{
 retryBtn.onclick=async()=>{
   stopCamera();
 
-  makeAgainBtn.onclick=()=>{
+  photos=[];
+  currentPhoto=1;
+  lastBlob=null;
+  pendingPhoto=null;
+  retakeIndex=-1;
+  retakeFromReview=false;
+  lastMasks=[];
+
+  previewBtn.style.display="none";
+  previewThumbImg.src="";
+
+  captureBtn.disabled=false;
+  photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
+  updatePhotoProgress();
+
+  showScreen(cameraScreen);
+  await startCamera();
+};
+
+makeAgainBtn.onclick=()=>{
   stopCamera();
 
   photos=[];
@@ -2292,21 +2310,6 @@ retryBtn.onclick=async()=>{
   updatePhotoProgress();
 
   showScreen(formScreen);
-};
-
-  photos=[];
-  currentPhoto=1;
-  lastBlob=null;
-  pendingPhoto=null;
-previewBtn.style.display="none";
-previewThumbImg.src="";
-
-  captureBtn.disabled=false;
-  photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
-  updatePhotoProgress();
-
-  showScreen(cameraScreen);
-  await startCamera();
 };
 
 downloadBtn.onclick=()=>{
