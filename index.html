@@ -981,13 +981,11 @@ async function loadTemplates(){
   }
 
   templates = data.map(t=>({
-    id:t.slug,
-    name:t.name,
-    preview:t.preview_url,
-    final:t.final_url,
-    mask:t.mask_url
-  }));
-
+  id: t.slug,
+  name: t.name,
+  preview: t.preview_url,
+  mask: t.mask_url
+}));
   if(templates.length===0){
     return;
   }
@@ -1934,6 +1932,9 @@ async function renderUploadedTemplate(){
   if(!tpl){
     throw new Error("Template belum dipilih.");
   }
+  if(!tpl.mask){
+  throw new Error("File mask template belum tersedia.");
+}
 
   const maskImg=await loadImage(tpl.mask);
 
@@ -2103,15 +2104,14 @@ if(!maskName.endsWith(".png")){
     const maskUrl=await uploadTemplateFile(slug,"mask",maskFileInput.files[0]);
 
     const { error } = await supabaseClient
-      .from("templates")
-      .upsert({
-        name,
-        slug,
-        preview_url:previewUrl,
-        final_url:maskUrl,
-        mask_url:maskUrl,
-        is_active:true
-      },{onConflict:"slug"});
+  .from("templates")
+  .upsert({
+    name,
+    slug,
+    preview_url: previewUrl,
+    mask_url: maskUrl,
+    is_active: true
+  },{onConflict:"slug"});
 
     if(error) throw error;
 
