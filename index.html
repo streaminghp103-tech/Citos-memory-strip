@@ -1016,7 +1016,7 @@ function renderTemplatePicker(){
 
     div.innerHTML=`
       <div class="thumb">
-        <img src="${tpl.preview || tpl.final}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">
+        <img src="${tpl.preview || tpl.mask}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">
       </div>
       <b>${tpl.name}</b>
       <p class="small">Memory Template</p>
@@ -1040,7 +1040,7 @@ function renderAdminTemplateList(){
     item.style.cssText="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);padding:10px;border-radius:16px;";
 
     item.innerHTML=`
-      <img src="${tpl.preview || tpl.final}" style="width:54px;height:54px;object-fit:cover;border-radius:12px;">
+      <img src="${tpl.preview || tpl.mask}" style="width:54px;height:54px;object-fit:cover;border-radius:12px;">
       <div style="flex:1;">
         <b>${tpl.name}</b>
         <p class="small">${tpl.id}</p>
@@ -1288,6 +1288,12 @@ async function runCountdown(){
 function showPhotoReview(){
   reviewGrid.innerHTML="";
 
+  if(photos.length >= MAX_PHOTOS){
+    reviewBackBtn.style.display = "none";
+  }else{
+    reviewBackBtn.style.display = "block";
+  }
+
   photos.forEach((photo,index)=>{
     const wrap=document.createElement("div");
     wrap.style.cssText="position:relative;border-radius:18px;overflow:hidden;background:#111;border:2px solid rgba(255,255,255,.18);";
@@ -1304,7 +1310,7 @@ function showPhotoReview(){
       retakeIndex=index;
       retakeFromReview=true;
       currentPhoto=index+1;
-      photoCounter.textContent=`Ulang Foto ${currentPhoto} / 4`;
+      photoCounter.textContent=`Ulang Foto ${currentPhoto} / ${MAX_PHOTOS}`;
       updatePhotoProgress();
 
       stopCamera();
@@ -2163,6 +2169,16 @@ maskImagePreview.style.display="none";
   }
 };
 startBtn.onclick=async()=>{
+  if(!templates || templates.length===0){
+    alert("Belum ada template aktif. Upload template dulu di admin.");
+    return;
+  }
+
+  if(!getSelectedTemplate()){
+    alert("Template belum dipilih.");
+    return;
+  }
+
   Object.keys(maskCache).forEach(k=>delete maskCache[k]);
   
 
@@ -2172,7 +2188,7 @@ startBtn.onclick=async()=>{
   pendingPhoto=null;
   previewBtn.style.display="none";
   previewThumbImg.src="";
-  photoCounter.textContent="Foto 1 / 4";
+  photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
   updatePhotoProgress();
   showScreen(cameraScreen);
   await startCamera();
@@ -2254,7 +2270,7 @@ previewBtn.style.display="none";
 previewThumbImg.src="";
 
   captureBtn.disabled=false;
-  photoCounter.textContent="Foto 1 / 4";
+  photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
   updatePhotoProgress();
 
   showScreen(cameraScreen);
@@ -2287,7 +2303,7 @@ canvas.onclick=async(e)=>{
   retakeIndex=index;
   retakeFromReview=false;
   currentPhoto=index+1;
-  photoCounter.textContent=`Ulang Foto ${currentPhoto} / 4`;
+  photoCounter.textContent=`Ulang Foto ${currentPhoto} / ${MAX_PHOTOS}`;
   updatePhotoProgress();
 
   stopCamera();
