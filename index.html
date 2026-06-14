@@ -578,6 +578,7 @@ canvas{
 }
 /* ===============================
    NEW HOME SCREEN - KARAOKE STYLE
+   Compact Mobile Fix
 ================================ */
 
 #startScreen{
@@ -586,7 +587,7 @@ canvas{
 }
 
 #startScreen.active{
-  justify-content:center;
+  justify-content:flex-start;
 }
 
 .homeHero{
@@ -594,15 +595,14 @@ canvas{
   width:100vw;
   height:100dvh;
   overflow:hidden;
-  padding:28px 18px 18px;
+  padding:18px 16px 14px;
   display:flex;
   flex-direction:column;
   align-items:center;
   color:#071b38;
   background:
-    radial-gradient(circle at top left,rgba(255,255,255,.5),transparent 18%),
-    radial-gradient(circle at 70% 0%,rgba(255,255,255,.28),transparent 24%),
-    linear-gradient(155deg,#ffd900 0%,#ffc400 43%,#071b38 44%,#06142a 100%);
+    radial-gradient(circle at top left,rgba(255,255,255,.45),transparent 20%),
+    linear-gradient(155deg,#ffd900 0%,#ffc400 42%,#071b38 42.5%,#06142a 100%);
 }
 
 .homeHero::before{
@@ -610,22 +610,22 @@ canvas{
   position:absolute;
   inset:0;
   background:
-    radial-gradient(circle at 12% 42%,rgba(255,255,255,.35) 0 2px,transparent 3px),
-    radial-gradient(circle at 84% 38%,rgba(255,255,255,.24) 0 2px,transparent 3px);
+    radial-gradient(circle at 10% 38%,rgba(255,255,255,.28) 0 2px,transparent 3px),
+    radial-gradient(circle at 82% 36%,rgba(255,255,255,.20) 0 2px,transparent 3px);
   background-size:18px 18px;
-  opacity:.2;
+  opacity:.22;
   pointer-events:none;
 }
 
 .homeHero::after{
   content:"";
   position:absolute;
-  left:-15%;
-  right:-15%;
-  bottom:-6%;
-  height:48%;
+  left:-20%;
+  right:-20%;
+  bottom:-9%;
+  height:45%;
   background:
-    radial-gradient(circle at 50% 0%,rgba(255,47,146,.24),transparent 45%),
+    radial-gradient(circle at 50% 0%,rgba(255,47,146,.22),transparent 48%),
     linear-gradient(180deg,#071b38,#031020);
   border-radius:50% 50% 0 0;
   z-index:0;
@@ -635,13 +635,13 @@ canvas{
   position:absolute;
   top:18px;
   right:18px;
-  z-index:20;
+  z-index:30;
   width:44px !important;
   height:44px;
   max-width:44px;
   padding:0;
   border-radius:50%;
-  background:rgba(7,27,56,.2);
+  background:rgba(7,27,56,.18);
   color:#071b38;
   box-shadow:none;
   font-size:24px;
@@ -650,31 +650,30 @@ canvas{
 
 .brandPlate{
   position:relative;
-  z-index:2;
-  width:min(78vw,360px);
-  margin-top:4px;
-  padding:18px 16px 14px;
-  border-radius:28px;
+  z-index:3;
+  width:min(68vw,300px);
+  margin-top:2px;
+  padding:14px 14px 11px;
+  border-radius:24px;
   background:linear-gradient(180deg,#ffdc21,#ffc400);
   box-shadow:
-    0 18px 40px rgba(0,0,0,.18),
+    0 14px 32px rgba(0,0,0,.16),
     inset 0 2px 0 rgba(255,255,255,.35);
   text-align:center;
 }
 
 .brandMain{
-  font-size:36px;
+  font-size:30px;
   line-height:1;
   font-weight:900;
   letter-spacing:-1px;
   color:#071b38;
   font-family:Georgia,serif;
-  text-shadow:0 2px 0 rgba(255,255,255,.28);
 }
 
 .brandSub{
-  margin-top:10px;
-  font-size:18px;
+  margin-top:8px;
+  font-size:17px;
   font-weight:900;
   letter-spacing:1px;
   color:#071b38;
@@ -682,12 +681,12 @@ canvas{
 
 .roomSticker{
   position:absolute;
-  top:62px;
-  right:20px;
-  z-index:4;
+  top:96px;
+  right:18px;
+  z-index:8;
   transform:rotate(7deg);
-  min-width:84px;
-  padding:8px 12px;
+  min-width:78px;
+  padding:7px 10px;
   border-radius:16px;
   background:#071b38;
   color:white;
@@ -698,44 +697,45 @@ canvas{
 
 .roomSticker span{
   display:block;
-  font-size:11px;
+  font-size:10px;
   color:#ffd400;
   font-weight:900;
 }
 
 .roomSticker b{
   display:block;
-  font-size:18px;
+  font-size:22px;
   color:white;
+  line-height:1;
 }
 
 .heroTitle{
   position:relative;
   z-index:2;
   text-align:center;
-  margin-top:26px;
+  margin-top:32px;
   color:#071b38;
-  line-height:.9;
+  line-height:.92;
 }
 
 .heroTitle span{
   display:block;
-  font-size:34px;
+  font-size:29px;
   font-weight:900;
   color:white;
   text-shadow:
-    -4px 4px 0 #071b38,
-    0 8px 18px rgba(0,0,0,.18);
+    -3px 3px 0 #071b38,
+    0 8px 16px rgba(0,0,0,.16);
 }
 
 .heroTitle strong{
   display:block;
-  margin-top:2px;
-  font-size:72px;
+  margin-top:0;
+  font-size:58px;
   font-weight:1000;
   color:#ffd21a;
   text-shadow:
-    -5px 5px 0 #071b38,
+    -4px 4px 0 #071b38,
     0 10px 18px rgba(0,0,0,.18);
   font-family:Georgia,serif;
 }
@@ -743,16 +743,17 @@ canvas{
 .heroSubtitle{
   position:relative;
   z-index:2;
-  margin-top:14px;
-  padding:10px 22px;
-  border-radius:22px;
+  margin-top:10px;
+  padding:8px 18px;
+  border-radius:20px;
   background:#071b38;
   color:white;
-  font-size:17px;
-  line-height:1.35;
+  font-size:14px;
+  line-height:1.25;
   text-align:center;
   font-weight:700;
   box-shadow:0 10px 24px rgba(0,0,0,.2);
+  max-width:88vw;
 }
 
 .heroSubtitle b{
@@ -763,8 +764,8 @@ canvas{
   position:relative;
   z-index:3;
   width:100%;
-  flex:1;
-  min-height:0;
+  height:310px;
+  min-height:310px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -772,21 +773,21 @@ canvas{
 }
 
 .miniStripPreview{
-  width:178px;
-  padding:12px 10px 10px;
+  width:156px;
+  padding:10px 8px 8px;
   border-radius:8px;
   background:#071b38;
   border:3px solid #ffd21a;
   transform:rotate(-3deg);
   box-shadow:
-    0 22px 45px rgba(0,0,0,.35),
-    0 0 30px rgba(255,47,146,.35);
+    0 20px 38px rgba(0,0,0,.34),
+    0 0 24px rgba(255,47,146,.30);
 }
 
 .stripBrand{
   text-align:center;
   color:#ffd21a;
-  font-size:20px;
+  font-size:18px;
   font-family:Georgia,serif;
   font-weight:900;
   line-height:1;
@@ -798,89 +799,126 @@ canvas{
   font-size:10px;
   letter-spacing:.8px;
   font-weight:900;
-  margin:4px 0 8px;
+  margin:4px 0 7px;
 }
 
 .stripPhoto{
-  height:58px;
-  margin-bottom:7px;
+  height:48px;
+  margin-bottom:6px;
   border-radius:8px;
   border:2px solid #ffd21a;
+  overflow:hidden;
+  position:relative;
   background:
-    linear-gradient(135deg,rgba(255,47,146,.45),rgba(0,0,0,.2)),
-    radial-gradient(circle at 30% 30%,#ffe6f4,transparent 20%),
+    linear-gradient(135deg,rgba(255,47,146,.38),rgba(0,0,0,.2)),
     linear-gradient(120deg,#243b70,#0e1730);
   display:flex;
-  align-items:center;
+  align-items:flex-end;
   justify-content:center;
-  color:rgba(255,255,255,.75);
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:1px;
+  gap:4px;
+  padding-bottom:5px;
+}
+
+.stripPhoto::before{
+  content:"♪";
+  position:absolute;
+  right:8px;
+  top:4px;
+  color:#ff7abf;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.stripPhoto span{
+  width:24px;
+  height:28px;
+  border-radius:14px 14px 7px 7px;
+  background:linear-gradient(180deg,#ffe0c4 0 34%,#222 35% 100%);
+  box-shadow:0 -10px 0 -4px #2b160e;
+}
+
+.stripPhoto span:nth-child(2){
+  height:34px;
+  background:linear-gradient(180deg,#ffd1a8 0 34%,#111 35% 100%);
+}
+
+.stripPhoto span:nth-child(3){
+  background:linear-gradient(180deg,#ffe0c4 0 34%,#333 35% 100%);
+}
+
+.sample2 span:nth-child(1){
+  transform:rotate(-8deg);
+}
+.sample2 span:nth-child(3){
+  transform:rotate(8deg);
+}
+.sample3 span:nth-child(2){
+  transform:translateY(-3px);
+}
+.sample4 span:nth-child(1),
+.sample4 span:nth-child(3){
+  transform:translateY(-2px);
 }
 
 .stripFooter{
   color:#ffd21a;
   text-align:center;
-  font-size:9px;
+  font-size:8px;
   font-weight:900;
 }
 
 .infoCard{
   position:absolute;
-  z-index:2;
-  width:118px;
-  min-height:112px;
-  padding:14px 8px;
-  border-radius:22px;
+  z-index:5;
+  width:94px;
+  min-height:94px;
+  padding:11px 7px;
+  border-radius:20px;
   background:#fff7d9;
   color:#071b38;
   border:3px solid white;
-  box-shadow:0 12px 26px rgba(0,0,0,.25);
+  box-shadow:0 12px 24px rgba(0,0,0,.24);
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
   text-align:center;
-  transform:rotate(-7deg);
-}
-
-.infoCard.rightCard{
-  transform:rotate(7deg);
 }
 
 .leftCard{
-  left:6px;
-  bottom:58px;
+  left:4px;
+  bottom:70px;
+  transform:rotate(-7deg);
 }
 
 .rightCard{
-  right:6px;
-  bottom:84px;
+  right:4px;
+  bottom:92px;
+  transform:rotate(7deg);
 }
 
 .infoIcon{
-  width:42px;
-  height:42px;
-  border-radius:12px;
+  width:36px;
+  height:36px;
+  border-radius:11px;
   background:#ffd21a;
   border:2px solid #071b38;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:24px;
-  margin-bottom:8px;
+  font-size:21px;
+  margin-bottom:6px;
 }
 
 .infoCard b{
-  font-size:18px;
-  line-height:1;
+  font-size:16px;
+  line-height:1.05;
 }
 
 .infoCard span{
-  font-size:15px;
+  font-size:13px;
   font-weight:800;
-  margin-top:4px;
+  margin-top:3px;
 }
 
 .homeCta{
@@ -888,17 +926,18 @@ canvas{
   z-index:4;
   width:92%;
   max-width:390px;
-  padding:18px 20px;
+  padding:16px 18px;
   border-radius:999px;
   background:linear-gradient(180deg,#ffe45a,#ffc400);
   color:#071b38;
-  font-size:25px;
+  font-size:23px;
   font-weight:1000;
   box-shadow:
     0 14px 30px rgba(0,0,0,.3),
-    0 0 24px rgba(255,47,146,.55),
+    0 0 22px rgba(255,47,146,.55),
     inset 0 2px 0 rgba(255,255,255,.5);
   border:3px solid rgba(255,255,255,.75);
+  flex-shrink:0;
 }
 
 .homeSteps{
@@ -906,15 +945,16 @@ canvas{
   z-index:4;
   width:94%;
   max-width:430px;
-  margin-top:14px;
-  padding:12px 10px;
+  margin-top:12px;
+  padding:11px 8px;
   border-radius:24px;
-  background:rgba(7,27,56,.78);
+  background:rgba(7,27,56,.82);
   border:1px solid rgba(255,255,255,.2);
   display:flex;
   align-items:center;
   justify-content:space-between;
   backdrop-filter:blur(12px);
+  flex-shrink:0;
 }
 
 .homeSteps div{
@@ -928,8 +968,8 @@ canvas{
 }
 
 .homeSteps i{
-  width:44px;
-  height:44px;
+  width:40px;
+  height:40px;
   border-radius:50%;
   background:#ffd21a;
   color:#071b38;
@@ -937,13 +977,13 @@ canvas{
   align-items:center;
   justify-content:center;
   font-style:normal;
-  font-size:22px;
+  font-size:19px;
   font-weight:900;
 }
 
 .homeSteps b{
-  width:22px;
-  height:22px;
+  width:21px;
+  height:21px;
   border-radius:50%;
   background:#ff8cbd;
   color:#071b38;
@@ -957,13 +997,13 @@ canvas{
 }
 
 .homeSteps span{
-  font-size:12px;
+  font-size:11px;
   font-weight:800;
   white-space:nowrap;
 }
 
 .homeSteps em{
-  width:16px;
+  width:12px;
   height:2px;
   background:repeating-linear-gradient(90deg,#ff8cbd 0 3px,transparent 3px 7px);
   opacity:.9;
@@ -978,107 +1018,121 @@ canvas{
 }
 
 .decorBall{
-  top:26px;
-  left:24px;
-  font-size:42px;
+  top:96px;
+  left:20px;
+  font-size:32px;
   color:white;
   opacity:.75;
 }
 
 .decorMic{
-  top:230px;
-  left:18px;
-  font-size:52px;
+  top:235px;
+  left:12px;
+  font-size:44px;
   transform:rotate(-24deg);
 }
 
 .decorNote1{
-  top:210px;
-  right:28px;
-  font-size:46px;
+  top:222px;
+  right:26px;
+  font-size:38px;
   color:#071b38;
 }
 
 .decorNote2{
-  bottom:195px;
+  bottom:190px;
   left:46px;
-  font-size:54px;
+  font-size:42px;
   color:#ffd21a;
 }
 
 .decorHeart{
-  top:275px;
+  top:300px;
   right:34px;
-  font-size:44px;
+  font-size:38px;
   color:#ff5fad;
   font-weight:bold;
 }
 
-@media(max-height:740px){
+@media(max-height:760px){
+  .homeHero{
+    padding-top:14px;
+  }
+
   .brandPlate{
-    padding:14px 14px 10px;
-    width:min(70vw,320px);
+    width:min(62vw,280px);
+    padding:12px 12px 9px;
   }
 
   .brandMain{
-    font-size:30px;
+    font-size:26px;
   }
 
   .brandSub{
     font-size:14px;
-    margin-top:7px;
+    margin-top:6px;
+  }
+
+  .roomSticker{
+    top:82px;
+    right:16px;
   }
 
   .heroTitle{
-    margin-top:18px;
+    margin-top:24px;
   }
 
   .heroTitle span{
-    font-size:28px;
+    font-size:25px;
   }
 
   .heroTitle strong{
-    font-size:58px;
+    font-size:50px;
   }
 
   .heroSubtitle{
-    font-size:14px;
-    padding:8px 18px;
+    font-size:13px;
+    padding:7px 16px;
+  }
+
+  .stripArea{
+    height:280px;
+    min-height:280px;
   }
 
   .miniStripPreview{
-    width:150px;
+    width:142px;
   }
 
   .stripPhoto{
-    height:48px;
+    height:42px;
   }
 
   .infoCard{
-    width:102px;
-    min-height:92px;
+    width:86px;
+    min-height:86px;
   }
 
   .homeCta{
-    font-size:21px;
-    padding:15px;
+    font-size:20px;
+    padding:14px 16px;
   }
 
   .homeSteps{
-    margin-top:10px;
-    padding:10px 8px;
+    margin-top:9px;
+    padding:9px 7px;
   }
 
   .homeSteps i{
-    width:38px;
-    height:38px;
-    font-size:18px;
+    width:36px;
+    height:36px;
+    font-size:17px;
   }
 
   .homeSteps span{
-    font-size:11px;
+    font-size:10px;
   }
-}  
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1099,7 +1153,7 @@ canvas{
 
     <div class="brandPlate">
       <div class="brandMain">Happy Puppy</div>
-      <div class="brandSub">PANJAITAN SAMARINDA</div>
+      <div class="brandSub">PANJAITAN</div>
     </div>
 
     <div class="roomSticker">
@@ -1126,14 +1180,22 @@ canvas{
 
       <div class="miniStripPreview">
         <div class="stripBrand">Happy Puppy</div>
-        <div class="stripSub">PANJAITAN SAMARINDA</div>
+<div class="stripSub">PANJAITAN</div>
 
-        <div class="stripPhoto">FOTO 1</div>
-        <div class="stripPhoto">FOTO 2</div>
-        <div class="stripPhoto">FOTO 3</div>
-        <div class="stripPhoto">FOTO 4</div>
+<div class="stripPhoto sample1">
+  <span></span><span></span><span></span>
+</div>
+<div class="stripPhoto sample2">
+  <span></span><span></span><span></span>
+</div>
+<div class="stripPhoto sample3">
+  <span></span><span></span><span></span>
+</div>
+<div class="stripPhoto sample4">
+  <span></span><span></span><span></span>
+</div>
 
-        <div class="stripFooter">SING • SMILE • SAVE • SHARE</div>
+<div class="stripFooter">SING • SMILE • SAVE • SHARE</div>
       </div>
 
       <div class="infoCard rightCard">
