@@ -229,6 +229,9 @@ canvas{
   border-radius:18px;
   white-space:nowrap;
 }
+.actions button:last-child{
+  grid-column:1 / -1;
+}
   .shutterBtn{
   width:78px;
   height:78px;
@@ -574,6 +577,7 @@ canvas{
   to{transform:rotate(360deg)}
 }
   
+  
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -743,11 +747,12 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
   <canvas id="resultCanvas" width="1080" height="1920"></canvas>
 
   <div class="actions">
-    <button id="downloadBtn">📥 Simpan Foto</button>
-    <button id="openIgBtn">📷 Buka Instagram</button>
-    <button id="shareBtn">📤 Share</button>
-    <button id="retryBtn" class="secondary">🔄 Ambil Ulang</button>
-  </div>
+  <button id="downloadBtn">📥 Simpan Foto</button>
+  <button id="openIgBtn">📷 Upload ke Story IG</button>
+  <button id="shareBtn">📤 Share</button>
+  <button id="retryBtn" class="secondary">🔄 Ambil Ulang</button>
+  <button id="makeAgainBtn" class="secondary">✨ Buat Lagi</button>
+</div>
 </section>
 <div id="adminLoginModal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:18px;">
   <div style="width:100%;max-width:360px;background:#151520;border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:12px;">
@@ -812,6 +817,7 @@ const maskImagePreview=document.getElementById("maskImagePreview");
 const captureBtn=document.getElementById("captureBtn");
 const cancelBtn=document.getElementById("cancelBtn");
 const retryBtn=document.getElementById("retryBtn");
+const makeAgainBtn=document.getElementById("makeAgainBtn");
 const downloadBtn=document.getElementById("downloadBtn");
 const openIgBtn=document.getElementById("openIgBtn");
 const shareBtn=document.getElementById("shareBtn");
@@ -2267,6 +2273,27 @@ cancelBtn.onclick=()=>{
 retryBtn.onclick=async()=>{
   stopCamera();
 
+  makeAgainBtn.onclick=()=>{
+  stopCamera();
+
+  photos=[];
+  currentPhoto=1;
+  lastBlob=null;
+  pendingPhoto=null;
+  retakeIndex=-1;
+  retakeFromReview=false;
+  lastMasks=[];
+
+  previewBtn.style.display="none";
+  previewThumbImg.src="";
+
+  captureBtn.disabled=false;
+  photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
+  updatePhotoProgress();
+
+  showScreen(formScreen);
+};
+
   photos=[];
   currentPhoto=1;
   lastBlob=null;
@@ -2284,11 +2311,29 @@ previewThumbImg.src="";
 
 downloadBtn.onclick=()=>{
   const link=document.createElement("a");
-  link.download=`HP103-${selectedTemplate}-ROOM-${room}.png`;
+
+  const now = new Date();
+
+  const pad = (n)=>String(n).padStart(2,"0");
+  const ms = String(now.getMilliseconds()).padStart(3,"0");
+
+  const dateStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  const timeStr = `${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}-${ms}`;
+
+  const safeRoom = String(room).replace(/[^a-z0-9]/gi,"-").toUpperCase();
+
+  link.download=`HP103-ROOM-${safeRoom}-${dateStr}_${timeStr}.png`;
   link.href=canvas.toDataURL("image/png");
   link.click();
-};
 
+  setTimeout(()=>{
+    alert(
+      "Foto berhasil disimpan ✨\n\n" +
+      "Sekarang buka Instagram Story dan upload foto dari galeri.\n" +
+      "Jangan lupa tag @happup.samarinda.panjaitan"
+    );
+  },400);
+};
 canvas.onclick=async(e)=>{
   if(!lastMasks || lastMasks.length===0) return;
 
@@ -2317,8 +2362,16 @@ canvas.onclick=async(e)=>{
 };
 
 openIgBtn.onclick=()=>{
-  window.location.href =
-"https://www.instagram.com/";
+  alert(
+    "Cara upload ke Instagram Story:\n\n" +
+    "1. Pastikan foto sudah disimpan dulu.\n" +
+    "2. Buka aplikasi Instagram.\n" +
+    "3. Pilih Story.\n" +
+    "4. Ambil foto hasil HP103 dari galeri.\n\n" +
+    "Jangan lupa tag @happup.samarinda.panjaitan ✨"
+  );
+
+  window.location.href = "instagram://story-camera";
 };
 
 shareBtn.onclick=async()=>{
