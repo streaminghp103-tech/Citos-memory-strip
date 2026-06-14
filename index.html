@@ -922,6 +922,7 @@ let photos=[];
 let currentPhoto=1;
 let selectedTemplate="karaoke";
 let lastBlob=null;
+  let hasDownloaded=false;
 let isCountingDown=false;
 let countdownCancelled=false;
 let pendingPhoto=null;
@@ -2271,6 +2272,7 @@ cancelBtn.onclick=()=>{
 
 retryBtn.onclick=async()=>{
   stopCamera();
+  hasDownloaded=false;
 
   photos=[];
   currentPhoto=1;
@@ -2293,6 +2295,7 @@ retryBtn.onclick=async()=>{
 
 makeAgainBtn.onclick=()=>{
   stopCamera();
+  hasDownloaded=false;
 
   photos=[];
   currentPhoto=1;
@@ -2311,10 +2314,7 @@ makeAgainBtn.onclick=()=>{
 
   showScreen(formScreen);
 };
-
-downloadBtn.onclick=()=>{
-  const link=document.createElement("a");
-
+  function getDownloadFileName(){
   const now = new Date();
 
   const pad = (n)=>String(n).padStart(2,"0");
@@ -2325,18 +2325,33 @@ downloadBtn.onclick=()=>{
 
   const safeRoom = String(room).replace(/[^a-z0-9]/gi,"-").toUpperCase();
 
-  link.download=`HP103-ROOM-${safeRoom}-${dateStr}_${timeStr}.png`;
+  return `HP103-ROOM-${safeRoom}-${dateStr}_${timeStr}.png`;
+}
+
+function downloadResultPhoto(showMessage=true){
+  const link=document.createElement("a");
+
+  link.download=getDownloadFileName();
   link.href=canvas.toDataURL("image/png");
   link.click();
 
-  setTimeout(()=>{
-    alert(
-      "Foto berhasil disimpan ✨\n\n" +
-      "Sekarang buka Instagram Story dan upload foto dari galeri.\n" +
-      "Jangan lupa tag @happup.samarinda.panjaitan"
-    );
-  },400);
+  hasDownloaded=true;
+
+  if(showMessage){
+    setTimeout(()=>{
+      alert(
+        "Foto berhasil disimpan ✨\n\n" +
+        "Sekarang buka Instagram Story dan upload foto dari galeri.\n" +
+        "Jangan lupa tag @happup.samarinda.panjaitan"
+      );
+    },400);
+  }
+}
+
+downloadBtn.onclick=()=>{
+  downloadResultPhoto(true);
 };
+  
 canvas.onclick=async(e)=>{
   if(!lastMasks || lastMasks.length===0) return;
 
@@ -2365,14 +2380,30 @@ canvas.onclick=async(e)=>{
 };
 
 openIgBtn.onclick=()=>{
+  if(!hasDownloaded){
+    downloadResultPhoto(false);
+
+    setTimeout(()=>{
+      alert(
+        "Foto otomatis disimpan dulu ✨\n\n" +
+        "Sekarang pilih foto HP103 dari galeri saat membuat Story Instagram.\n" +
+        "Jangan lupa tag @happup.samarinda.panjaitan"
+      );
+
+      window.location.href = "instagram://story-camera";
+    },500);
+
+    return;
+  }
+
   alert(
-    "Cara upload ke Instagram Story:\n\n" +
-    "1. Pastikan foto sudah disimpan dulu.\n" +
-    "2. Buka aplikasi Instagram.\n" +
-    "3. Pilih Story.\n" +
-    "4. Ambil foto hasil HP103 dari galeri.\n\n" +
-    "Jangan lupa tag @happup.samarinda.panjaitan ✨"
+    "Buka Instagram Story ✨\n\n" +
+    "Pilih foto HP103 yang tadi sudah disimpan dari galeri.\n" +
+    "Jangan lupa tag @happup.samarinda.panjaitan"
   );
+
+  window.location.href = "instagram://story-camera";
+};
 
   window.location.href = "instagram://story-camera";
 };
