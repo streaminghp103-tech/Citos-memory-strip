@@ -2909,6 +2909,47 @@ function getSelectedTemplate(){
 }
 
 function getTemplateCategory(tpl){
+  // Prioritas utama: kategori manual dari admin
+  if(
+    tpl.layout_type === "Square" ||
+    tpl.layout_type === "Layout 2x6" ||
+    tpl.layout_type === "Layout 4x6"
+  ){
+    return tpl.layout_type;
+  }
+
+  // Fallback untuk template lama yang belum punya layout_type
+  const text = `${tpl.id || ""} ${tpl.name || ""}`.toLowerCase();
+
+  if(
+    text.includes("4x6") ||
+    text.includes("4 x 6") ||
+    text.includes("layout 4x6")
+  ){
+    return "Layout 4x6";
+  }
+
+  if(
+    text.includes("square") ||
+    text.includes("1x1") ||
+    text.includes("1:1") ||
+    text.includes("couple")
+  ){
+    return "Square";
+  }
+
+  if(
+    text.includes("2x6") ||
+    text.includes("2 x 6") ||
+    text.includes("strip") ||
+    text.includes("photostrip") ||
+    text.includes("photo strip")
+  ){
+    return "Layout 2x6";
+  }
+
+  return "Layout 2x6";
+}
 
 function getCategoryClass(cat){
   return cat === "Square" ? "catSquare" :
