@@ -1961,6 +1961,9 @@ canvas{
   background:#111b31 !important;
   border:1px solid rgba(255,210,26,.18) !important;
 }
+  .templateBadge{
+  display:none !important;
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2586,16 +2589,12 @@ div.classList.add(
       div.dataset.template=tpl.id;
 
       div.innerHTML=`
-        <div class="templateBadge ${index===0 ? "free" : "pro"}">
-          ${index===0 ? "✓ Free" : "♕ Pro"}
-        </div>
+  <div class="templateImageBox">
+    <img src="${tpl.preview || tpl.mask}" alt="${tpl.name}">
+  </div>
 
-        <div class="templateImageBox">
-          <img src="${tpl.preview || tpl.mask}" alt="${tpl.name}">
-        </div>
-
-        <div class="templateName">${tpl.name}</div>
-      `;
+  <div class="templateName">${tpl.name}</div>
+`;
 
       div.onclick=()=>{
         document.querySelectorAll(".templateCard").forEach(t=>t.classList.remove("active"));
