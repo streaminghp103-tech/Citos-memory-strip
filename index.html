@@ -830,7 +830,16 @@ canvas{
   background:#1a2340;
 }
 
-.stripCell::before{
+.photoCell{
+  background-image:
+    linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.34)),
+    url("assets/home-sample.jpg");
+  background-size:260% auto;
+  background-repeat:no-repeat;
+  box-shadow:inset 0 0 18px rgba(255,47,146,.18);
+}
+
+.photoCell::before{
   content:"♪";
   position:absolute;
   right:6px;
@@ -839,14 +848,33 @@ canvas{
   font-size:12px;
   font-weight:bold;
   z-index:2;
-  text-shadow:0 1px 4px rgba(0,0,0,.45);
+  text-shadow:0 1px 4px rgba(0,0,0,.55);
 }
 
-.stripCell img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
+.photoCell::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 18% 18%,rgba(255,255,255,.28),transparent 20%),
+    linear-gradient(135deg,rgba(255,47,146,.16),rgba(0,47,120,.12));
+  pointer-events:none;
+}
+
+.photoCell.p1{
+  background-position:42% 40%;
+}
+
+.photoCell.p2{
+  background-position:58% 40%;
+}
+
+.photoCell.p3{
+  background-position:42% 58%;
+}
+
+.photoCell.p4{
+  background-position:58% 58%;
 }
 
 .stripFooter{
@@ -1043,6 +1071,36 @@ canvas{
   color:#ff5fad;
   font-weight:bold;
 }
+  .decorSpark1{
+  top:145px;
+  left:42px;
+  font-size:22px;
+  color:white;
+}
+
+.decorSpark2{
+  top:165px;
+  right:54px;
+  font-size:24px;
+  color:white;
+}
+
+.decorStickerSing{
+  right:18px;
+  bottom:206px;
+  z-index:2;
+  padding:8px 10px;
+  border-radius:18px;
+  background:#ff4fa3;
+  color:white;
+  border:3px solid white;
+  font-size:14px;
+  font-weight:1000;
+  line-height:.95;
+  text-align:center;
+  transform:rotate(-8deg);
+  box-shadow:0 8px 18px rgba(0,0,0,.25), 0 0 16px rgba(255,47,146,.55);
+}
 
 @media(max-height:760px){
   .homeHero{
@@ -1091,12 +1149,12 @@ canvas{
   }
 
   .stripArea{
-    height:278px;
-    min-height:278px;
+  height:316px;
+  min-height:316px;
   }
 
   .miniStripPreview{
-    width:158px;
+  width:188px;
   }
 
   .infoCard{
@@ -1141,6 +1199,9 @@ canvas{
     <div class="homeBgDecor decorNote1">♪</div>
     <div class="homeBgDecor decorNote2">♫</div>
     <div class="homeBgDecor decorHeart">♡</div>
+    <div class="homeBgDecor decorSpark1">✦</div>
+<div class="homeBgDecor decorSpark2">✧</div>
+<div class="homeBgDecor decorStickerSing">LET'S<br>SING!</div>
 
     <div class="brandPlate">
       <div class="brandMain">Happy Puppy</div>
@@ -1175,19 +1236,11 @@ canvas{
     <div class="stripLogoSub">PANJAITAN</div>
   </div>
 
-  <div class="stripGrid">
-  <div class="stripCell">
-    <img src="assets/sample1.jpg" alt="Sample 1">
-  </div>
-  <div class="stripCell">
-    <img src="assets/sample2.jpg" alt="Sample 2">
-  </div>
-  <div class="stripCell">
-    <img src="assets/sample3.jpg" alt="Sample 3">
-  </div>
-  <div class="stripCell">
-    <img src="assets/sample4.jpg" alt="Sample 4">
-  </div>
+  <div class="stripGrid realPhotoGrid">
+  <div class="stripCell photoCell p1"></div>
+  <div class="stripCell photoCell p2"></div>
+  <div class="stripCell photoCell p3"></div>
+  <div class="stripCell photoCell p4"></div>
 </div>
 
   <div class="stripFooter">SING • SMILE • SAVE • SHARE</div>
