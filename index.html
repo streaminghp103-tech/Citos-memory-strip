@@ -2586,6 +2586,12 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
 
 <div id="adminAddPanel" style="display:flex;flex-direction:column;gap:8px;">
   <input id="templateNameInput" placeholder="Nama template">
+  <label class="small">Kategori Layout</label>
+<select id="templateLayoutInput">
+  <option value="Square">Square</option>
+  <option value="Layout 2x6" selected>Layout 2x6</option>
+  <option value="Layout 4x6">Layout 4x6</option>
+</select>
 
   <label class="small">Preview</label>
 <input id="previewFileInput" type="file" accept="image/png,image/jpeg">
@@ -2683,6 +2689,7 @@ const adminTabManage=document.getElementById("adminTabManage");
 const adminAddPanel=document.getElementById("adminAddPanel");
 const adminManagePanel=document.getElementById("adminManagePanel");
 const templateNameInput=document.getElementById("templateNameInput");
+  const templateLayoutInput=document.getElementById("templateLayoutInput");
 
 const maskFileInput=document.getElementById("maskFileInput");
   const previewFileInput=document.getElementById("previewFileInput");
@@ -2881,7 +2888,8 @@ async function loadTemplates(){
   id: t.slug,
   name: t.name,
   preview: t.preview_url,
-  mask: t.mask_url
+  mask: t.mask_url,
+  layout_type: t.layout_type || ""
 }));
   if(templates.length===0){
     return;
@@ -2901,42 +2909,6 @@ function getSelectedTemplate(){
 }
 
 function getTemplateCategory(tpl){
-  const text = `${tpl.id || ""} ${tpl.name || ""}`.toLowerCase();
-
-  // Cek 4x6 dulu agar template "strip 4x6" tidak salah masuk 2x6
-  if(
-    text.includes("4x6") ||
-    text.includes("4 x 6") ||
-    text.includes("layout 4x6") ||
-    text.includes("fourby") ||
-    text.includes("print 4")
-  ){
-    return "Layout 4x6";
-  }
-
-  if(
-    text.includes("2x6") ||
-    text.includes("2 x 6") ||
-    text.includes("layout 2x6") ||
-    text.includes("strip") ||
-    text.includes("photostrip") ||
-    text.includes("photo strip")
-  ){
-    return "Layout 2x6";
-  }
-
-  if(
-    text.includes("square") ||
-    text.includes("1x1") ||
-    text.includes("1:1") ||
-    text.includes("couple")
-  ){
-    return "Square";
-  }
-
-  // Kalau belum ada kategori jelas, sementara masuk 2x6
-  return "Layout 2x6";
-}
 
 function getCategoryClass(cat){
   return cat === "Square" ? "catSquare" :
@@ -3077,7 +3049,7 @@ function renderAdminTemplateList(){
       <img src="${tpl.preview || tpl.mask}" style="width:54px;height:54px;object-fit:cover;border-radius:12px;">
       <div style="flex:1;">
         <b>${tpl.name}</b>
-        <p class="small">${tpl.id}</p>
+        <p class="small">${tpl.layout_type || "Layout 2x6"} • ${tpl.id}</p>
       </div>
       <button data-id="${tpl.id}" class="deleteTemplateBtn" style="width:auto;padding:8px 12px;background:#7f1d1d;">Hapus</button>
     `;
@@ -4147,6 +4119,7 @@ saveTemplateBtn.onclick=async()=>{
     saveTemplateBtn.textContent="Mengupload...";
 
     const name=templateNameInput.value.trim();
+    const layoutType=templateLayoutInput.value;
 
     if(!name){
       alert("Nama template wajib diisi.");
@@ -4175,20 +4148,22 @@ if(!maskName.endsWith(".png")){
     const { error } = await supabaseClient
   .from("templates")
   .upsert({
-    name,
-    slug,
-    preview_url: previewUrl,
-    final_url: maskUrl,
-    mask_url: maskUrl,
-    is_active: true
-  },{onConflict:"slug"});
+  name,
+  slug,
+  layout_type: layoutType,
+  preview_url: previewUrl,
+  final_url: maskUrl,
+  mask_url: maskUrl,
+  is_active: true
+},{onConflict:"slug"});
 
     if(error) throw error;
 
     alert("Template berhasil diupload.");
 
     templateNameInput.value="";
-    previewFileInput.value="";
+templateLayoutInput.value="Layout 2x6";
+previewFileInput.value="";
     
     maskFileInput.value="";
     previewImagePreview.src="";
