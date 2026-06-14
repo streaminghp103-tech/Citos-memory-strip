@@ -1774,6 +1774,193 @@ canvas{
 #roomInput[type="hidden"]{
   display:none !important;
 }
+  /* ===============================
+   TEMPLATE PICKER FINAL COLOR + FIT
+   Nyambung dengan home yellow/navy
+================================ */
+
+/* Background halaman template dibuat nyambung dengan home */
+#formScreen{
+  background:
+    radial-gradient(circle at top left,rgba(255,216,77,.18),transparent 30%),
+    radial-gradient(circle at bottom right,rgba(255,47,146,.14),transparent 34%),
+    linear-gradient(180deg,#06142a 0%,#07070b 58%,#030711 100%) !important;
+}
+
+#formScreen .card{
+  background:transparent !important;
+}
+
+/* Header warna Happy Puppy */
+#formScreen .logo{
+  color:#ffd21a !important;
+}
+
+#formScreen h2{
+  color:#ffffff !important;
+  text-shadow:0 4px 18px rgba(0,0,0,.35);
+}
+
+#formScreen .small{
+  color:rgba(255,255,255,.72) !important;
+}
+
+/* Section title */
+.templateSectionTitle h3{
+  color:#ffffff !important;
+}
+
+.templateSectionTitle span{
+  color:#ffd21a !important;
+  text-shadow:0 0 12px rgba(255,210,26,.35);
+}
+
+/* Row template lebih premium */
+.templateRow{
+  gap:14px !important;
+  padding:2px 4px 8px !important;
+}
+
+/* Card tidak perlu kotak besar, biar preview yang jadi fokus */
+.templateCard{
+  overflow:visible !important;
+}
+
+/* Preview base */
+.templateImageBox{
+  background:#071b38 !important;
+  border:2px solid rgba(255,210,26,.42) !important;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.38),
+    inset 0 0 0 1px rgba(255,255,255,.06) !important;
+}
+
+.templateImageBox img{
+  object-fit:contain !important;
+  background:#071b38 !important;
+}
+
+/* Active template: kuning + pink neon, nyambung home */
+.templateCard.active .templateImageBox{
+  border-color:#ffd21a !important;
+  box-shadow:
+    0 0 0 2px rgba(255,210,26,.9),
+    0 0 0 5px rgba(255,47,146,.42),
+    0 16px 34px rgba(0,0,0,.45),
+    0 0 24px rgba(255,47,146,.35) !important;
+}
+
+/* Nama template */
+.templateName{
+  color:white !important;
+  text-shadow:0 2px 8px rgba(0,0,0,.45);
+}
+
+/* Badge Free/Pro dibuat lebih cocok warna home */
+.templateBadge.free{
+  background:#16c79a !important;
+  color:white !important;
+}
+
+.templateBadge.pro{
+  background:linear-gradient(135deg,#ffd21a,#ff9f1c) !important;
+  color:#071b38 !important;
+}
+
+/* ===============================
+   UKURAN PREVIEW PER LAYOUT
+================================ */
+
+/* Square: benar-benar kotak */
+.templateCard.catSquare{
+  min-width:118px !important;
+  width:118px !important;
+  flex:0 0 118px !important;
+}
+
+.templateCard.catSquare .templateImageBox{
+  width:118px !important;
+  height:118px !important;
+  border-radius:18px !important;
+}
+
+/* Layout 2x6: tinggi ramping seperti photostrip */
+.templateCard.cat2x6{
+  min-width:96px !important;
+  width:96px !important;
+  flex:0 0 96px !important;
+}
+
+.templateCard.cat2x6 .templateImageBox{
+  width:96px !important;
+  height:214px !important;
+  border-radius:18px !important;
+}
+
+/* Layout 4x6: lebih lebar, tidak setinggi 2x6 */
+.templateCard.cat4x6{
+  min-width:132px !important;
+  width:132px !important;
+  flex:0 0 132px !important;
+}
+
+.templateCard.cat4x6 .templateImageBox{
+  width:132px !important;
+  height:176px !important;
+  border-radius:18px !important;
+}
+
+/* Kalau ada fallback lain */
+.templateCard.catOther{
+  min-width:118px !important;
+  width:118px !important;
+  flex:0 0 118px !important;
+}
+
+.templateCard.catOther .templateImageBox{
+  width:118px !important;
+  height:156px !important;
+  border-radius:18px !important;
+}
+
+/* Nama template mengikuti lebar card */
+.templateCard.catSquare .templateName,
+.templateCard.catOther .templateName{
+  max-width:118px !important;
+}
+
+.templateCard.cat2x6 .templateName{
+  max-width:96px !important;
+}
+
+.templateCard.cat4x6 .templateName{
+  max-width:132px !important;
+}
+
+/* Bottom bar dibuat navy, bukan hitam polos */
+.formBottomBar{
+  background:linear-gradient(180deg,rgba(3,7,17,0),#030711 22%,#030711 100%) !important;
+  padding-top:8px !important;
+}
+
+.formBottomBar #songInput{
+  background:#071b38 !important;
+  border:1px solid rgba(255,210,26,.22) !important;
+}
+
+#startBtn{
+  background:linear-gradient(180deg,#ffd84d,#ff2f92) !important;
+  color:#071b38 !important;
+  font-weight:1000 !important;
+  box-shadow:
+    0 12px 28px rgba(255,47,146,.28),
+    0 0 18px rgba(255,210,26,.28) !important;
+}
+
+#backHomeBtn{
+  background:#111b31 !important;
+  border:1px solid rgba(255,210,26,.18) !important;
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2369,7 +2556,13 @@ function renderTemplatePicker(){
     if(!grouped[cat] || grouped[cat].length===0) return;
 
     const section=document.createElement("div");
-    section.className="templateSection";
+section.className="templateSection";
+section.classList.add(
+  cat === "Square" ? "catSquare" :
+  cat === "Layout 2x6" ? "cat2x6" :
+  cat === "Layout 4x6" ? "cat4x6" :
+  "catOther"
+);
 
     const title=document.createElement("div");
     title.className="templateSectionTitle";
@@ -2384,6 +2577,12 @@ function renderTemplatePicker(){
     grouped[cat].forEach((tpl,index)=>{
       const div=document.createElement("div");
       div.className="templateCard"+(tpl.id===selectedTemplate?" active":"");
+div.classList.add(
+  cat === "Square" ? "catSquare" :
+  cat === "Layout 2x6" ? "cat2x6" :
+  cat === "Layout 4x6" ? "cat4x6" :
+  "catOther"
+);
       div.dataset.template=tpl.id;
 
       div.innerHTML=`
