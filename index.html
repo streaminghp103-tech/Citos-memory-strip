@@ -576,7 +576,509 @@ canvas{
   from{transform:rotate(0deg)}
   to{transform:rotate(360deg)}
 }
-  
+/* ===============================
+   NEW HOME SCREEN - KARAOKE STYLE
+================================ */
+
+#startScreen{
+  padding:0;
+  background:#06142a;
+}
+
+#startScreen.active{
+  justify-content:center;
+}
+
+.homeHero{
+  position:relative;
+  width:100vw;
+  height:100dvh;
+  overflow:hidden;
+  padding:28px 18px 18px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  color:#071b38;
+  background:
+    radial-gradient(circle at top left,rgba(255,255,255,.5),transparent 18%),
+    radial-gradient(circle at 70% 0%,rgba(255,255,255,.28),transparent 24%),
+    linear-gradient(155deg,#ffd900 0%,#ffc400 43%,#071b38 44%,#06142a 100%);
+}
+
+.homeHero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 12% 42%,rgba(255,255,255,.35) 0 2px,transparent 3px),
+    radial-gradient(circle at 84% 38%,rgba(255,255,255,.24) 0 2px,transparent 3px);
+  background-size:18px 18px;
+  opacity:.2;
+  pointer-events:none;
+}
+
+.homeHero::after{
+  content:"";
+  position:absolute;
+  left:-15%;
+  right:-15%;
+  bottom:-6%;
+  height:48%;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,47,146,.24),transparent 45%),
+    linear-gradient(180deg,#071b38,#031020);
+  border-radius:50% 50% 0 0;
+  z-index:0;
+}
+
+.homeMenuBtn{
+  position:absolute;
+  top:18px;
+  right:18px;
+  z-index:20;
+  width:44px !important;
+  height:44px;
+  max-width:44px;
+  padding:0;
+  border-radius:50%;
+  background:rgba(7,27,56,.2);
+  color:#071b38;
+  box-shadow:none;
+  font-size:24px;
+  backdrop-filter:blur(8px);
+}
+
+.brandPlate{
+  position:relative;
+  z-index:2;
+  width:min(78vw,360px);
+  margin-top:4px;
+  padding:18px 16px 14px;
+  border-radius:28px;
+  background:linear-gradient(180deg,#ffdc21,#ffc400);
+  box-shadow:
+    0 18px 40px rgba(0,0,0,.18),
+    inset 0 2px 0 rgba(255,255,255,.35);
+  text-align:center;
+}
+
+.brandMain{
+  font-size:36px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:-1px;
+  color:#071b38;
+  font-family:Georgia,serif;
+  text-shadow:0 2px 0 rgba(255,255,255,.28);
+}
+
+.brandSub{
+  margin-top:10px;
+  font-size:18px;
+  font-weight:900;
+  letter-spacing:1px;
+  color:#071b38;
+}
+
+.roomSticker{
+  position:absolute;
+  top:62px;
+  right:20px;
+  z-index:4;
+  transform:rotate(7deg);
+  min-width:84px;
+  padding:8px 12px;
+  border-radius:16px;
+  background:#071b38;
+  color:white;
+  border:3px solid #fff2a8;
+  box-shadow:0 8px 18px rgba(0,0,0,.18), 0 0 16px rgba(255,47,146,.42);
+  text-align:center;
+}
+
+.roomSticker span{
+  display:block;
+  font-size:11px;
+  color:#ffd400;
+  font-weight:900;
+}
+
+.roomSticker b{
+  display:block;
+  font-size:18px;
+  color:white;
+}
+
+.heroTitle{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  margin-top:26px;
+  color:#071b38;
+  line-height:.9;
+}
+
+.heroTitle span{
+  display:block;
+  font-size:34px;
+  font-weight:900;
+  color:white;
+  text-shadow:
+    -4px 4px 0 #071b38,
+    0 8px 18px rgba(0,0,0,.18);
+}
+
+.heroTitle strong{
+  display:block;
+  margin-top:2px;
+  font-size:72px;
+  font-weight:1000;
+  color:#ffd21a;
+  text-shadow:
+    -5px 5px 0 #071b38,
+    0 10px 18px rgba(0,0,0,.18);
+  font-family:Georgia,serif;
+}
+
+.heroSubtitle{
+  position:relative;
+  z-index:2;
+  margin-top:14px;
+  padding:10px 22px;
+  border-radius:22px;
+  background:#071b38;
+  color:white;
+  font-size:17px;
+  line-height:1.35;
+  text-align:center;
+  font-weight:700;
+  box-shadow:0 10px 24px rgba(0,0,0,.2);
+}
+
+.heroSubtitle b{
+  color:#ff7abf;
+}
+
+.stripArea{
+  position:relative;
+  z-index:3;
+  width:100%;
+  flex:1;
+  min-height:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:8px;
+}
+
+.miniStripPreview{
+  width:178px;
+  padding:12px 10px 10px;
+  border-radius:8px;
+  background:#071b38;
+  border:3px solid #ffd21a;
+  transform:rotate(-3deg);
+  box-shadow:
+    0 22px 45px rgba(0,0,0,.35),
+    0 0 30px rgba(255,47,146,.35);
+}
+
+.stripBrand{
+  text-align:center;
+  color:#ffd21a;
+  font-size:20px;
+  font-family:Georgia,serif;
+  font-weight:900;
+  line-height:1;
+}
+
+.stripSub{
+  text-align:center;
+  color:#ffd21a;
+  font-size:10px;
+  letter-spacing:.8px;
+  font-weight:900;
+  margin:4px 0 8px;
+}
+
+.stripPhoto{
+  height:58px;
+  margin-bottom:7px;
+  border-radius:8px;
+  border:2px solid #ffd21a;
+  background:
+    linear-gradient(135deg,rgba(255,47,146,.45),rgba(0,0,0,.2)),
+    radial-gradient(circle at 30% 30%,#ffe6f4,transparent 20%),
+    linear-gradient(120deg,#243b70,#0e1730);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:rgba(255,255,255,.75);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.stripFooter{
+  color:#ffd21a;
+  text-align:center;
+  font-size:9px;
+  font-weight:900;
+}
+
+.infoCard{
+  position:absolute;
+  z-index:2;
+  width:118px;
+  min-height:112px;
+  padding:14px 8px;
+  border-radius:22px;
+  background:#fff7d9;
+  color:#071b38;
+  border:3px solid white;
+  box-shadow:0 12px 26px rgba(0,0,0,.25);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  transform:rotate(-7deg);
+}
+
+.infoCard.rightCard{
+  transform:rotate(7deg);
+}
+
+.leftCard{
+  left:6px;
+  bottom:58px;
+}
+
+.rightCard{
+  right:6px;
+  bottom:84px;
+}
+
+.infoIcon{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  background:#ffd21a;
+  border:2px solid #071b38;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  margin-bottom:8px;
+}
+
+.infoCard b{
+  font-size:18px;
+  line-height:1;
+}
+
+.infoCard span{
+  font-size:15px;
+  font-weight:800;
+  margin-top:4px;
+}
+
+.homeCta{
+  position:relative;
+  z-index:4;
+  width:92%;
+  max-width:390px;
+  padding:18px 20px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#ffe45a,#ffc400);
+  color:#071b38;
+  font-size:25px;
+  font-weight:1000;
+  box-shadow:
+    0 14px 30px rgba(0,0,0,.3),
+    0 0 24px rgba(255,47,146,.55),
+    inset 0 2px 0 rgba(255,255,255,.5);
+  border:3px solid rgba(255,255,255,.75);
+}
+
+.homeSteps{
+  position:relative;
+  z-index:4;
+  width:94%;
+  max-width:430px;
+  margin-top:14px;
+  padding:12px 10px;
+  border-radius:24px;
+  background:rgba(7,27,56,.78);
+  border:1px solid rgba(255,255,255,.2);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  backdrop-filter:blur(12px);
+}
+
+.homeSteps div{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  color:white;
+  text-align:center;
+}
+
+.homeSteps i{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:#ffd21a;
+  color:#071b38;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-style:normal;
+  font-size:22px;
+  font-weight:900;
+}
+
+.homeSteps b{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#ff8cbd;
+  color:#071b38;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  margin-top:-14px;
+  border:2px solid #071b38;
+}
+
+.homeSteps span{
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.homeSteps em{
+  width:16px;
+  height:2px;
+  background:repeating-linear-gradient(90deg,#ff8cbd 0 3px,transparent 3px 7px);
+  opacity:.9;
+}
+
+.homeBgDecor{
+  position:absolute;
+  z-index:1;
+  pointer-events:none;
+  user-select:none;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.2));
+}
+
+.decorBall{
+  top:26px;
+  left:24px;
+  font-size:42px;
+  color:white;
+  opacity:.75;
+}
+
+.decorMic{
+  top:230px;
+  left:18px;
+  font-size:52px;
+  transform:rotate(-24deg);
+}
+
+.decorNote1{
+  top:210px;
+  right:28px;
+  font-size:46px;
+  color:#071b38;
+}
+
+.decorNote2{
+  bottom:195px;
+  left:46px;
+  font-size:54px;
+  color:#ffd21a;
+}
+
+.decorHeart{
+  top:275px;
+  right:34px;
+  font-size:44px;
+  color:#ff5fad;
+  font-weight:bold;
+}
+
+@media(max-height:740px){
+  .brandPlate{
+    padding:14px 14px 10px;
+    width:min(70vw,320px);
+  }
+
+  .brandMain{
+    font-size:30px;
+  }
+
+  .brandSub{
+    font-size:14px;
+    margin-top:7px;
+  }
+
+  .heroTitle{
+    margin-top:18px;
+  }
+
+  .heroTitle span{
+    font-size:28px;
+  }
+
+  .heroTitle strong{
+    font-size:58px;
+  }
+
+  .heroSubtitle{
+    font-size:14px;
+    padding:8px 18px;
+  }
+
+  .miniStripPreview{
+    width:150px;
+  }
+
+  .stripPhoto{
+    height:48px;
+  }
+
+  .infoCard{
+    width:102px;
+    min-height:92px;
+  }
+
+  .homeCta{
+    font-size:21px;
+    padding:15px;
+  }
+
+  .homeSteps{
+    margin-top:10px;
+    padding:10px 8px;
+  }
+
+  .homeSteps i{
+    width:38px;
+    height:38px;
+    font-size:18px;
+  }
+
+  .homeSteps span{
+    font-size:11px;
+  }
+}  
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -585,16 +1087,6 @@ canvas{
 <body>
 
 <section id="startScreen" class="screen active">
-  <div class="card center">
-    <button id="menuBtn" class="iconBtn" style="position:absolute;top:18px;right:18px;">⋮</button>
-    <div class="logo">HAPPY PUPPY PANJAITAN</div>
-    <h1>Abadikan Momen Karaoke ✨</h1>
-<p>Buat photostrip serumu, simpan, lalu upload ke Instagram.</p>
-    <div class="badge" id="roomBadge">ROOM -</div>
-    <button id="goFormBtn">📸 Mulai Buat Foto</button>
-    <p class="small">Scan QR • Ambil 4 foto • Download • Upload Instagram</p>
-  </div>
-</section>
 
 <section id="formScreen" class="screen">
   <div class="card">
@@ -935,7 +1427,7 @@ let retakeFromReview=false;
   
 const params=new URLSearchParams(window.location.search);
 const room=params.get("room")||"Lobby";
-roomBadge.textContent=`ROOM ${room}`;
+roomBadge.textContent=room;
 roomInput.value=`ROOM ${room}`;
 
 function showScreen(screen){
