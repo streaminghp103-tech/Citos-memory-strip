@@ -2313,6 +2313,28 @@ function getSelectedTemplate(){
 function getTemplateCategory(tpl){
   const text = `${tpl.id || ""} ${tpl.name || ""}`.toLowerCase();
 
+  // Cek 4x6 dulu agar template "strip 4x6" tidak salah masuk 2x6
+  if(
+    text.includes("4x6") ||
+    text.includes("4 x 6") ||
+    text.includes("layout 4x6") ||
+    text.includes("fourby") ||
+    text.includes("print 4")
+  ){
+    return "Layout 4x6";
+  }
+
+  if(
+    text.includes("2x6") ||
+    text.includes("2 x 6") ||
+    text.includes("layout 2x6") ||
+    text.includes("strip") ||
+    text.includes("photostrip") ||
+    text.includes("photo strip")
+  ){
+    return "Layout 2x6";
+  }
+
   if(
     text.includes("square") ||
     text.includes("1x1") ||
@@ -2322,30 +2344,15 @@ function getTemplateCategory(tpl){
     return "Square";
   }
 
-  if(
-    text.includes("2x6") ||
-    text.includes("2 x 6") ||
-    text.includes("strip")
-  ){
-    return "Layout 2x6";
-  }
-
-  if(
-    text.includes("4x6") ||
-    text.includes("4 x 6") ||
-    text.includes("layout 4x6")
-  ){
-    return "Layout 4x6";
-  }
-
-  return "Lainnya";
+  // Kalau belum ada kategori jelas, sementara masuk 2x6
+  return "Layout 2x6";
 }
 
 function renderTemplatePicker(){
   const grid=document.querySelector(".templateGrid");
   grid.innerHTML="";
 
-  const categoryOrder=["Square","Layout 2x6","Layout 4x6","Lainnya"];
+  const categoryOrder=["Square","Layout 2x6","Layout 4x6"];
 
   const grouped={};
 
