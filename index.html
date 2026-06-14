@@ -1964,6 +1964,152 @@ canvas{
   .templateBadge{
   display:none !important;
 }
+  /* ===============================
+   CATEGORY MORE SHEET
+================================ */
+
+.categoryMoreBtn{
+  width:auto !important;
+  max-width:max-content !important;
+  padding:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  color:#ffd21a !important;
+  font-size:14px !important;
+  font-weight:1000 !important;
+  letter-spacing:.4px !important;
+}
+
+.categoryMoreBtn:active{
+  transform:scale(.96);
+}
+
+#categorySheet{
+  position:fixed;
+  inset:0;
+  z-index:850;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+
+.categorySheetBackdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.62);
+  backdrop-filter:blur(6px);
+}
+
+.categorySheetPanel{
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:520px;
+  max-height:82dvh;
+  padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+  border-radius:30px 30px 0 0;
+  background:
+    radial-gradient(circle at top left,rgba(255,216,77,.18),transparent 34%),
+    linear-gradient(180deg,#071b38 0%,#030711 100%);
+  border:1px solid rgba(255,210,26,.22);
+  box-shadow:0 -20px 55px rgba(0,0,0,.55);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.categorySheetHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-shrink:0;
+}
+
+.categorySheetHeader p{
+  margin:0;
+  color:#ffd21a;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.categorySheetHeader h3{
+  margin:4px 0 0;
+  color:white;
+  font-size:28px;
+  line-height:1;
+}
+
+#closeCategorySheet{
+  width:44px !important;
+  height:44px !important;
+  max-width:44px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  background:#111b31 !important;
+  color:white !important;
+  box-shadow:none !important;
+  font-size:28px !important;
+  line-height:1 !important;
+}
+
+.categorySheetGrid{
+  overflow-y:auto;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px 14px;
+  padding:4px 2px 20px;
+}
+
+.categorySheetGrid::-webkit-scrollbar{
+  display:none;
+}
+
+.categorySheetGrid .templateCard{
+  margin:0 auto !important;
+}
+
+/* Di popup, preview dibuat lebih besar tapi tetap fit */
+.categorySheetGrid .templateCard.catSquare{
+  width:148px !important;
+  min-width:148px !important;
+  flex:0 0 148px !important;
+}
+
+.categorySheetGrid .templateCard.catSquare .templateImageBox{
+  width:148px !important;
+  height:148px !important;
+}
+
+.categorySheetGrid .templateCard.cat2x6{
+  width:112px !important;
+  min-width:112px !important;
+  flex:0 0 112px !important;
+}
+
+.categorySheetGrid .templateCard.cat2x6 .templateImageBox{
+  width:112px !important;
+  height:250px !important;
+}
+
+.categorySheetGrid .templateCard.cat4x6{
+  width:150px !important;
+  min-width:150px !important;
+  flex:0 0 150px !important;
+}
+
+.categorySheetGrid .templateCard.cat4x6 .templateImageBox{
+  width:150px !important;
+  height:200px !important;
+}
+
+.categorySheetGrid .templateName{
+  max-width:150px !important;
+  text-align:center !important;
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2538,12 +2684,44 @@ function getTemplateCategory(tpl){
   return "Layout 2x6";
 }
 
-function renderTemplatePicker(){
-  const grid=document.querySelector(".templateGrid");
-  grid.innerHTML="";
+function getCategoryClass(cat){
+  return cat === "Square" ? "catSquare" :
+         cat === "Layout 2x6" ? "cat2x6" :
+         cat === "Layout 4x6" ? "cat4x6" :
+         "catOther";
+}
 
+function createTemplateCard(tpl, cat, extraClass=""){
+  const div=document.createElement("div");
+  div.className=`templateCard ${getCategoryClass(cat)} ${extraClass}`+(tpl.id===selectedTemplate?" active":"");
+  div.dataset.template=tpl.id;
+
+  div.innerHTML=`
+    <div class="templateImageBox">
+      <img src="${tpl.preview || tpl.mask}" alt="${tpl.name}">
+    </div>
+
+    <div class="templateName">${tpl.name}</div>
+  `;
+
+  div.onclick=()=>{
+    document.querySelectorAll(".templateCard").forEach(t=>t.classList.remove("active"));
+    div.classList.add("active");
+    selectedTemplate=tpl.id;
+
+    const sheet=document.getElementById("categorySheet");
+    if(sheet){
+      sheet.remove();
+    }
+
+    renderTemplatePicker();
+  };
+
+  return div;
+}
+
+function groupTemplatesByCategory(){
   const categoryOrder=["Square","Layout 2x6","Layout 4x6"];
-
   const grouped={};
 
   categoryOrder.forEach(cat=>{
@@ -2552,63 +2730,86 @@ function renderTemplatePicker(){
 
   templates.forEach(tpl=>{
     const cat=getTemplateCategory(tpl);
+    if(!grouped[cat]){
+      grouped[cat]=[];
+    }
     grouped[cat].push(tpl);
   });
+
+  return {categoryOrder, grouped};
+}
+
+function renderTemplatePicker(){
+  const grid=document.querySelector(".templateGrid");
+  grid.innerHTML="";
+
+  const {categoryOrder, grouped}=groupTemplatesByCategory();
 
   categoryOrder.forEach(cat=>{
     if(!grouped[cat] || grouped[cat].length===0) return;
 
     const section=document.createElement("div");
-section.className="templateSection";
-section.classList.add(
-  cat === "Square" ? "catSquare" :
-  cat === "Layout 2x6" ? "cat2x6" :
-  cat === "Layout 4x6" ? "cat4x6" :
-  "catOther"
-);
+    section.className=`templateSection ${getCategoryClass(cat)}`;
 
     const title=document.createElement("div");
     title.className="templateSectionTitle";
     title.innerHTML=`
       <h3>${cat}</h3>
-      <span>LAINNYA</span>
+      <button type="button" class="categoryMoreBtn" data-cat="${cat}">LAINNYA</button>
     `;
 
     const row=document.createElement("div");
     row.className="templateRow";
 
-    grouped[cat].forEach((tpl,index)=>{
-      const div=document.createElement("div");
-      div.className="templateCard"+(tpl.id===selectedTemplate?" active":"");
-div.classList.add(
-  cat === "Square" ? "catSquare" :
-  cat === "Layout 2x6" ? "cat2x6" :
-  cat === "Layout 4x6" ? "cat4x6" :
-  "catOther"
-);
-      div.dataset.template=tpl.id;
-
-      div.innerHTML=`
-  <div class="templateImageBox">
-    <img src="${tpl.preview || tpl.mask}" alt="${tpl.name}">
-  </div>
-
-  <div class="templateName">${tpl.name}</div>
-`;
-
-      div.onclick=()=>{
-        document.querySelectorAll(".templateCard").forEach(t=>t.classList.remove("active"));
-        div.classList.add("active");
-        selectedTemplate=tpl.id;
-      };
-
-      row.appendChild(div);
+    grouped[cat].slice(0,6).forEach(tpl=>{
+      row.appendChild(createTemplateCard(tpl,cat));
     });
 
     section.appendChild(title);
     section.appendChild(row);
     grid.appendChild(section);
   });
+
+  document.querySelectorAll(".categoryMoreBtn").forEach(btn=>{
+    btn.onclick=()=>{
+      const cat=btn.dataset.cat;
+      openCategorySheet(cat, grouped[cat] || []);
+    };
+  });
+}
+
+function openCategorySheet(cat, list){
+  const old=document.getElementById("categorySheet");
+  if(old) old.remove();
+
+  const sheet=document.createElement("div");
+  sheet.id="categorySheet";
+
+  sheet.innerHTML=`
+    <div class="categorySheetBackdrop"></div>
+    <div class="categorySheetPanel">
+      <div class="categorySheetHeader">
+        <div>
+          <p>Semua Template</p>
+          <h3>${cat}</h3>
+        </div>
+        <button type="button" id="closeCategorySheet">×</button>
+      </div>
+
+      <div class="categorySheetGrid"></div>
+    </div>
+  `;
+
+  document.body.appendChild(sheet);
+
+  const sheetGrid=sheet.querySelector(".categorySheetGrid");
+
+  list.forEach(tpl=>{
+    sheetGrid.appendChild(createTemplateCard(tpl,cat,"sheetCard"));
+  });
+
+  sheet.querySelector(".categorySheetBackdrop").onclick=()=>sheet.remove();
+  sheet.querySelector("#closeCategorySheet").onclick=()=>sheet.remove();
 }
 
 function renderAdminTemplateList(){
