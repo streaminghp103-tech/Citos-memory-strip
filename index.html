@@ -2391,9 +2391,9 @@ canvas{
     </div>
 
     <div class="roomSticker">
-      <span>ROOM</span>
-      <b id="roomBadge">Lobby</b>
-    </div>
+  <span id="roomLabel">ROOM</span>
+  <b id="roomBadge">Lobby</b>
+</div>
 
     <div class="heroTitle">
       <span>Abadikan Momen</span>
@@ -2726,8 +2726,10 @@ const canvas=document.getElementById("resultCanvas");
 const ctx=canvas.getContext("2d");
 
 const roomBadge=document.getElementById("roomBadge");
+const roomLabel=document.getElementById("roomLabel");
 const roomInput=document.getElementById("roomInput");
 const songInput=document.getElementById("songInput");
+  
 let selectedFilter="natural";
 let selectedTimer=0;
 let currentFacingMode="user";
@@ -2815,8 +2817,12 @@ let retakeFromReview=false;
   
 const params=new URLSearchParams(window.location.search);
 const room=params.get("room")||"Lobby";
-roomBadge.textContent=room;
-roomInput.value=`ROOM ${room}`;
+
+const isLobby = room.toLowerCase() === "lobby";
+
+roomLabel.textContent = isLobby ? "AREA" : "ROOM";
+roomBadge.textContent = isLobby ? "Lobby" : room;
+roomInput.value = isLobby ? "LOBBY" : `ROOM ${room}`;
 
 function showScreen(screen){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
