@@ -2400,11 +2400,14 @@ canvas{
 /* Mode 1 foto: jangan paksa center vertikal penuh */
 .reviewGrid.onePhoto{
   flex:0 0 auto !important;
+  width:100% !important;
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
   margin-top:18px !important;
   margin-bottom:18px !important;
+  padding:0 2px !important;
+  overflow:visible !important;
 }
 
 /* Mode 4 foto: tetap pakai area penuh */
@@ -2429,7 +2432,9 @@ canvas{
 
 /* Ukuran khusus 1 foto */
 .reviewGrid.onePhoto .reviewPhotoCard{
-  width:min(90vw,390px) !important;
+  width:100% !important;
+  max-width:360px !important;
+  box-sizing:border-box !important;
 }
 /* Ukuran khusus 4 foto */
 .reviewGrid.multiPhoto .reviewPhotoCard{
@@ -2486,7 +2491,7 @@ canvas{
 .rotatePhotoBtn{
   position:absolute !important;
   top:8px !important;
-  right:8px !important;
+  right:12px !important;
   z-index:6 !important;
   width:auto !important;
   max-width:max-content !important;
