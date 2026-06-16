@@ -2586,11 +2586,18 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
 
 <div id="adminAddPanel" style="display:flex;flex-direction:column;gap:8px;">
   <input id="templateNameInput" placeholder="Nama template">
+  
   <label class="small">Kategori Layout</label>
 <select id="templateLayoutInput">
   <option value="Square">Square</option>
   <option value="Layout 2x6" selected>Layout 2x6</option>
   <option value="Layout 4x6">Layout 4x6</option>
+</select>
+  
+  <label class="small">Jumlah Foto</label>
+<select id="templatePhotoCountInput">
+  <option value="1">1 Foto</option>
+  <option value="4" selected>4 Foto</option>
 </select>
 
   <label class="small">Preview</label>
@@ -2690,6 +2697,7 @@ const adminAddPanel=document.getElementById("adminAddPanel");
 const adminManagePanel=document.getElementById("adminManagePanel");
 const templateNameInput=document.getElementById("templateNameInput");
   const templateLayoutInput=document.getElementById("templateLayoutInput");
+  const templatePhotoCountInput=document.getElementById("templatePhotoCountInput");
 
 const maskFileInput=document.getElementById("maskFileInput");
   const previewFileInput=document.getElementById("previewFileInput");
@@ -2799,7 +2807,41 @@ function updateShutterFilter(){
   captureBtn.classList.add(`filter-${selectedFilter}`);
 }
   
-const MAX_PHOTOS = 4;
+let MAX_PHOTOS = 4;
+
+function getTemplatePhotoCount(tpl){
+  const count = Number(tpl && tpl.photo_count ? tpl.photo_count : 4);
+
+  if(count === 1) return 1;
+  if(count === 4) return 4;
+
+  return 4;
+}
+
+function syncPhotoCountFromTemplate(){
+  const tpl = getSelectedTemplate();
+  MAX_PHOTOS = getTemplatePhotoCount(tpl);
+
+  currentPhoto = Math.min(currentPhoto || 1, MAX_PHOTOS);
+
+  renderPhotoDots();
+  photoCounter.textContent = `Foto ${currentPhoto} / ${MAX_PHOTOS}`;
+}
+
+function renderPhotoDots(){
+  const dotsBox = document.getElementById("photoDots");
+  if(!dotsBox) return;
+
+  dotsBox.innerHTML = "";
+
+  for(let i=0;i<MAX_PHOTOS;i++){
+    const dot=document.createElement("span");
+    if(i < currentPhoto){
+      dot.classList.add("active");
+    }
+    dotsBox.appendChild(dot);
+  }
+}
 
 let stream=null;
 let photos=[];
@@ -2850,7 +2892,9 @@ function hideLoading(){
   }
 }
   function updatePhotoProgress(){
-  photoDots.forEach((dot,index)=>{
+  const dots=document.querySelectorAll("#photoDots span");
+
+  dots.forEach((dot,index)=>{
     dot.classList.toggle("active", index < currentPhoto);
   });
 }
@@ -2895,7 +2939,8 @@ async function loadTemplates(){
   name: t.name,
   preview: t.preview_url,
   mask: t.mask_url,
-  layout_type: t.layout_type || ""
+  layout_type: t.layout_type || "",
+  photo_count: Number(t.photo_count || 4)
 }));
   if(templates.length===0){
     return;
@@ -2981,6 +3026,7 @@ function createTemplateCard(tpl, cat, extraClass=""){
     document.querySelectorAll(".templateCard").forEach(t=>t.classList.remove("active"));
     div.classList.add("active");
     selectedTemplate=tpl.id;
+    syncPhotoCountFromTemplate();
 
     const sheet=document.getElementById("categorySheet");
     if(sheet){
@@ -3096,7 +3142,7 @@ function renderAdminTemplateList(){
       <img src="${tpl.preview || tpl.mask}" style="width:54px;height:54px;object-fit:cover;border-radius:12px;">
       <div style="flex:1;">
         <b>${tpl.name}</b>
-        <p class="small">${tpl.layout_type || "Layout 2x6"} • ${tpl.id}</p>
+        <p class="small">${tpl.layout_type || "Layout 2x6"} • ${tpl.photo_count || 4} Foto • ${tpl.id}</p>
       </div>
       <button data-id="${tpl.id}" class="deleteTemplateBtn" style="width:auto;padding:8px 12px;background:#7f1d1d;">Hapus</button>
     `;
@@ -3523,11 +3569,13 @@ if(photos.length >= MAX_PHOTOS){
   console.log("TOTAL FOTO", photos.length);
   console.log(photos);
 
-  if(!photos[0] || !photos[1] || !photos[2] || !photos[3]){
-    alert("Foto belum lengkap. Ulangi ambil foto.");
-    captureBtn.disabled=false;
-    return;
-  }
+  const hasMissingPhoto = photos.slice(0,MAX_PHOTOS).some(p=>!p);
+
+if(hasMissingPhoto){
+  alert("Foto belum lengkap. Ulangi ambil foto.");
+  captureBtn.disabled=false;
+  return;
+}
 
   currentPhoto = MAX_PHOTOS;
   photoCounter.textContent = `Foto ${MAX_PHOTOS} / ${MAX_PHOTOS}`;
@@ -4038,20 +4086,20 @@ async function renderUploadedTemplate(){
   const masks=detectGreenMasks(maskImg,tpl.mask);
 
   console.log("MASK TERDETEKSI:", masks.length, masks);
-  lastMasks = masks.slice(0,4);
+  lastMasks = masks.slice(0,MAX_PHOTOS);
 
-  if(masks.length<4){
-    throw new Error(
-      `Frame hijau kurang. Terdeteksi ${masks.length}/4`
-    );
+if(masks.length < MAX_PHOTOS){
+  throw new Error(
+    `Frame hijau kurang. Terdeteksi ${masks.length}/${MAX_PHOTOS}`
+  );
+}
+
+// 3. Timpa area hijau dengan foto sesuai jumlah foto template
+masks.slice(0,MAX_PHOTOS).forEach((mask,i)=>{
+  if(photos[i]){
+    drawPhotoIntoMask(photos[i],mask);
   }
-
-  // 3. Timpa area hijau dengan foto
-  masks.forEach((mask,i)=>{
-    if(photos[i]){
-      drawPhotoIntoMask(photos[i],mask);
-    }
-  });
+});
 }
 
 async function generateResult(){
@@ -4167,6 +4215,7 @@ saveTemplateBtn.onclick=async()=>{
 
     const name=templateNameInput.value.trim();
     const layoutType=templateLayoutInput.value;
+    const photoCount=Number(templatePhotoCountInput.value || 4);
 
     if(!name){
       alert("Nama template wajib diisi.");
@@ -4198,6 +4247,7 @@ if(!maskName.endsWith(".png")){
   name,
   slug,
   layout_type: layoutType,
+  photo_count: photoCount,
   preview_url: previewUrl,
   final_url: maskUrl,
   mask_url: maskUrl,
@@ -4210,6 +4260,7 @@ if(!maskName.endsWith(".png")){
 
     templateNameInput.value="";
 templateLayoutInput.value="Layout 2x6";
+    templatePhotoCountInput.value="4";
 previewFileInput.value="";
     
     maskFileInput.value="";
@@ -4242,10 +4293,11 @@ startBtn.onclick=async()=>{
 
   Object.keys(maskCache).forEach(k=>delete maskCache[k]);
 
-  resetPhotoSession();
+  syncPhotoCountFromTemplate();
 
-  await startCameraWithLoading("Membuka kamera...");
-};
+resetPhotoSession();
+
+await startCameraWithLoading("Membuka kamera...");
 
 captureBtn.onclick=capturePhoto;
 
