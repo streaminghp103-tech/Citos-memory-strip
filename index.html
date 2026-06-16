@@ -2364,6 +2364,112 @@ canvas{
     height:118px !important;
   }
 }
+  /* ===============================
+   REVIEW SCREEN FIX
+   1 foto center, 4 foto grid rapi
+================================ */
+
+#reviewScreen.active{
+  justify-content:center !important;
+  padding:16px !important;
+}
+
+#reviewScreen .card{
+  width:100% !important;
+  max-width:440px !important;
+  height:100dvh !important;
+  max-height:none !important;
+  border-radius:0 !important;
+  padding:20px 16px 18px !important;
+  background:
+    radial-gradient(circle at top left,rgba(255,216,77,.16),transparent 34%),
+    linear-gradient(180deg,#071b38 0%,#030711 100%) !important;
+  border:none !important;
+  box-shadow:none !important;
+  overflow:hidden !important;
+}
+
+.reviewGrid{
+  flex:1 !important;
+  min-height:0 !important;
+  width:100% !important;
+  display:grid !important;
+  gap:12px !important;
+  align-items:center !important;
+  justify-items:center !important;
+}
+
+/* Mode 1 foto: benar-benar center */
+.reviewGrid.onePhoto{
+  grid-template-columns:1fr !important;
+  place-items:center !important;
+}
+
+/* Mode 4 foto: tetap 2x2 */
+.reviewGrid.multiPhoto{
+  grid-template-columns:1fr 1fr !important;
+  align-content:center !important;
+}
+
+/* Card foto review */
+.reviewPhotoCard{
+  position:relative !important;
+  border-radius:22px !important;
+  overflow:hidden !important;
+  background:#111 !important;
+  border:2px solid rgba(255,210,26,.55) !important;
+  box-shadow:
+    0 16px 36px rgba(0,0,0,.42),
+    0 0 22px rgba(255,47,146,.22) !important;
+}
+
+/* Ukuran khusus 1 foto */
+.reviewGrid.onePhoto .reviewPhotoCard{
+  width:min(82vw,330px) !important;
+}
+
+/* Ukuran khusus 4 foto */
+.reviewGrid.multiPhoto .reviewPhotoCard{
+  width:100% !important;
+}
+
+/* Foto */
+.reviewPhotoCard img{
+  width:100% !important;
+  display:block !important;
+  object-fit:cover !important;
+  background:#000 !important;
+}
+
+/* 1 foto dibuat lebih besar dan tengah */
+.reviewGrid.onePhoto .reviewPhotoCard img{
+  height:min(58vh,430px) !important;
+}
+
+/* 4 foto tetap compact */
+.reviewGrid.multiPhoto .reviewPhotoCard img{
+  height:190px !important;
+}
+
+/* Label */
+.reviewPhotoLabel{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  padding:8px 6px !important;
+  background:rgba(0,0,0,.58) !important;
+  backdrop-filter:blur(8px) !important;
+  font-size:12px !important;
+  text-align:center !important;
+  color:white !important;
+  font-weight:800 !important;
+}
+
+#finishReviewBtn,
+#reviewBackBtn{
+  flex-shrink:0 !important;
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2564,8 +2670,7 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
       <p class="small">Tap foto yang ingin diulang. Jika sudah bagus, lanjut buat hasil.</p>
     </div>
 
-    <div id="reviewGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;min-height:0;flex:1;"></div>
-
+    <div id="reviewGrid" class="reviewGrid"></div>
     <button id="finishReviewBtn">Lanjut Buat Hasil</button>
     <button id="reviewBackBtn" class="secondary">Kembali Kamera</button>
   </div>
@@ -3389,6 +3494,16 @@ async function runCountdown(){
 function showPhotoReview(){
   reviewGrid.innerHTML="";
 
+  reviewGrid.classList.remove("onePhoto","multiPhoto");
+
+  const isOnePhoto = MAX_PHOTOS === 1 || photos.length === 1;
+
+  if(isOnePhoto){
+    reviewGrid.classList.add("onePhoto");
+  }else{
+    reviewGrid.classList.add("multiPhoto");
+  }
+
   if(photos.length >= MAX_PHOTOS){
     reviewBackBtn.style.display = "none";
   }else{
@@ -3397,15 +3512,14 @@ function showPhotoReview(){
 
   photos.forEach((photo,index)=>{
     const wrap=document.createElement("div");
-    wrap.style.cssText="position:relative;border-radius:18px;overflow:hidden;background:#111;border:2px solid rgba(255,255,255,.18);";
+    wrap.className="reviewPhotoCard";
 
     const img=document.createElement("img");
     img.src=photo.toDataURL("image/png");
-    img.style.cssText="width:100%;height:190px;object-fit:cover;display:block;";
 
     const label=document.createElement("div");
+    label.className="reviewPhotoLabel";
     label.textContent=`Foto ${index+1} • tap untuk ulang`;
-    label.style.cssText="position:absolute;left:0;right:0;bottom:0;padding:7px;background:rgba(0,0,0,.55);font-size:12px;text-align:center;";
 
     wrap.onclick=async()=>{
       retakeIndex=index;
@@ -3415,7 +3529,7 @@ function showPhotoReview(){
       updatePhotoProgress();
 
       stopCamera();
-      await startCameraWithLoading("Membuka kamera retake...");
+      await startCameraWithLoading("Membuka kamera retake.");
     };
 
     wrap.appendChild(img);
