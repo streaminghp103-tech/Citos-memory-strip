@@ -2390,23 +2390,27 @@ canvas{
 }
 
 .reviewGrid{
-  flex:1 !important;
   min-height:0 !important;
   width:100% !important;
-  display:grid !important;
   gap:12px !important;
   align-items:center !important;
   justify-items:center !important;
 }
 
-/* Mode 1 foto: benar-benar center */
+/* Mode 1 foto: jangan paksa center vertikal penuh */
 .reviewGrid.onePhoto{
-  grid-template-columns:1fr !important;
-  place-items:center !important;
+  flex:0 0 auto !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  margin-top:18px !important;
+  margin-bottom:18px !important;
 }
 
-/* Mode 4 foto: tetap 2x2 */
+/* Mode 4 foto: tetap pakai area penuh */
 .reviewGrid.multiPhoto{
+  flex:1 !important;
+  display:grid !important;
   grid-template-columns:1fr 1fr !important;
   align-content:center !important;
 }
@@ -2436,7 +2440,7 @@ canvas{
 .reviewPhotoCard img{
   width:100% !important;
   height:auto !important;
-  max-height:min(58vh,430px) !important;
+  max-height:min(52vh,390px) !important;
   display:block !important;
   object-fit:contain !important;
   background:#000 !important;
