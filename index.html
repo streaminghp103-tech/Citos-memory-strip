@@ -2425,9 +2425,8 @@ canvas{
 
 /* Ukuran khusus 1 foto */
 .reviewGrid.onePhoto .reviewPhotoCard{
-  width:min(82vw,330px) !important;
+  width:min(90vw,390px) !important;
 }
-
 /* Ukuran khusus 4 foto */
 .reviewGrid.multiPhoto .reviewPhotoCard{
   width:100% !important;
@@ -2436,19 +2435,24 @@ canvas{
 /* Foto */
 .reviewPhotoCard img{
   width:100% !important;
+  height:auto !important;
+  max-height:min(58vh,430px) !important;
   display:block !important;
-  object-fit:cover !important;
+  object-fit:contain !important;
   background:#000 !important;
 }
 
-/* 1 foto dibuat lebih besar dan tengah */
+/* 1 foto: jangan paksa tinggi, biar rasio asli aman */
 .reviewGrid.onePhoto .reviewPhotoCard img{
-  height:min(58vh,430px) !important;
+  height:auto !important;
+  max-height:min(58vh,430px) !important;
+  object-fit:contain !important;
 }
 
-/* 4 foto tetap compact */
+/* 4 foto: tetap compact tapi tidak crop */
 .reviewGrid.multiPhoto .reviewPhotoCard img{
   height:190px !important;
+  object-fit:contain !important;
 }
 
 /* Label */
