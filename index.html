@@ -3416,6 +3416,37 @@ function playFlashEffect(){
   },180);
 }
   
+function getDeviceOrientationAngle(){
+  // Android Chrome modern biasanya masuk sini
+  if(screen.orientation && typeof screen.orientation.angle === "number"){
+    return screen.orientation.angle;
+  }
+
+  // Fallback browser lama
+  if(typeof window.orientation === "number"){
+    return window.orientation;
+  }
+
+  return 0;
+}
+
+function getLandscapeRotateDirection(){
+  const angle = getDeviceOrientationAngle();
+
+  // Landscape kanan/kiri
+  if(angle === 90 || angle === -270){
+    return Math.PI / 2;
+  }
+
+  if(angle === -90 || angle === 270){
+    return -Math.PI / 2;
+  }
+
+  // Fallback kalau browser tidak kasih angle jelas:
+  // default putar kanan
+  return Math.PI / 2;
+}
+
 function takeSnapshot(){
   const vw = video.videoWidth;
   const vh = video.videoHeight;
@@ -3428,36 +3459,35 @@ function takeSnapshot(){
   const outputW = 900;
   const outputH = 1200;
 
-  const canvas = document.createElement("canvas");
-  canvas.width = outputW;
-  canvas.height = outputH;
+  const temp = document.createElement("canvas");
+  temp.width = outputW;
+  temp.height = outputH;
 
-  const ctx = canvas.getContext("2d");
+  const tctx = temp.getContext("2d");
 
-  // Bersihkan background
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0,0,outputW,outputH);
+  tctx.fillStyle = "#000";
+  tctx.fillRect(0,0,outputW,outputH);
 
   const isVideoLandscape = vw > vh;
 
-  ctx.save();
+  tctx.save();
 
   if(isVideoLandscape){
-    // Kalau kamera menghasilkan landscape, putar otomatis jadi portrait
-    ctx.translate(outputW / 2, outputH / 2);
+    const rotate = getLandscapeRotateDirection();
 
-    // Kamera depan tetap mirror
+    tctx.translate(outputW / 2, outputH / 2);
+
     if(currentFacingMode === "user"){
-      ctx.scale(-1,1);
+      tctx.scale(-1,1);
     }
 
-    ctx.rotate(Math.PI / 2);
+    tctx.rotate(rotate);
 
     const scale = Math.max(outputW / vh, outputH / vw);
     const drawW = vw * scale;
     const drawH = vh * scale;
 
-    ctx.drawImage(
+    tctx.drawImage(
       video,
       -drawW / 2,
       -drawH / 2,
@@ -3465,10 +3495,9 @@ function takeSnapshot(){
       drawH
     );
   }else{
-    // Mode normal portrait
     if(currentFacingMode === "user"){
-      ctx.translate(outputW,0);
-      ctx.scale(-1,1);
+      tctx.translate(outputW,0);
+      tctx.scale(-1,1);
     }
 
     const scale = Math.max(outputW / vw, outputH / vh);
@@ -3477,14 +3506,14 @@ function takeSnapshot(){
     const dx = (outputW - drawW) / 2;
     const dy = (outputH - drawH) / 2;
 
-    ctx.drawImage(video, dx, dy, drawW, drawH);
+    tctx.drawImage(video, dx, dy, drawW, drawH);
   }
 
-  ctx.restore();
+  tctx.restore();
 
-  applyFilterToCanvas(canvas,currentFilter);
+  applyFilterToContext(tctx);
 
-  return canvas;
+  return temp;
 }
 
 async function runCountdown(){
