@@ -4246,67 +4246,77 @@ console.log(masks);
 }
 
 function drawPhotoIntoMask(photo,mask){
-  const w=canvas.width;
-const h=canvas.height;
+  const w = canvas.width;
+  const h = canvas.height;
 
-  const layer=document.createElement("canvas");
-  layer.width=w;
-  layer.height=h;
+  const layer = document.createElement("canvas");
+  layer.width = w;
+  layer.height = h;
 
-  const lctx=layer.getContext("2d",{willReadFrequently:true});
+  const lctx = layer.getContext("2d",{willReadFrequently:true});
 
   const photoRatio = photo.width / photo.height;
-const maskRatio = mask.w / mask.h;
+  const maskRatio = mask.w / mask.h;
 
-let dw, dh;
+  /*
+    Mode baru:
+    - Background dibuat cover + blur agar frame tetap penuh
+    - Foto utama dibuat contain agar landscape/wide tidak kepotong
+  */
 
-if(photoRatio > maskRatio){
+  // 1. Background cover blur
+  let bgW, bgH;
 
-    dh = mask.h;
-    dw = dh * photoRatio;
+  if(photoRatio > maskRatio){
+    bgH = mask.h;
+    bgW = bgH * photoRatio;
+  }else{
+    bgW = mask.w;
+    bgH = bgW / photoRatio;
+  }
 
-}else{
+  const bgX = mask.x + (mask.w - bgW) / 2;
+  const bgY = mask.y + (mask.h - bgH) / 2;
 
-    dw = mask.w;
-    dh = dw / photoRatio;
+  lctx.save();
+  lctx.filter = "blur(18px) brightness(0.72)";
+  lctx.drawImage(photo,bgX,bgY,bgW,bgH);
+  lctx.restore();
 
-}
+  // 2. Foto utama contain / fit, tidak crop
+  let fgW, fgH;
 
-const bleed = 3;
+  if(photoRatio > maskRatio){
+    fgW = mask.w;
+    fgH = fgW / photoRatio;
+  }else{
+    fgH = mask.h;
+    fgW = fgH * photoRatio;
+  }
 
-const dx = mask.x + (mask.w - dw) / 2 - bleed;
-const dy = mask.y + (mask.h - dh) / 2 - bleed;
+  const fgX = mask.x + (mask.w - fgW) / 2;
+  const fgY = mask.y + (mask.h - fgH) / 2;
 
-dw += bleed * 2;
-dh += bleed * 2;
+  lctx.drawImage(photo,fgX,fgY,fgW,fgH);
 
-lctx.drawImage(
-  photo,
-  dx,
-  dy,
-  dw,
-  dh
-);
-
-  
-  const layerData=lctx.getImageData(0,0,w,h);
-  const d=layerData.data;
-  const keep=new Uint8Array(w*h);
+  // 3. Potong hanya sesuai area hijau mask
+  const layerData = lctx.getImageData(0,0,w,h);
+  const d = layerData.data;
+  const keep = new Uint8Array(w*h);
 
   for(const p of mask.pixels){
-    keep[p]=1;
-}
+    keep[p] = 1;
+  }
 
   for(let p=0;p<w*h;p++){
     if(!keep[p]){
-      d[p*4+3]=0;
+      d[p*4+3] = 0;
     }
   }
 
   lctx.putImageData(layerData,0,0);
   ctx.drawImage(layer,0,0);
 }
-
 
 async function renderUploadedTemplate(){
   const tpl=getSelectedTemplate();
