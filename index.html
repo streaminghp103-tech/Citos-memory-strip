@@ -2594,11 +2594,7 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
   <option value="Layout 4x6">Layout 4x6</option>
 </select>
   
-  <label class="small">Jumlah Foto</label>
-<select id="templatePhotoCountInput">
-  <option value="1">1 Foto</option>
-  <option value="4" selected>4 Foto</option>
-</select>
+  
 
   <label class="small">Preview</label>
 <input id="previewFileInput" type="file" accept="image/png,image/jpeg">
@@ -2697,7 +2693,7 @@ const adminAddPanel=document.getElementById("adminAddPanel");
 const adminManagePanel=document.getElementById("adminManagePanel");
 const templateNameInput=document.getElementById("templateNameInput");
   const templateLayoutInput=document.getElementById("templateLayoutInput");
-  const templatePhotoCountInput=document.getElementById("templatePhotoCountInput");
+  
 
 const maskFileInput=document.getElementById("maskFileInput");
   const previewFileInput=document.getElementById("previewFileInput");
@@ -2810,14 +2806,20 @@ function updateShutterFilter(){
 let MAX_PHOTOS = 4;
 
 function getTemplatePhotoCount(tpl){
-  const count = Number(tpl && tpl.photo_count ? tpl.photo_count : 4);
+  if(!tpl) return 4;
 
-  if(count === 1) return 1;
-  if(count === 4) return 4;
+  const category = getTemplateCategory(tpl);
+
+  if(category === "Square"){
+    return 1;
+  }
+
+  if(category === "Layout 2x6" || category === "Layout 4x6"){
+    return 4;
+  }
 
   return 4;
 }
-
 function syncPhotoCountFromTemplate(){
   const tpl = getSelectedTemplate();
   MAX_PHOTOS = getTemplatePhotoCount(tpl);
@@ -4215,7 +4217,7 @@ saveTemplateBtn.onclick=async()=>{
 
     const name=templateNameInput.value.trim();
     const layoutType=templateLayoutInput.value;
-    const photoCount=Number(templatePhotoCountInput.value || 4);
+    const photoCount = layoutType === "Square" ? 1 : 4;
 
     if(!name){
       alert("Nama template wajib diisi.");
@@ -4260,7 +4262,7 @@ if(!maskName.endsWith(".png")){
 
     templateNameInput.value="";
 templateLayoutInput.value="Layout 2x6";
-    templatePhotoCountInput.value="4";
+    
 previewFileInput.value="";
     
     maskFileInput.value="";
