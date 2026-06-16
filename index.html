@@ -2470,6 +2470,32 @@ canvas{
 #reviewBackBtn{
   flex-shrink:0 !important;
 }
+  /* ===============================
+   ROTATE PHOTO BUTTON
+   Untuk opsi fleksibel orientasi HP
+================================ */
+
+.rotatePhotoBtn{
+  position:absolute !important;
+  top:8px !important;
+  right:8px !important;
+  z-index:6 !important;
+  width:auto !important;
+  max-width:max-content !important;
+  padding:7px 10px !important;
+  border-radius:999px !important;
+  background:rgba(0,0,0,.62) !important;
+  color:white !important;
+  border:1px solid rgba(255,255,255,.32) !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.28) !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  backdrop-filter:blur(8px) !important;
+}
+
+.rotatePhotoBtn:active{
+  transform:scale(.94);
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3551,6 +3577,31 @@ async function runCountdown(){
 
   return true;
 }
+  function rotatePhotoCanvas(photo, direction = 1){
+  const rotated = document.createElement("canvas");
+
+  rotated.width = photo.height;
+  rotated.height = photo.width;
+
+  const rctx = rotated.getContext("2d");
+
+  rctx.save();
+
+  if(direction === 1){
+    // Putar kanan 90 derajat
+    rctx.translate(rotated.width, 0);
+    rctx.rotate(Math.PI / 2);
+  }else{
+    // Putar kiri 90 derajat
+    rctx.translate(0, rotated.height);
+    rctx.rotate(-Math.PI / 2);
+  }
+
+  rctx.drawImage(photo, 0, 0);
+  rctx.restore();
+
+  return rotated;
+}
 
 function showPhotoReview(){
   reviewGrid.innerHTML="";
@@ -3582,6 +3633,23 @@ function showPhotoReview(){
     label.className="reviewPhotoLabel";
     label.textContent=`Foto ${index+1} • tap untuk ulang`;
 
+    const rotateBtn=document.createElement("button");
+    rotateBtn.type="button";
+    rotateBtn.className="rotatePhotoBtn";
+    rotateBtn.textContent="↻ Putar";
+
+    rotateBtn.onclick=(e)=>{
+      e.stopPropagation();
+
+      photos[index] = rotatePhotoCanvas(photos[index], 1);
+
+      img.src = photos[index].toDataURL("image/png");
+
+      if(index === 0){
+        previewThumbImg.src = img.src;
+      }
+    };
+
     wrap.onclick=async()=>{
       retakeIndex=index;
       retakeFromReview=true;
@@ -3595,6 +3663,7 @@ function showPhotoReview(){
 
     wrap.appendChild(img);
     wrap.appendChild(label);
+    wrap.appendChild(rotateBtn);
     reviewGrid.appendChild(wrap);
   });
 
