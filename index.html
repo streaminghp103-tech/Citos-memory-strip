@@ -771,6 +771,89 @@ canvas{
 /* Video (fallback, dipakai sebelum fullCamera override) */
 video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX(-1)}
 
+/* ============================================================
+   TOAST NOTIFICATION SYSTEM
+   ============================================================ */
+
+#toastContainer{
+  position:fixed;
+  top:18px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:9999;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  pointer-events:none;
+  width:min(92vw,420px);
+}
+
+.toast{
+  width:100%;
+  padding:13px 16px;
+  border-radius:18px;
+  font-size:14px;
+  font-weight:600;
+  line-height:1.4;
+  color:white;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  pointer-events:auto;
+  backdrop-filter:blur(14px);
+  box-shadow:0 8px 28px rgba(0,0,0,.35);
+  animation:toastIn .25s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+
+.toast.hide{
+  animation:toastOut .2s ease forwards;
+}
+
+.toast-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.toast-body{flex:1}
+.toast-title{font-weight:800;margin-bottom:2px}
+.toast-msg{font-size:13px;opacity:.88;font-weight:500}
+
+.toast.success{background:rgba(16,185,129,.92);border:1px solid rgba(255,255,255,.2)}
+.toast.error{background:rgba(220,38,100,.92);border:1px solid rgba(255,255,255,.2)}
+.toast.info{background:rgba(7,27,56,.95);border:1px solid rgba(255,210,26,.35)}
+.toast.warn{background:rgba(180,90,0,.92);border:1px solid rgba(255,200,50,.3)}
+
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(-12px) scale(.95)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes toastOut{
+  from{opacity:1;transform:translateY(0) scale(1)}
+  to{opacity:0;transform:translateY(-8px) scale(.96)}
+}
+
+/* Modal konfirmasi (pengganti alert yang butuh tindakan) */
+#toastModal{
+  position:fixed;inset:0;z-index:9998;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.62);backdrop-filter:blur(6px);
+  padding:20px;
+}
+#toastModal.show{display:flex}
+
+.toastModalBox{
+  width:min(92vw,380px);
+  padding:24px 20px 18px;
+  border-radius:26px;
+  background:linear-gradient(180deg,#0f1c38,#07070b);
+  border:1px solid rgba(255,210,26,.22);
+  box-shadow:0 20px 55px rgba(0,0,0,.55);
+  display:flex;flex-direction:column;gap:14px;
+  text-align:center;
+}
+.toastModalIcon{font-size:36px}
+.toastModalTitle{font-size:18px;font-weight:900;color:white}
+.toastModalMsg{font-size:14px;color:rgba(255,255,255,.72);line-height:1.5}
+.toastModalBtns{display:flex;gap:10px;margin-top:4px}
+.toastModalBtns button{flex:1;padding:13px;border-radius:18px;font-size:15px;font-weight:700}
+
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -955,7 +1038,20 @@ video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX
 </section>
 
 <div id="countdown">3</div>
-  <div id="flashOverlay"></div>
+<div id="flashOverlay"></div>
+
+<!-- Toast notification container -->
+<div id="toastContainer"></div>
+
+<!-- Modal konfirmasi (pengganti alert panjang) -->
+<div id="toastModal">
+  <div class="toastModalBox">
+    <div class="toastModalIcon" id="toastModalIcon">✨</div>
+    <div class="toastModalTitle" id="toastModalTitle"></div>
+    <div class="toastModalMsg" id="toastModalMsg"></div>
+    <div class="toastModalBtns" id="toastModalBtns"></div>
+  </div>
+</div>
   <div id="loadingOverlay"
 style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72);align-items:center;justify-content:center;flex-direction:column;gap:12px;"
 >
@@ -1056,6 +1152,86 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
 </div>
   
 <script>
+/* ── Toast System ─────────────────────────────────────────── */
+function showToast(msg, type="info", duration=3200){
+  const container = document.getElementById("toastContainer");
+  const icons = {success:"✅", error:"❌", info:"ℹ️", warn:"⚠️"};
+
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type]||"ℹ️"}</span>
+    <span class="toast-body">${msg}</span>
+  `;
+
+  container.appendChild(toast);
+
+  const remove = ()=>{
+    toast.classList.add("hide");
+    toast.addEventListener("animationend", ()=>toast.remove(), {once:true});
+  };
+
+  const timer = setTimeout(remove, duration);
+  toast.addEventListener("click", ()=>{ clearTimeout(timer); remove(); });
+}
+
+// Versi dengan judul terpisah
+function showToastDetail(title, msg, type="info", duration=4000){
+  const container = document.getElementById("toastContainer");
+  const icons = {success:"✅", error:"❌", info:"ℹ️", warn:"⚠️"};
+
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type]||"ℹ️"}</span>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      <div class="toast-msg">${msg}</div>
+    </div>
+  `;
+
+  container.appendChild(toast);
+
+  const remove = ()=>{
+    toast.classList.add("hide");
+    toast.addEventListener("animationend", ()=>toast.remove(), {once:true});
+  };
+
+  const timer = setTimeout(remove, duration);
+  toast.addEventListener("click", ()=>{ clearTimeout(timer); remove(); });
+}
+
+// Modal untuk pesan panjang yang butuh tombol OK / aksi
+function showModal(icon, title, msg, buttons=[]){
+  const modal = document.getElementById("toastModal");
+  document.getElementById("toastModalIcon").textContent = icon;
+  document.getElementById("toastModalTitle").textContent = title;
+  document.getElementById("toastModalMsg").innerHTML = msg;
+
+  const btnsEl = document.getElementById("toastModalBtns");
+  btnsEl.innerHTML = "";
+
+  if(buttons.length === 0){
+    const ok = document.createElement("button");
+    ok.textContent = "OK";
+    ok.onclick = ()=>{ modal.classList.remove("show"); };
+    btnsEl.appendChild(ok);
+  } else {
+    buttons.forEach(b=>{
+      const btn = document.createElement("button");
+      btn.textContent = b.label;
+      if(b.secondary) btn.classList.add("secondary");
+      btn.onclick = ()=>{
+        modal.classList.remove("show");
+        if(b.action) b.action();
+      };
+      btnsEl.appendChild(btn);
+    });
+  }
+
+  modal.classList.add("show");
+}
+/* ─────────────────────────────────────────────────────────── */
   const SUPABASE_URL = "https://fcqohfuehvgkuutwffhy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_b4Lqx32Fhwtuz_eaZfmagA_FyZPvrgF";
 
@@ -1329,36 +1505,53 @@ function fileToDataURL(file){
 }
 
 async function loadTemplates(){
-  const { data, error } = await supabaseClient
-    .from("templates")
-    .select("*")
-    .eq("is_active", true)
-    .order("created_at",{ascending:false});
-
-  if(error){
-    console.error(error);
-    alert(error.message);
-    return;
+  // Tampilkan loading di templateGrid saat fetch
+  const grid = document.querySelector(".templateGrid");
+  if(grid){
+    grid.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:40px 0;opacity:.7;">
+      <div style="width:40px;height:40px;border:4px solid rgba(255,255,255,.2);border-top-color:#ff2f92;border-radius:50%;animation:spin 1s linear infinite;"></div>
+      <span style="font-size:13px;color:rgba(255,255,255,.6);">Memuat template...</span>
+    </div>`;
   }
 
-  templates = data.map(t=>({
-  id: t.slug,
-  name: t.name,
-  preview: t.preview_url,
-  mask: t.mask_url,
-  layout_type: t.layout_type || "",
-  photo_count: Number(t.photo_count || 4)
-}));
-  if(templates.length===0){
-    return;
-  }
+  try{
+    const { data, error } = await supabaseClient
+      .from("templates")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at",{ascending:false});
 
-  selectedTemplate=templates[0].id;
+    if(error) throw error;
 
-  renderTemplatePicker();
+    templates = data.map(t=>({
+      id: t.slug,
+      name: t.name,
+      preview: t.preview_url,
+      mask: t.mask_url,
+      layout_type: t.layout_type || "",
+      photo_count: Number(t.photo_count || 4)
+    }));
 
-  if(adminTemplateList){
-    renderAdminTemplateList();
+    if(templates.length === 0){
+      if(grid) grid.innerHTML = `<div style="text-align:center;padding:40px 0;opacity:.6;font-size:13px;">Belum ada template aktif.<br>Upload template di menu Admin.</div>`;
+      return;
+    }
+
+    selectedTemplate = templates[0].id;
+    renderTemplatePicker();
+
+    if(adminTemplateList){
+      renderAdminTemplateList();
+    }
+
+  }catch(e){
+    console.error("loadTemplates error:", e);
+    const msg = (e && (e.message || e.details || e.hint)) || "Periksa koneksi internet dan coba lagi.";
+    if(grid) grid.innerHTML = `<div style="text-align:center;padding:40px 0;">
+      <div style="font-size:28px;margin-bottom:8px;">⚠️</div>
+      <p style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:16px;">${msg}</p>
+      <button onclick="loadTemplates()" style="width:auto;padding:10px 20px;font-size:13px;border-radius:16px;">Coba Lagi</button>
+    </div>`;
   }
 }
 
@@ -1569,11 +1762,11 @@ function renderAdminTemplateList(){
         .eq("slug",slug);
 
       if(error){
-        alert("Gagal hapus template: " + error.message);
+        showToast("Gagal hapus template: " + (error?.message || "Error tidak diketahui"), "error");
         return;
       }
 
-      alert("Template berhasil dinonaktifkan.");
+      showToast("Template berhasil dinonaktifkan.", "success");
       await loadTemplates();
     };
   });
@@ -1622,7 +1815,7 @@ async function startCamera(){
 }
     updateVideoFilter();
   }catch(e){
-    alert("Kamera tidak bisa dibuka. Pastikan izin kamera aktif dan buka lewat HTTPS.");
+    showToast("Kamera tidak bisa dibuka. Pastikan izin kamera aktif dan buka lewat HTTPS.", "error", 5000);
     showScreen(formScreen);
   }
 }
@@ -1640,13 +1833,13 @@ function stopCamera(){
 
   if(!track) return;
 if(!track.getCapabilities){
-  alert("Browser tidak mendukung flash.");
+  showToast("Browser ini tidak mendukung flash.", "warn");
   return;
 }
   const capabilities=track.getCapabilities();
 
   if(!capabilities.torch){
-    alert("Flash lampu tidak didukung di HP/browser ini.");
+    showToast("Flash tidak didukung di perangkat ini.", "warn");
     torchEnabled=false;
     flashBtn.classList.remove("flashOn");
     return;
@@ -1666,7 +1859,7 @@ if(!track.getCapabilities){
     }
 
   }catch(e){
-    alert("Flash lampu tidak bisa dinyalakan di perangkat ini.");
+    showToast("Flash tidak bisa dinyalakan di perangkat ini.", "warn");
   }
 }
   
@@ -1752,7 +1945,7 @@ function takeSnapshot(){
   const vh = video.videoHeight;
 
   if(!vw || !vh){
-    alert("Kamera belum siap. Coba ulangi.");
+    showToast("Kamera belum siap, coba ulangi.", "warn");
     return null;
   }
 
@@ -2092,7 +2285,7 @@ if(photos.length >= MAX_PHOTOS){
   const hasMissingPhoto = photos.slice(0,MAX_PHOTOS).some(p=>!p);
 
 if(hasMissingPhoto){
-  alert("Foto belum lengkap. Ulangi ambil foto.");
+  showToast("Foto belum lengkap, ulangi ambil foto.", "warn");
   captureBtn.disabled=false;
   return;
 }
@@ -2117,7 +2310,7 @@ captureBtn.disabled=false;
     }catch(e){
   hideLoading();
   console.error(e);
-  alert("Foto gagal diambil: " + e.message);
+  showToast("Foto gagal diambil: " + (e?.message || ""), "error");
   captureBtn.disabled=false;
 }
 }
@@ -2677,7 +2870,7 @@ adminLoginBtn.onclick=()=>{
   const pass=adminPasswordInput.value.trim();
 
   if(pass!=="HP1032026"){
-    alert("Password salah.");
+    showToast("Password salah.", "error");
     return;
   }
 
@@ -2760,11 +2953,11 @@ saveTemplateBtn.onclick=async()=>{
     const photoCount = layoutType === "Square" ? 1 : 4;
 
     if(!name){
-      alert("Nama template wajib diisi.");
+      showToast("Nama template wajib diisi.", "warn");
       return;
     }
     if(!previewFileInput.files[0] || !maskFileInput.files[0]){
-  alert("Preview dan mask wajib diupload.");
+  showToast("Preview dan mask wajib diupload.", "warn");
   return;
 }
 
@@ -2772,7 +2965,7 @@ const maskFile = maskFileInput.files[0];
 const maskName = maskFile.name.toLowerCase();
 
 if(!maskName.endsWith(".png")){
-  alert("Mask wajib file PNG.");
+  showToast("File mask harus berformat PNG.", "warn");
   return;
 }
     const slug=name.toLowerCase()
@@ -2798,7 +2991,7 @@ if(!maskName.endsWith(".png")){
 
     if(error) throw error;
 
-    alert("Template berhasil diupload.");
+    showToast("Template berhasil diupload! 🎉", "success");
 
     templateNameInput.value="";
 templateLayoutInput.value="Layout 2x6";
@@ -2816,7 +3009,7 @@ maskImagePreview.style.display="none";
     showScreen(formScreen);
 
   }catch(e){
-    alert("Gagal upload template: " + (e.message || e.name || "Error tidak diketahui"));
+    showToast("Gagal upload template: " + (e?.message || e?.name || "Error tidak diketahui"), "error");
   }finally{
     saveTemplateBtn.disabled=false;
     saveTemplateBtn.textContent="Simpan Template";
@@ -2824,12 +3017,12 @@ maskImagePreview.style.display="none";
 };
 startBtn.onclick=async()=>{
   if(!templates || templates.length===0){
-    alert("Belum ada template aktif. Upload template dulu di admin.");
+    showToast("Belum ada template aktif. Upload template dulu di admin.", "warn", 4000);
     return;
   }
 
   if(!getSelectedTemplate()){
-    alert("Template belum dipilih.");
+    showToast("Pilih template dulu ya.", "warn");
     return;
   }
 
@@ -2846,7 +3039,7 @@ captureBtn.onclick=capturePhoto;
 
 finishReviewBtn.onclick=async()=>{
   if(photos.length < MAX_PHOTOS){
-    alert("Foto belum lengkap.");
+    showToast("Foto belum lengkap.", "warn");
     return;
   }
 
@@ -2862,7 +3055,7 @@ finishReviewBtn.onclick=async()=>{
 
   }catch(e){
     hideLoading();
-    alert("Gagal membuat hasil: " + e.message);
+    showToast("Gagal membuat hasil: " + (e?.message || ""), "error");
   }
 };
 
@@ -2880,7 +3073,7 @@ previewBtn.onclick=()=>{
 
 flashBtn.onclick=async()=>{
   if(currentFacingMode!=="environment"){
-    alert("Flash hanya bisa dipakai saat kamera belakang aktif.");
+    showToast("Flash hanya bisa dipakai saat kamera belakang aktif.", "info");
     return;
   }
 
@@ -2986,10 +3179,10 @@ async function downloadResultPhoto(showMessage=true, actionName="download"){
 
   if(showMessage){
     setTimeout(()=>{
-      alert(
-        "Foto berhasil disimpan ✨\n\n" +
-        "Sekarang buka Instagram Story dan upload foto dari galeri.\n" +
-        "Jangan lupa tag @happup.samarinda.panjaitan"
+      showModal(
+        "✨",
+        "Foto Berhasil Disimpan!",
+        "Sekarang buka Instagram Story dan upload foto dari galeri.<br><br>Jangan lupa tag <b>@happup.samarinda.panjaitan</b>"
       );
     },400);
   }
@@ -3032,13 +3225,13 @@ openIgBtn.onclick=async()=>{
     setTimeout(async()=>{
       await logInteraction("open_story");
 
-      alert(
-        "Foto otomatis disimpan dulu ✨\n\n" +
-        "Sekarang pilih foto HP103 dari galeri saat membuat Story Instagram.\n" +
-        "Jangan lupa tag @happup.samarinda.panjaitan"
+      showModal(
+        "✨",
+        "Foto Otomatis Tersimpan!",
+        "Sekarang pilih foto HP103 dari galeri saat membuat Story Instagram.<br><br>Jangan lupa tag <b>@happup.samarinda.panjaitan</b>",
+        [{label:"Buka Instagram", action:()=>{ window.location.href="instagram://story-camera"; }},
+         {label:"Nanti", secondary:true}]
       );
-
-      window.location.href = "instagram://story-camera";
     },500);
 
     return;
@@ -3046,13 +3239,13 @@ openIgBtn.onclick=async()=>{
 
   await logInteraction("open_story");
 
-  alert(
-    "Buka Instagram Story ✨\n\n" +
-    "Pilih foto HP103 yang tadi sudah disimpan dari galeri.\n" +
-    "Jangan lupa tag @happup.samarinda.panjaitan"
+  showModal(
+    "✨",
+    "Buka Instagram Story",
+    "Pilih foto HP103 yang tadi sudah disimpan dari galeri.<br><br>Jangan lupa tag <b>@happup.samarinda.panjaitan</b>",
+    [{label:"Buka Instagram", action:()=>{ window.location.href="instagram://story-camera"; }},
+     {label:"Nanti", secondary:true}]
   );
-
-  window.location.href = "instagram://story-camera";
 };
 
 shareBtn.onclick=async()=>{
@@ -3081,7 +3274,7 @@ shareBtn.onclick=async()=>{
     }
   }else{
     await logInteraction("share_not_supported");
-    alert("HP ini belum mendukung share langsung. Gunakan tombol Simpan Foto lalu upload manual.");
+    showToast("HP ini belum mendukung share langsung. Gunakan tombol Simpan Foto lalu upload manual.", "info", 5000);
   }
 };
   (async()=>{
