@@ -4329,7 +4329,7 @@ function drawPhotoIntoMask(photo,mask){
       dh = dw / photoRatio;
     }
 
-    const bleed = 3;
+    const bleed = Math.max(mask.w, mask.h) * 0.03;
 
     const dx = mask.x + (mask.w - dw) / 2 - bleed;
     const dy = mask.y + (mask.h - dh) / 2 - bleed;
