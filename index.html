@@ -4259,6 +4259,7 @@ console.log(masks);
 }
 
 function drawPhotoIntoMask(photo,mask){
+
   const w = canvas.width;
   const h = canvas.height;
 
@@ -4271,87 +4272,48 @@ function drawPhotoIntoMask(photo,mask){
   const photoRatio = photo.width / photo.height;
   const maskRatio = mask.w / mask.h;
 
-  /*
-    Mode otomatis:
-    - Slot portrait / square / photostrip = COVER, supaya frame penuh dan rapi
-    - Slot landscape lebar + foto landscape = CONTAIN + blur, supaya wide tidak kepotong parah
-  */
+  let dw, dh;
 
-  const isPhotoLandscape = photoRatio > 1.15;
-  const isMaskLandscape = maskRatio > 1.25;
+  if(photoRatio > maskRatio){
 
-  if(isPhotoLandscape && isMaskLandscape){
-    // MODE WIDE: background blur + foto utama contain
-
-    let bgW, bgH;
-
-    if(photoRatio > maskRatio){
-      bgH = mask.h;
-      bgW = bgH * photoRatio;
-    }else{
-      bgW = mask.w;
-      bgH = bgW / photoRatio;
-    }
-
-    const bgX = mask.x + (mask.w - bgW) / 2;
-    const bgY = mask.y + (mask.h - bgH) / 2;
-
-    lctx.save();
-    lctx.filter = "blur(18px) brightness(0.72)";
-    lctx.drawImage(photo,bgX,bgY,bgW,bgH);
-    lctx.restore();
-
-    let fgW, fgH;
-
-    if(photoRatio > maskRatio){
-      fgW = mask.w;
-      fgH = fgW / photoRatio;
-    }else{
-      fgH = mask.h;
-      fgW = fgH * photoRatio;
-    }
-
-    const fgX = mask.x + (mask.w - fgW) / 2;
-    const fgY = mask.y + (mask.h - fgH) / 2;
-
-    lctx.drawImage(photo,fgX,fgY,fgW,fgH);
+    dh = mask.h;
+    dw = dh * photoRatio;
 
   }else{
-    // MODE NORMAL PHOTOBOOTH: cover penuh frame
 
-    let dw, dh;
+    dw = mask.w;
+    dh = dw / photoRatio;
 
-    if(photoRatio > maskRatio){
-      dh = mask.h;
-      dw = dh * photoRatio;
-    }else{
-      dw = mask.w;
-      dh = dw / photoRatio;
-    }
-
-    const bleed = Math.max(mask.w, mask.h) * 0.02;
-
-    const dx = mask.x + (mask.w - dw) / 2 - bleed;
-    const dy = mask.y + (mask.h - dh) / 2 - bleed;
-
-    dw += bleed * 2;
-    dh += bleed * 2;
-
-    lctx.drawImage(photo,dx,dy,dw,dh);
   }
 
-  // Potong hanya sesuai area hijau mask
+  // bleed lebih besar
+  const bleed = Math.max(mask.w,mask.h) * 0.05;
+
+  const dx = mask.x + (mask.w - dw)/2 - bleed;
+  const dy = mask.y + (mask.h - dh)/2 - bleed;
+
+  dw += bleed*2;
+  dh += bleed*2;
+
+  lctx.drawImage(
+    photo,
+    dx,
+    dy,
+    dw,
+    dh
+  );
+
   const layerData = lctx.getImageData(0,0,w,h);
   const d = layerData.data;
   const keep = new Uint8Array(w*h);
 
   for(const p of mask.pixels){
-    keep[p] = 1;
+    keep[p]=1;
   }
 
   for(let p=0;p<w*h;p++){
     if(!keep[p]){
-      d[p*4+3] = 0;
+      d[p*4+3]=0;
     }
   }
 
