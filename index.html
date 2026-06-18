@@ -4254,7 +4254,7 @@ const h=img.naturalHeight || img.height;
   });
 console.log("MASK DETECTED", masks.length);
 console.log(masks);
-  maskCache[src] = masks.slice(0,MAX_PHOTOS);
+  maskCache[src] = masks;
   return maskCache[src];
 }
 
@@ -4287,7 +4287,7 @@ function drawPhotoIntoMask(photo,mask){
   }
 
   // bleed lebih besar
-  const bleed = Math.max(mask.w,mask.h) * 0.05;
+  const bleed = Math.max(mask.w,mask.h) * 0.08;
 
   const dx = mask.x + (mask.w - dw)/2 - bleed;
   const dy = mask.y + (mask.h - dh)/2 - bleed;
@@ -4307,9 +4307,31 @@ function drawPhotoIntoMask(photo,mask){
   const d = layerData.data;
   const keep = new Uint8Array(w*h);
 
-  for(const p of mask.pixels){
-    keep[p]=1;
-  }
+for(const p of mask.pixels){
+
+  keep[p] = 1;
+
+  const x = p % w;
+  const y = Math.floor(p / w);
+
+  // Perbesar area mask 1 pixel ke segala arah
+  const neighbors = [
+    p-1,
+    p+1,
+    p-w,
+    p+w,
+    p-w-1,
+    p-w+1,
+    p+w-1,
+    p+w+1
+  ];
+
+  neighbors.forEach(n=>{
+    if(n>=0 && n<w*h){
+      keep[n]=1;
+    }
+  });
+}
 
   for(let p=0;p<w*h;p++){
     if(!keep[p]){
