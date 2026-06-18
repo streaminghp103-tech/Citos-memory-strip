@@ -6,599 +6,94 @@
 <title>HP103 Memory Strip</title>
 
 <style>
+/* ============================================================
+   HP103 MEMORY STRIP — CSS BERSIH
+   Dibuat dari konsolidasi semua override. Tanpa !important.
+   Terstruktur per komponen.
+   ============================================================ */
+
+/* ── Reset & Base ─────────────────────────────────────────── */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
 html,body{
   margin:0;width:100%;height:100%;overflow:hidden;
-  font-family:Arial,sans-serif;color:white;background:#07070b;
-}
-body{
+  font-family:Arial,sans-serif;color:white;
   background:
-  radial-gradient(circle at top left,rgba(255,47,146,.35),transparent 35%),
-  radial-gradient(circle at bottom right,rgba(255,195,77,.22),transparent 35%),
-  #07070b;
+    radial-gradient(circle at top left,rgba(255,47,146,.35),transparent 35%),
+    radial-gradient(circle at bottom right,rgba(255,195,77,.22),transparent 35%),
+    #07070b;
 }
-.screen{
-  display:none;position:fixed;inset:0;width:100vw;height:100dvh;
-  padding:14px;overflow:hidden;
-}
-.screen.active{display:flex;flex-direction:column;align-items:center;gap:12px}
-#startScreen.active,#formScreen.active{justify-content:center}
-.card{
-  width:100%;max-width:440px;height:100%;max-height:780px;
-  padding:18px 16px;border-radius:28px;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.14);
-  backdrop-filter:blur(14px);
-  box-shadow:0 20px 60px rgba(0,0,0,.35);
-  display:flex;flex-direction:column;gap:12px;min-height:0;
-  overflow:auto;
-}
-.center{justify-content:center;align-items:center;text-align:center}
-.logo{font-size:12px;letter-spacing:2px;color:#ffc34d;font-weight:bold}
+
 h1,h2,h3,p{margin:0}
 h1{font-size:30px}
 h2{font-size:22px}
 p{color:#ddd;line-height:1.4}
 .small{font-size:12px;color:#aaa}
+.center{justify-content:center;align-items:center;text-align:center}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+
+/* ── Tipografi & Badge ────────────────────────────────────── */
+.logo{font-size:12px;letter-spacing:2px;color:#ffc34d;font-weight:bold}
+
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:6px;padding:8px 16px;border-radius:999px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  color:#ffd1e6;font-weight:bold;font-size:14px;
+}
+
+/* ── Tombol Global ────────────────────────────────────────── */
 button{
   width:100%;border:none;border-radius:999px;padding:14px 18px;
   background:linear-gradient(135deg,#ff2f92,#ff7ac0);
   color:white;font-weight:700;font-size:15px;
   box-shadow:0 10px 26px rgba(255,47,146,.28);
+  cursor:pointer;
 }
 button.secondary{background:#252532;box-shadow:none}
 button:disabled{opacity:.5}
+
+/* ── Input & Select Global ────────────────────────────────── */
 input,select{
   width:100%;border-radius:16px;padding:13px 14px;
   background:rgba(255,255,255,.1);color:white;font-size:15px;
   outline:none;border:1px solid rgba(255,255,255,.14);
 }
 select option{color:black}
-.badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  padding:8px 16px;
-  border-radius:999px;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.14);
-  color:#ffd1e6;
-  font-weight:bold;
-  font-size:14px;
-}
-.templateGrid{
-  display:flex;
-  gap:14px;
-  overflow-x:auto;
-  overflow-y:hidden;
-  min-height:0;
-  flex:1;
-  padding:6px 2px 12px;
-  scroll-snap-type:x mandatory;
-}
 
-.templateGrid::-webkit-scrollbar{
-  display:none;
+/* ── Screen (layer sistem) ────────────────────────────────── */
+.screen{
+  display:none;position:fixed;inset:0;width:100vw;height:100dvh;
+  padding:14px;overflow:hidden;
 }
+.screen.active{display:flex;flex-direction:column;align-items:center;gap:12px}
 
-.template{
-  min-width:82%;
-  border:1px solid rgba(255,255,255,.16);
-  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
-  border-radius:26px;
-  padding:14px;
-  text-align:left;
-  scroll-snap-align:center;
-  box-shadow:0 18px 45px rgba(0,0,0,.28);
-}
-
-.template.active{
-  outline:2px solid #ff2f92;
-  background:linear-gradient(180deg,rgba(255,47,146,.22),rgba(255,255,255,.07));
-}
-
-.thumb{
-  height:320px;
-  border-radius:22px;
-  margin-bottom:12px;
-  background:linear-gradient(135deg,#ff2f92,#111);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:28px;
-  overflow:hidden;
-}
-
-.row{display:flex;gap:10px}
-.row>*{flex:1}
-#cameraScreen.active{justify-content:space-between}
-.topbar{
-  width:100%;max-width:430px;height:44px;
-  display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
-}
-#photoCounter{
-  padding:9px 13px;border-radius:999px;
-  background:rgba(255,255,255,.12);font-weight:bold;
-}
-  .photoDots{
-  display:flex;
-  gap:6px;
-  justify-content:center;
-}
-
-.photoDots span{
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:rgba(255,255,255,.28);
-}
-
-.photoDots span.active{
-  background:#ff2f92;
-  box-shadow:0 0 10px rgba(255,47,146,.9);
-}
-  
-#cancelBtn{width:auto;padding:9px 14px}
-.cameraWrap{
-  position:relative;width:100%;max-width:430px;
-  height:calc(100dvh - 150px);max-height:680px;flex:1;
-  border-radius:28px;overflow:hidden;background:#000;
-  border:2px solid rgba(255,255,255,.18);
-}
-video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX(-1)}
-.cameraHint{
-  position:absolute;left:14px;right:14px;bottom:14px;
-  padding:11px;border-radius:18px;background:rgba(0,0,0,.45);
-  text-align:center;font-size:13px;
-}
-  .cameraSettings{
-  position:absolute;
-  top:12px;
-  left:12px;
-  right:12px;
-  display:flex;
-  gap:8px;
-  z-index:999;
-}
-
-.cameraSettings select{
-  flex:1;
-  position:relative;
-  z-index:999;
-  padding:10px 12px;
-  font-size:12px;
-  border-radius:999px;
-  border:none;
-  background:rgba(0,0,0,.55);
-  color:white;
-  backdrop-filter:blur(8px);
-}
-#countdown{
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  font-size:116px;
-  font-weight:bold;
-  background:transparent;
-  text-shadow:0 0 24px #ff2f92;
-  z-index:20;
-  pointer-events:none;
-}
-  .shutterBtn{
-  position:relative;
-  z-index:30;
-}
-#resultScreen.active{
-  justify-content:flex-start;
-  padding:10px;
-  gap:10px;
-}
-
-#resultScreen h2{
-  font-size:28px;
-  margin-top:4px;
-}
-
-canvas{
-  width:auto;
-  height:calc(100dvh - 220px);
-  max-height:610px;
-  max-width:92vw;
-  border-radius:22px;
-  background:black;
-  box-shadow:0 18px 50px rgba(0,0,0,.45);
-  cursor:pointer;
-}
-
-.actions{
-  width:100%;
-  max-width:430px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  padding:0 6px;
-}
-
-.actions button{
-  width:100%;
-  padding:10px 8px;
-  font-size:13px;
-  border-radius:18px;
-  white-space:nowrap;
-}
-.actions button:last-child{
-  grid-column:1 / -1;
-}
-  .shutterBtn{
-  width:78px;
-  height:78px;
-  max-width:78px;
-  padding:0;
-  border-radius:50%;
-  background:white;
-  border:6px solid rgba(255,255,255,.35);
-  box-shadow:0 0 0 6px rgba(255,255,255,.15), 0 12px 30px rgba(0,0,0,.45);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-shrink:0;
-}
-
-.shutterBtn #shutterIcon{
-  width:52px;
-  height:52px;
-  border-radius:50%;
-  background:#fff;
-  border:3px solid #ff2f92;
-}
-
-.shutterBtn.cancelMode{
-  background:#ff2f92;
-}
-
-.shutterBtn.cancelMode #shutterIcon{
-  width:32px;
-  height:32px;
-  background:transparent;
-  border:none;
-  position:relative;
-}
-
-.shutterBtn.cancelMode #shutterIcon::before,
-.shutterBtn.cancelMode #shutterIcon::after{
-  content:"";
-  position:absolute;
-  left:15px;
-  top:0;
-  width:4px;
-  height:34px;
-  background:white;
-  border-radius:4px;
-}
-
-.shutterBtn.cancelMode #shutterIcon::before{
-  transform:rotate(45deg);
-}
-
-.shutterBtn.cancelMode #shutterIcon::after{
-  transform:rotate(-45deg);
-}
-.filterBar,
-.timerBar{
-  display:flex;
-  gap:6px;
-  flex:1;
-}
-
-.filterChip,
-.timerChip{
-  width:auto;
-  min-width:44px;
-  height:44px;
-  padding:0 12px;
-  border-radius:999px;
-  background:rgba(0,0,0,.55);
-  border:1px solid rgba(255,255,255,.15);
-  box-shadow:none;
-  font-size:14px;
-  color:white;
-}
-
-.filterChip.active,
-.timerChip.active{
-  background:#ff2f92;
-  border-color:#ff2f92;
-}
-
-.shutterBtn{
-  width:78px !important;
-  min-width:78px;
-}
-  #cameraScreen{
-  padding:0;
-}
-
-#cameraScreen.active{
-  justify-content:center;
-}
-
-.fullCamera{
-  position:relative;
-  width:100vw;
-  height:100dvh;
-  overflow:hidden;
-  background:#000;
-}
-
-.fullCamera video{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  background:#000;
-}
-
-.cameraTopOverlay{
-  position:absolute;
-  top:14px;
-  left:14px;
-  right:14px;
-  z-index:40;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-.iconBtn{
-  width:44px !important;
-  height:44px;
-  max-width:44px;
-  padding:0;
-  border-radius:50%;
-  background:rgba(0,0,0,.45);
-  box-shadow:none;
-  font-size:22px;
-  backdrop-filter:blur(10px);
-}
-
-#photoCounter{
-  padding:10px 16px;
-  border-radius:999px;
-  background:rgba(0,0,0,.45);
-  font-weight:bold;
-  backdrop-filter:blur(10px);
-}
-
-.timerPopup{
-  position:absolute;
-  top:68px;
-  right:14px;
-  z-index:45;
-  display:none;
-  gap:8px;
-  padding:8px;
-  border-radius:999px;
-  background:rgba(0,0,0,.45);
-  backdrop-filter:blur(10px);
-}
-
-.timerPopup.show{
-  display:flex;
-}
-
-.cameraBottomOverlay{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:22px;
-  z-index:40;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:12px;
-}
-
-.filterBar{
-  width:100%;
-  display:flex;
-  gap:10px;
-  overflow-x:auto;
-  padding:0 18px;
-  scrollbar-width:none;
-}
-
-.filterBar::-webkit-scrollbar{
-  display:none;
-}
-
-.filterChip,
-.timerChip{
-  width:auto !important;
-  min-width:max-content;
-  padding:9px 13px;
-  border-radius:999px;
-  background:rgba(0,0,0,.45);
-  border:1px solid rgba(255,255,255,.18);
-  box-shadow:none;
-  color:white;
-  backdrop-filter:blur(10px);
-}
-
-.filterChip.active,
-.timerChip.active{
-  background:#ff2f92;
-  border-color:#ff2f92;
-}
-
-.shutterBtn{
-  width:78px !important;
-  min-width:78px;
-  height:78px;
-  max-width:78px;
-}
-
-.shutterBtn.filter-natural{
-  background:white;
-}
-
-.shutterBtn.filter-bright{
-  background:#ffb6d8;
-}
-
-.shutterBtn.filter-party{
-  background:#8b5cf6;
-}
-
-.shutterBtn.filter-vintage{
-  background:#b8895b;
-}
-
-.shutterBtn.filter-beauty{
-  background:#f9a8d4;
-}
-.shutterRow{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:22px;
-}
-
-.miniRoundBtn{
-  width:54px !important;
-  height:54px;
-  max-width:54px;
-  padding:0;
-  border-radius:50%;
-  background:rgba(0,0,0,.45);
-  box-shadow:none;
-  font-size:24px;
-  backdrop-filter:blur(10px);
-}
-
-#flashOverlay{
-  position:fixed;
-  inset:0;
-  background:white;
-  opacity:0;
-  pointer-events:none;
-  z-index:80;
-  transition:opacity .12s ease;
-}
-
-#flashOverlay.show{
-  opacity:1;
-}
-
-#flashBtn.flashOn{
-  background:#ff2f92;
-}
-  #reviewScreen.active{
-  justify-content:center;
-  background:#000;
-  padding:18px;
-}
-
-#reviewImage{
-  width:100%;
-  max-width:430px;
-  height:calc(100dvh - 130px);
-  object-fit:contain;
-  border-radius:24px;
-  background:#000;
-}
-
-.reviewActions{
-  width:100%;
-  max-width:430px;
-  display:flex;
-  gap:10px;
-}
-
-.reviewActions button{
-  flex:1;
-}
-  .previewThumb{
-  width:54px !important;
-  height:54px;
-  max-width:54px;
-  padding:0;
-  border-radius:14px;
-  overflow:hidden;
-  background:rgba(0,0,0,.45);
-  box-shadow:none;
-  border:2px solid rgba(255,255,255,.5);
-}
-
-.previewThumb img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-  .fullCamera.shoot{
-  animation:cameraShoot .16s ease;
-}
-
+/* ── Animasi Global ───────────────────────────────────────── */
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes cameraShoot{
   0%{transform:scale(1)}
   50%{transform:scale(1.015)}
   100%{transform:scale(1)}
 }
-  .templatePreview{
-  width:100%;
-  height:110px;
-  border-radius:20px;
-  overflow:hidden;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.12);
-}
 
-.templatePreview img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-  #saveTemplateBtn{
-  position:sticky;
-  bottom:0;
-  z-index:20;
-}
-  .filterName{
-  padding:6px 12px;
-  border-radius:999px;
-  background:rgba(0,0,0,.35);
-  font-size:12px;
-  color:rgba(255,255,255,.85);
-  backdrop-filter:blur(10px);
-}
-  @keyframes spin{
-  from{transform:rotate(0deg)}
-  to{transform:rotate(360deg)}
-}
-/* ===============================
-   NEW HOME SCREEN - KARAOKE STYLE
-   FINAL COMPACT FIX
-================================ */
+/* ============================================================
+   START SCREEN (Home)
+   ============================================================ */
 
 #startScreen{
   padding:0;
   background:#06142a;
+  z-index:10;
 }
-
-#startScreen.active{
-  justify-content:flex-start;
-}
+#startScreen.active{justify-content:flex-start}
 
 .homeHero{
   position:relative;
-  width:100vw;
-  height:100dvh;
+  width:100vw;height:100dvh;min-height:100dvh;
   overflow:hidden;
-  padding:16px 16px 12px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+  padding:12px 14px 8px;
+  display:flex;flex-direction:column;align-items:center;
   color:#071b38;
   background:
     radial-gradient(circle at top left,rgba(255,255,255,.45),transparent 20%),
@@ -606,1910 +101,676 @@ canvas{
 }
 
 .homeHero::before{
-  content:"";
-  position:absolute;
-  inset:0;
+  content:"";position:absolute;inset:0;
   background:
     radial-gradient(circle at 10% 38%,rgba(255,255,255,.28) 0 2px,transparent 3px),
     radial-gradient(circle at 82% 36%,rgba(255,255,255,.20) 0 2px,transparent 3px);
-  background-size:18px 18px;
-  opacity:.22;
-  pointer-events:none;
+  background-size:18px 18px;opacity:.22;pointer-events:none;
 }
 
 .homeHero::after{
-  content:"";
-  position:absolute;
-  left:-20%;
-  right:-20%;
-  bottom:-9%;
-  height:45%;
+  content:"";position:absolute;
+  left:-20%;right:-20%;bottom:-9%;height:45%;
   background:
     radial-gradient(circle at 50% 0%,rgba(255,47,146,.22),transparent 48%),
     linear-gradient(180deg,#071b38,#031020);
-  border-radius:50% 50% 0 0;
-  z-index:0;
+  border-radius:50% 50% 0 0;z-index:0;
 }
 
+/* Menu btn */
 .homeMenuBtn{
-  position:absolute;
-  top:18px;
-  right:18px;
-  z-index:30;
-  width:44px !important;
-  height:44px;
-  max-width:44px;
-  padding:0;
-  border-radius:50%;
-  background:rgba(7,27,56,.18);
-  color:#071b38;
-  box-shadow:none;
-  font-size:24px;
-  backdrop-filter:blur(8px);
+  position:absolute;top:18px;right:18px;z-index:30;
+  width:44px;height:44px;max-width:44px;
+  padding:0;border-radius:50%;
+  background:rgba(7,27,56,.18);color:#071b38;
+  box-shadow:none;font-size:24px;backdrop-filter:blur(8px);
 }
 
+/* Brand plate */
 .brandPlate{
-  position:relative;
-  z-index:3;
-  width:min(68vw,300px);
-  margin-top:0;
-  padding:13px 14px 10px;
-  border-radius:24px;
+  position:relative;z-index:3;
+  width:min(68vw,300px);margin-top:0;
+  padding:13px 14px 10px;border-radius:24px;
   background:linear-gradient(180deg,#ffdc21,#ffc400);
-  box-shadow:
-    0 14px 32px rgba(0,0,0,.16),
-    inset 0 2px 0 rgba(255,255,255,.35);
+  box-shadow:0 14px 32px rgba(0,0,0,.16),inset 0 2px 0 rgba(255,255,255,.35);
   text-align:center;
 }
-
 .brandMain{
-  font-size:29px;
-  line-height:1;
-  font-weight:900;
-  letter-spacing:-1px;
-  color:#071b38;
-  font-family:Georgia,serif;
+  font-size:29px;line-height:1;font-weight:900;
+  letter-spacing:-1px;color:#071b38;font-family:Georgia,serif;
 }
+.brandSub{margin-top:7px;font-size:16px;font-weight:900;letter-spacing:1px;color:#071b38}
 
-.brandSub{
-  margin-top:7px;
-  font-size:16px;
-  font-weight:900;
-  letter-spacing:1px;
-  color:#071b38;
-}
-
+/* Room sticker */
 .roomSticker{
-  position:absolute;
-  top:90px;
-  right:14px;
-  z-index:8;
-  transform:rotate(5deg);
-  min-width:86px;
-  padding:7px 10px;
-  border-radius:17px;
-  background:#071b38;
-  color:white;
+  position:absolute;top:76px;right:12px;z-index:8;
+  transform:rotate(5deg);min-width:80px;
+  padding:6px 9px;border-radius:17px;
+  background:#071b38;color:white;
   border:3px solid #fff2a8;
-  box-shadow:
-    0 8px 18px rgba(0,0,0,.18),
-    0 0 14px rgba(255,47,146,.26);
+  box-shadow:0 8px 18px rgba(0,0,0,.18),0 0 14px rgba(255,47,146,.26);
   text-align:center;
 }
+.roomSticker span{display:block;font-size:10px;color:#ffd400;font-weight:900;line-height:1;margin-bottom:4px}
+.roomSticker b{display:block;font-size:22px;color:white;line-height:1}
 
-.roomSticker span{
-  display:block;
-  font-size:10px;
-  color:#ffd400;
-  font-weight:900;
-  line-height:1;
-  margin-bottom:4px;
-}
-
-.roomSticker b{
-  display:block;
-  font-size:18px;
-  color:white;
-  line-height:1;
-}
-
+/* Hero title */
 .heroTitle{
-  position:relative;
-  z-index:2;
-  text-align:center;
-  margin-top:30px;
-  color:#071b38;
-  line-height:.92;
+  position:relative;z-index:2;text-align:center;
+  margin-top:34px;color:#071b38;line-height:.92;
 }
-
 .heroTitle span{
-  display:block;
-  font-size:27px;
-  font-weight:900;
-  color:white;
-  text-shadow:
-    -3px 3px 0 #071b38,
-    0 8px 16px rgba(0,0,0,.16);
+  display:block;font-size:23px;font-weight:900;color:white;
+  text-shadow:-3px 3px 0 #071b38,0 8px 16px rgba(0,0,0,.16);
 }
-
 .heroTitle strong{
-  display:block;
-  margin-top:0;
-  font-size:54px;
-  font-weight:1000;
-  color:#ffd21a;
-  text-shadow:
-    -4px 4px 0 #071b38,
-    0 10px 18px rgba(0,0,0,.18);
-  font-family:Georgia,serif;
+  display:block;margin-top:0;font-size:47px;font-weight:900;
+  color:#ffd21a;font-family:Georgia,serif;
+  text-shadow:-4px 4px 0 #071b38,0 10px 18px rgba(0,0,0,.18);
 }
 
+/* Hero subtitle */
 .heroSubtitle{
-  position:relative;
-  z-index:2;
-  margin-top:10px;
-  padding:8px 18px;
-  border-radius:20px;
-  background:#071b38;
-  color:white;
-  font-size:14px;
-  line-height:1.25;
-  text-align:center;
-  font-weight:700;
-  box-shadow:0 10px 24px rgba(0,0,0,.2);
-  max-width:88vw;
+  position:relative;z-index:2;margin-top:9px;
+  padding:8px 18px;border-radius:20px;
+  background:#071b38;color:white;font-size:14px;
+  line-height:1.25;text-align:center;font-weight:700;
+  box-shadow:0 10px 24px rgba(0,0,0,.2);max-width:88vw;
 }
+.heroSubtitle b{color:#ff7abf}
 
-.heroSubtitle b{
-  color:#ff7abf;
-}
-
+/* Strip area */
 .stripArea{
-  position:relative;
-  z-index:3;
-  width:100%;
-  height:270px;
-  min-height:270px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin-top:8px;
+  position:relative;z-index:3;width:100%;
+  height:230px;min-height:230px;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:10px;flex-shrink:0;
 }
 
 .miniStripPreview{
-  width:172px;
-  padding:10px 8px 8px;
-  border-radius:14px;
-  background:#071b38;
-  border:3px solid #ffd21a;
+  width:150px;padding:8px 7px 7px;border-radius:14px;
+  background:#071b38;border:3px solid #ffd21a;
   transform:rotate(-3deg);
-  box-shadow:
-    0 20px 38px rgba(0,0,0,.34),
-    0 0 24px rgba(255,47,146,.28);
+  box-shadow:0 20px 38px rgba(0,0,0,.34),0 0 24px rgba(255,47,146,.28);
 }
-
 .stripHeaderBar{
-  border:2px solid #ffd21a;
-  border-radius:10px;
-  padding:8px 6px 7px;
-  margin-bottom:8px;
-  background:rgba(255,255,255,.02);
-  text-align:center;
+  border:2px solid #ffd21a;border-radius:10px;
+  padding:6px 5px;margin-bottom:6px;
+  background:rgba(255,255,255,.02);text-align:center;
 }
-
-.stripLogoMain{
-  color:#ffd21a;
-  font-size:20px;
-  font-family:Georgia,serif;
-  font-weight:900;
-  line-height:1;
-  white-space:nowrap;
-}
-
-.stripLogoSub{
-  color:#ffd21a;
-  font-size:10px;
-  letter-spacing:1px;
-  font-weight:900;
-  margin-top:5px;
-}
-
-.stripGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-bottom:8px;
-}
-
-.stripCell{
-  aspect-ratio:1/1;
-  border-radius:10px;
-  border:2px solid #ffd21a;
-  overflow:hidden;
-  position:relative;
-  background:#1a2340;
-}
-
+.stripLogoMain{color:#ffd21a;font-size:17px;font-family:Georgia,serif;font-weight:900;line-height:1;white-space:nowrap}
+.stripLogoSub{color:#ffd21a;font-size:9px;letter-spacing:1px;font-weight:900;margin-top:4px}
+.stripGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.stripCell{aspect-ratio:1/1;border-radius:10px;border:2px solid #ffd21a;overflow:hidden;position:relative;background:#1a2340}
 .photoCell{
   background-image:
     linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.22)),
     url("home-sample.jpg");
-  background-size:200% 200%;
-  background-repeat:no-repeat;
+  background-size:200% 200%;background-repeat:no-repeat;
   box-shadow:inset 0 0 18px rgba(255,47,146,.14);
 }
-
 .photoCell::before{
-  content:"♪";
-  position:absolute;
-  right:6px;
-  top:4px;
-  color:#ff7abf;
-  font-size:12px;
-  font-weight:bold;
-  z-index:2;
+  content:"♪";position:absolute;right:6px;top:4px;
+  color:#ff7abf;font-size:12px;font-weight:bold;z-index:2;
   text-shadow:0 1px 4px rgba(0,0,0,.55);
 }
-
 .photoCell::after{
-  content:"";
-  position:absolute;
-  inset:0;
+  content:"";position:absolute;inset:0;
   background:
     radial-gradient(circle at 18% 18%,rgba(255,255,255,.18),transparent 20%),
     linear-gradient(135deg,rgba(255,47,146,.10),rgba(0,47,120,.08));
   pointer-events:none;
 }
+.photoCell.p1{background-position:0% 0%}
+.photoCell.p2{background-position:100% 0%}
+.photoCell.p3{background-position:0% 100%}
+.photoCell.p4{background-position:100% 100%}
+.stripFooter{color:#ffd21a;text-align:center;font-size:8px;font-weight:900;letter-spacing:.3px}
 
-.photoCell.p1{ background-position:0% 0%; }
-.photoCell.p2{ background-position:100% 0%; }
-.photoCell.p3{ background-position:0% 100%; }
-.photoCell.p4{ background-position:100% 100%; }
-
-.stripFooter{
-  color:#ffd21a;
-  text-align:center;
-  font-size:8px;
-  font-weight:900;
-  letter-spacing:.3px;
-}
-
+/* Info cards kiri/kanan strip */
 .infoCard{
-  position:absolute;
-  z-index:5;
-  width:88px;
-  min-height:88px;
-  padding:10px 7px;
-  border-radius:20px;
-  background:#fff7d9;
-  color:#071b38;
-  border:3px solid white;
-  box-shadow:0 12px 24px rgba(0,0,0,.24);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
+  position:absolute;z-index:5;
+  width:78px;min-height:78px;padding:8px 6px;
+  border-radius:20px;background:#fff7d9;color:#071b38;
+  border:3px solid white;box-shadow:0 12px 24px rgba(0,0,0,.24);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
 }
-
-.leftCard{
-  left:2px;
-  bottom:76px;
-  transform:rotate(-7deg);
-}
-
-.rightCard{
-  right:2px;
-  bottom:92px;
-  transform:rotate(7deg);
-}
-
+.leftCard{left:6px;bottom:58px;transform:rotate(-7deg)}
+.rightCard{right:6px;bottom:72px;transform:rotate(7deg)}
 .infoIcon{
-  width:34px;
-  height:34px;
-  border-radius:11px;
-  background:#ffd21a;
-  border:2px solid #071b38;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:20px;
-  margin-bottom:6px;
+  width:30px;height:30px;border-radius:11px;
+  background:#ffd21a;border:2px solid #071b38;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;margin-bottom:5px;
 }
+.infoCard b{font-size:14px;line-height:1.05}
+.infoCard span{font-size:11px;font-weight:800;margin-top:3px}
 
-.infoCard b{
-  font-size:15px;
-  line-height:1.05;
-}
-
-.infoCard span{
-  font-size:12px;
-  font-weight:800;
-  margin-top:3px;
-}
-
+/* CTA tombol mulai */
 .homeCta{
-  position:relative;
-  z-index:4;
-  width:92%;
-  max-width:390px;
-  padding:16px 18px;
-  border-radius:999px;
+  position:relative;z-index:4;
+  width:90%;max-width:390px;
+  padding:12px 14px;border-radius:999px;
   background:linear-gradient(180deg,#ffe45a,#ffc400);
-  color:#071b38;
-  font-size:22px;
-  font-weight:1000;
-  box-shadow:
-    0 14px 30px rgba(0,0,0,.3),
-    0 0 22px rgba(255,47,146,.55),
-    inset 0 2px 0 rgba(255,255,255,.5);
+  color:#071b38;font-size:18px;font-weight:900;
+  box-shadow:0 14px 30px rgba(0,0,0,.3),0 0 22px rgba(255,47,146,.55),inset 0 2px 0 rgba(255,255,255,.5);
   border:3px solid rgba(255,255,255,.75);
-  flex-shrink:0;
+  flex-shrink:0;margin-top:auto;margin-bottom:10px;
 }
 
+/* Steps bar */
 .homeSteps{
-  position:relative;
-  z-index:4;
-  width:94%;
-  max-width:430px;
-  margin-top:11px;
-  padding:10px 8px;
-  border-radius:24px;
-  background:rgba(7,27,56,.82);
-  border:1px solid rgba(255,255,255,.2);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  backdrop-filter:blur(12px);
-  flex-shrink:0;
+  position:relative;z-index:4;
+  width:92%;max-width:430px;
+  margin-top:0;margin-bottom:18px;
+  padding:7px 6px;border-radius:24px;
+  background:rgba(7,27,56,.82);border:1px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:space-between;
+  backdrop-filter:blur(12px);flex-shrink:0;
 }
-
-.homeSteps div{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:4px;
-  color:white;
-  text-align:center;
-}
-
+.homeSteps div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:white;text-align:center}
 .homeSteps i{
-  width:38px;
-  height:38px;
-  border-radius:50%;
-  background:#ffd21a;
-  color:#071b38;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-style:normal;
-  font-size:18px;
-  font-weight:900;
+  width:32px;height:32px;border-radius:50%;background:#ffd21a;color:#071b38;
+  display:flex;align-items:center;justify-content:center;
+  font-style:normal;font-size:15px;font-weight:900;
 }
-
 .homeSteps b{
-  width:21px;
-  height:21px;
-  border-radius:50%;
-  background:#ff8cbd;
-  color:#071b38;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:12px;
-  font-weight:900;
-  margin-top:-14px;
-  border:2px solid #071b38;
+  width:19px;height:19px;border-radius:50%;background:#ff8cbd;color:#071b38;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:900;margin-top:-14px;border:2px solid #071b38;
 }
+.homeSteps span{font-size:9px;font-weight:800;white-space:nowrap}
+.homeSteps em{width:9px;height:2px;background:repeating-linear-gradient(90deg,#ff8cbd 0 3px,transparent 3px 7px);opacity:.9}
 
-.homeSteps span{
-  font-size:10px;
-  font-weight:800;
-  white-space:nowrap;
-}
-
-.homeSteps em{
-  width:12px;
-  height:2px;
-  background:repeating-linear-gradient(90deg,#ff8cbd 0 3px,transparent 3px 7px);
-  opacity:.9;
-}
-
-.homeBgDecor{
-  position:absolute;
-  z-index:1;
-  pointer-events:none;
-  user-select:none;
-  filter:drop-shadow(0 8px 14px rgba(0,0,0,.2));
-}
-
-.decorBall{
-  top:96px;
-  left:20px;
-  font-size:32px;
-  color:white;
-  opacity:.75;
-}
-
-.decorMic{
-  top:235px;
-  left:12px;
-  font-size:40px;
-  transform:rotate(-24deg);
-}
-
-.decorNote1{
-  top:222px;
-  right:26px;
-  font-size:34px;
-  color:#071b38;
-}
-
-.decorNote2{
-  bottom:190px;
-  left:46px;
-  font-size:38px;
-  color:#ffd21a;
-}
-
-.decorHeart{
-  top:300px;
-  right:34px;
-  font-size:34px;
-  color:#ff5fad;
-  font-weight:bold;
-}
-  .decorSpark1{
-  top:145px;
-  left:42px;
-  font-size:22px;
-  color:white;
-}
-
-.decorSpark2{
-  top:165px;
-  right:54px;
-  font-size:24px;
-  color:white;
-}
-
+/* Dekorasi background */
+.homeBgDecor{position:absolute;z-index:1;pointer-events:none;user-select:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,.2))}
+.decorBall{top:96px;left:20px;font-size:32px;color:white;opacity:.75}
+.decorMic{top:222px;left:12px;font-size:34px;transform:rotate(-24deg)}
+.decorNote1{top:222px;right:26px;font-size:34px;color:#071b38}
+.decorNote2{bottom:190px;left:46px;font-size:38px;color:#ffd21a}
+.decorHeart{top:288px;right:34px;font-size:34px;color:#ff5fad;font-weight:bold}
+.decorSpark1{top:145px;left:42px;font-size:22px;color:white}
+.decorSpark2{top:165px;right:54px;font-size:24px;color:white}
 .decorStickerSing{
-  right:18px;
-  bottom:206px;
-  z-index:2;
-  padding:8px 10px;
-  border-radius:18px;
-  background:#ff4fa3;
-  color:white;
-  border:3px solid white;
-  font-size:14px;
-  font-weight:1000;
-  line-height:.95;
-  text-align:center;
+  right:14px;bottom:178px;z-index:2;
+  padding:7px 9px;border-radius:18px;
+  background:#ff4fa3;color:white;border:3px solid white;
+  font-size:12px;font-weight:900;line-height:.95;text-align:center;
   transform:rotate(-8deg);
-  box-shadow:0 8px 18px rgba(0,0,0,.25), 0 0 16px rgba(255,47,146,.55);
+  box-shadow:0 8px 18px rgba(0,0,0,.25),0 0 16px rgba(255,47,146,.55);
 }
 
+/* Responsive home (layar pendek) */
 @media(max-height:760px){
-  .homeHero{
-    padding-top:12px;
-  }
-
-  .brandPlate{
-    width:min(62vw,280px);
-    padding:11px 12px 8px;
-  }
-
-  .brandMain{
-    font-size:25px;
-  }
-
-  .brandSub{
-    font-size:14px;
-    margin-top:6px;
-  }
-
-  .roomSticker{
-  top:74px;
-  right:12px;
-  min-width:78px;
+  .homeHero{padding-top:12px}
+  .brandPlate{width:min(62vw,280px);padding:11px 12px 8px}
+  .brandMain{font-size:25px}
+  .brandSub{font-size:14px;margin-top:6px}
+  .roomSticker{top:74px;right:12px;min-width:78px}
+  .roomSticker b{font-size:17px}
+  .heroTitle{margin-top:24px}
+  .heroTitle span{font-size:22px}
+  .heroTitle strong{font-size:46px}
+  .heroSubtitle{font-size:13px;padding:7px 16px}
+  .stripArea{height:230px;min-height:230px}
+  .miniStripPreview{width:148px}
+  .infoCard{width:76px;min-height:76px}
+  .homeCta{font-size:17px;padding:11px 14px}
+  .homeSteps{margin-top:7px;padding:7px 6px}
+  .homeSteps i{width:32px;height:32px;font-size:15px}
+  .homeSteps span{font-size:9px}
 }
 
-  .roomSticker b{
-    font-size:17px;
-  }
-
-  .heroTitle{
-    margin-top:24px;
-  }
-
-  .heroTitle span{
-    font-size:24px;
-  }
-
-  .heroTitle strong{
-    font-size:48px;
-  }
-
-  .heroSubtitle{
-    font-size:13px;
-    padding:7px 16px;
-  }
-
-  .stripArea{
-  height:248px;
-  min-height:248px;
-}
-
-.miniStripPreview{
-  width:158px;
-}
-
-  .infoCard{
-    width:82px;
-    min-height:82px;
-  }
-
-  .homeCta{
-  font-size:18px;
-  padding:12px 14px;
-}
-
-  .homeSteps{
-  margin-top:7px;
-  padding:7px 6px;
-}
-  .homeSteps i{
-    width:34px;
-    height:34px;
-    font-size:16px;
-  }
-
-  .homeSteps span{
-    font-size:10px;
-  }
-}
-  /* ===============================
-   HOME FINAL OVERRIDE - FIX LAYOUT
-================================ */
-
-/* Pastikan start screen full dan rapi */
-.homeHero{
-  height:100dvh !important;
-  min-height:100dvh !important;
-  padding:12px 14px 8px !important;
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-}
-
-/* Badge room */
-.roomSticker{
-  top:78px !important;
-  right:14px !important;
-  min-width:80px !important;
-  padding:6px 9px !important;
-}
-
-.roomSticker b{
-  font-size:22px !important;
-}
-
-/* Judul */
-.heroTitle{
-  margin-top:24px !important;
-}
-
-.heroTitle span{
-  font-size:24px !important;
-}
-
-.heroTitle strong{
-  font-size:48px !important;
-}
-
-.heroSubtitle{
-  margin-top:8px !important;
-  font-size:13px !important;
-  padding:7px 16px !important;
-}
-
-/* Strip preview */
-.stripArea{
-  height:238px !important;
-  min-height:238px !important;
-  margin-top:6px !important;
-  flex-shrink:0 !important;
-}
-
-.miniStripPreview{
-  width:150px !important;
-  padding:8px 7px 7px !important;
-}
-
-.stripHeaderBar{
-  padding:6px 5px 6px !important;
-  margin-bottom:6px !important;
-}
-
-.stripLogoMain{
-  font-size:17px !important;
-}
-
-.stripLogoSub{
-  font-size:9px !important;
-  margin-top:4px !important;
-}
-
-.stripGrid{
-  gap:6px !important;
-  margin-bottom:6px !important;
-}
-
-/* Foto sample 4 grid */
-.photoCell{
-  background-image:
-    linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.20)),
-    url("home-sample.jpg") !important;
-  background-size:200% 200% !important;
-  background-repeat:no-repeat !important;
-}
-
-.photoCell.p1{ background-position:0% 0% !important; }
-.photoCell.p2{ background-position:100% 0% !important; }
-.photoCell.p3{ background-position:0% 100% !important; }
-.photoCell.p4{ background-position:100% 100% !important; }
-
-/* Card kiri kanan */
-.infoCard{
-  width:78px !important;
-  min-height:78px !important;
-  padding:8px 6px !important;
-}
-
-.infoIcon{
-  width:30px !important;
-  height:30px !important;
-  font-size:17px !important;
-  margin-bottom:5px !important;
-}
-
-.infoCard b{
-  font-size:14px !important;
-}
-
-.infoCard span{
-  font-size:11px !important;
-}
-
-.leftCard{
-  left:6px !important;
-  bottom:58px !important;
-}
-
-.rightCard{
-  right:6px !important;
-  bottom:72px !important;
-}
-
-/* Tombol mulai */
-.homeCta{
-  font-size:18px !important;
-  padding:12px 14px !important;
-  width:90% !important;
-  margin-top:8px !important;
-  margin-bottom:8px !important;
-  flex-shrink:0 !important;
-}
-
-/* Step bar dikunci ke bawah */
-.homeSteps{
-  margin-top:auto !important;
-  margin-bottom:18px !important;
-  padding:7px 6px !important;
-  width:92% !important;
-  flex-shrink:0 !important;
-}
-
-.homeSteps i{
-  width:32px !important;
-  height:32px !important;
-  font-size:15px !important;
-}
-
-.homeSteps b{
-  width:19px !important;
-  height:19px !important;
-  font-size:11px !important;
-}
-
-.homeSteps span{
-  font-size:9px !important;
-}
-
-.homeSteps em{
-  width:9px !important;
-}
-
-/* Dekor */
-.decorStickerSing{
-  bottom:178px !important;
-  right:14px !important;
-  font-size:12px !important;
-  padding:7px 9px !important;
-}
-
-.decorMic{
-  top:222px !important;
-  left:12px !important;
-  font-size:34px !important;
-}
-
-.decorHeart{
-  top:288px !important;
-  right:34px !important;
-}
-
-/* ===============================
-   FIX BACKGROUND PAGE FORM & ADMIN
-   Supaya tidak ada tulisan/visual nyangkut di belakang
-================================ */
-
-#formScreen,
-#adminScreen{
-  background:
-    radial-gradient(circle at top left,rgba(255,47,146,.26),transparent 34%),
-    radial-gradient(circle at bottom right,rgba(255,212,0,.16),transparent 38%),
-    #07070b !important;
-  z-index:20 !important;
-}
-
-#cameraScreen,
-#reviewScreen,
-#resultScreen{
-  z-index:20 !important;
-}
-
-#startScreen{
-  z-index:10 !important;
-}
-
-#adminLoginModal{
-  z-index:999 !important;
-}
-
-/* Card form/admin dibuat lebih solid agar tidak tembus */
-#formScreen .card,
-#adminScreen .card{
-  background:rgba(15,15,24,.96) !important;
-  border:1px solid rgba(255,255,255,.14) !important;
-  backdrop-filter:blur(14px) !important;
-}
-  /* ===============================
-   HOME FINAL POSITION TUNING
-   Turunkan konten tengah dan rapikan CTA/footer
-================================ */
-
-/* Turunkan area headline supaya tidak tabrakan badge */
-.heroTitle{
-  margin-top:34px !important;
-}
-
-.heroTitle span{
-  font-size:23px !important;
-}
-
-.heroTitle strong{
-  font-size:47px !important;
-}
-
-/* Subtitle ikut turun sedikit tapi tetap compact */
-.heroSubtitle{
-  margin-top:9px !important;
-}
-
-/* Area photostrip jangan terlalu nempel ke tombol */
-.stripArea{
-  height:230px !important;
-  min-height:230px !important;
-  margin-top:10px !important;
-}
-
-/* Tombol dibuat nempel ke footer, bukan ke photostrip */
-.homeCta{
-  margin-top:auto !important;
-  margin-bottom:10px !important;
-}
-
-/* Step bar tetap paling bawah */
-.homeSteps{
-  margin-top:0 !important;
-  margin-bottom:18px !important;
-}
-
-/* Badge ROOM sedikit lebih aman di kanan atas */
-.roomSticker{
-  top:76px !important;
-  right:12px !important;
-}
-  /* ===============================
-   TEMPLATE PICKER UI - APP STYLE
-================================ */
+/* ============================================================
+   FORM SCREEN (Template Picker)
+   ============================================================ */
 
 #formScreen{
-  padding:0 !important;
-  background:#07070b !important;
-}
-
-#formScreen.active{
-  justify-content:flex-start !important;
-}
-
-#formScreen .card{
-  width:100% !important;
-  max-width:none !important;
-  height:100dvh !important;
-  max-height:none !important;
-  border-radius:0 !important;
-  padding:24px 18px 18px !important;
-  background:#07070b !important;
-  border:none !important;
-  box-shadow:none !important;
-  overflow:hidden !important;
-  gap:14px !important;
-}
-
-#formScreen .logo{
-  color:#ffd84d !important;
-  font-size:14px !important;
-  letter-spacing:4px !important;
-}
-
-#formScreen h2{
-  font-size:34px !important;
-  line-height:1 !important;
-  color:white !important;
-}
-
-#formScreen .small{
-  font-size:17px !important;
-  color:rgba(255,255,255,.68) !important;
-}
-
-.templateGrid{
-  display:block !important;
-  flex:1 !important;
-  min-height:0 !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-  padding:4px 0 14px !important;
-  scroll-snap-type:none !important;
-}
-
-.templateGrid::-webkit-scrollbar{
-  display:none;
-}
-
-.templateSection{
-  margin-bottom:30px;
-}
-
-.templateSectionTitle{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:14px;
-}
-
-.templateSectionTitle h3{
-  font-size:24px;
-  color:white;
-  margin:0;
-}
-
-.templateSectionTitle span{
-  font-size:16px;
-  color:#f8ff3a;
-  font-weight:900;
-  letter-spacing:.4px;
-}
-
-.templateRow{
-  display:flex;
-  gap:18px;
-  overflow-x:auto;
-  overflow-y:hidden;
-  padding:0 2px 8px;
-  scroll-snap-type:x mandatory;
-}
-
-.templateRow::-webkit-scrollbar{
-  display:none;
-}
-
-.templateCard{
-  position:relative;
-  min-width:150px;
-  width:150px;
-  flex:0 0 150px;
-  scroll-snap-align:start;
-  border-radius:18px;
-  overflow:visible;
-  color:white;
-}
-
-.templateImageBox{
-  width:150px;
-  height:150px;
-  border-radius:14px;
-  overflow:hidden;
-  background:#171720;
-  border:2px solid rgba(255,255,255,.12);
-  box-shadow:0 14px 28px rgba(0,0,0,.35);
-}
-
-.templateImageBox img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-
-.templateCard.active .templateImageBox{
-  border-color:#ff2f92;
-  box-shadow:
-    0 0 0 3px rgba(255,47,146,.45),
-    0 16px 34px rgba(255,47,146,.22);
-}
-
-.templateBadge{
-  position:absolute;
-  top:8px;
-  left:8px;
-  z-index:4;
-  padding:5px 9px;
-  border-radius:9px;
-  font-size:12px;
-  font-weight:900;
-  color:white;
-  box-shadow:0 6px 12px rgba(0,0,0,.25);
-}
-
-.templateBadge.free{
-  background:#17c58f;
-}
-
-.templateBadge.pro{
-  background:#f59e0b;
-}
-
-.templateName{
-  margin-top:8px;
-  font-size:15px;
-  font-weight:900;
-  color:white;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-#formScreen .row{
-  flex-shrink:0;
-}
-
-#formScreen input{
-  background:#252631 !important;
-  border:1px solid rgba(255,255,255,.12) !important;
-  color:white !important;
-  border-radius:18px !important;
-  font-size:16px !important;
-  padding:15px 16px !important;
-}
-
-#startBtn{
-  flex-shrink:0;
-  background:linear-gradient(135deg,#ff2f92,#ff7ac0) !important;
-  color:white !important;
-  font-size:18px !important;
-  padding:16px 18px !important;
-  border-radius:24px !important;
-}
-
-#backHomeBtn{
-  flex-shrink:0;
-  background:#242631 !important;
-  color:white !important;
-  font-size:17px !important;
-  padding:15px 18px !important;
-  border-radius:24px !important;
-}
-
-#adminBtn{
-  flex-shrink:0;
-  border-radius:24px !important;
-}
-  /* ===============================
-   TEMPLATE PICKER COMPACT FIX
-================================ */
-
-/* Header lebih compact */
-#formScreen .card{
-  padding:18px 18px 12px !important;
-  gap:10px !important;
-}
-
-#formScreen .logo{
-  font-size:12px !important;
-  letter-spacing:4px !important;
-}
-
-#formScreen h2{
-  font-size:30px !important;
-  line-height:1 !important;
-}
-
-#formScreen .small{
-  font-size:14px !important;
-}
-
-/* Area template lebih lega dan scroll nyaman */
-.templateGrid{
-  flex:1 !important;
-  min-height:0 !important;
-  overflow-y:auto !important;
-  padding:0 0 10px !important;
-}
-
-/* Jarak antar section diperkecil */
-.templateSection{
-  margin-bottom:22px !important;
-}
-
-.templateSectionTitle{
-  margin-bottom:10px !important;
-}
-
-.templateSectionTitle h3{
-  font-size:24px !important;
-}
-
-.templateSectionTitle span{
-  font-size:14px !important;
-}
-
-/* Card template diperkecil */
-.templateRow{
-  gap:14px !important;
-  padding:0 2px 6px !important;
-}
-
-.templateCard{
-  min-width:128px !important;
-  width:128px !important;
-  flex:0 0 128px !important;
-}
-
-/* Preview jangan kepotong: tampilkan full */
-.templateImageBox{
-  width:128px !important;
-  height:168px !important;
-  border-radius:16px !important;
-  background:#111 !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-}
-
-.templateImageBox img{
-  width:100% !important;
-  height:100% !important;
-  object-fit:contain !important;
-  display:block !important;
-  background:#111 !important;
-}
-
-/* Nama template lebih kecil */
-.templateName{
-  font-size:14px !important;
-  margin-top:7px !important;
-}
-
-/* Badge Free/Pro lebih kecil */
-.templateBadge{
-  top:7px !important;
-  left:7px !important;
-  padding:4px 8px !important;
-  font-size:11px !important;
-  border-radius:8px !important;
-}
-
-/* Bottom control compact */
-.formBottomBar{
-  flex-shrink:0 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  gap:10px !important;
-  padding-top:4px !important;
-  background:#07070b !important;
-}
-
-.formBottomBar #songInput{
-  width:100% !important;
-  background:#252631 !important;
-  border:1px solid rgba(255,255,255,.12) !important;
-  color:white !important;
-  border-radius:18px !important;
-  font-size:16px !important;
-  padding:14px 16px !important;
-}
-
-/* Tombol kembali + ambil foto sejajar */
-.formActionRow{
-  display:grid !important;
-  grid-template-columns:1fr 1.35fr !important;
-  gap:10px !important;
-}
-
-.formActionRow button{
-  width:100% !important;
-  margin:0 !important;
-  padding:14px 12px !important;
-  border-radius:22px !important;
-  font-size:16px !important;
-  white-space:nowrap !important;
-}
-
-#startBtn{
-  background:linear-gradient(135deg,#ff2f92,#ff7ac0) !important;
-  color:white !important;
-}
-
-#backHomeBtn{
-  background:#242631 !important;
-  color:white !important;
-}
-
-/* Room input disembunyikan */
-#roomInput[type="hidden"]{
-  display:none !important;
-}
-  /* ===============================
-   TEMPLATE PICKER FINAL COLOR + FIT
-   Nyambung dengan home yellow/navy
-================================ */
-
-/* Background halaman template dibuat nyambung dengan home */
-#formScreen{
+  padding:0;
   background:
     radial-gradient(circle at top left,rgba(255,216,77,.18),transparent 30%),
     radial-gradient(circle at bottom right,rgba(255,47,146,.14),transparent 34%),
-    linear-gradient(180deg,#06142a 0%,#07070b 58%,#030711 100%) !important;
+    linear-gradient(180deg,#06142a 0%,#07070b 58%,#030711 100%);
+  z-index:20;
 }
+#formScreen.active{justify-content:flex-start}
 
 #formScreen .card{
-  background:transparent !important;
+  width:100%;max-width:none;
+  height:100dvh;max-height:none;
+  border-radius:0;padding:14px 14px 10px;
+  background:transparent;border:none;box-shadow:none;
+  overflow:hidden;gap:8px;
 }
+#formScreen .logo{color:#ffd21a;font-size:10px;letter-spacing:3px}
+#formScreen h2{font-size:24px;line-height:1;color:white;text-shadow:0 4px 18px rgba(0,0,0,.35)}
+#formScreen .small{font-size:12px;color:rgba(255,255,255,.72)}
 
-/* Header warna Happy Puppy */
-#formScreen .logo{
-  color:#ffd21a !important;
+/* Template grid container */
+.templateGrid{
+  display:block;
+  flex:1;min-height:0;
+  overflow-y:auto;overflow-x:hidden;
+  padding:0 0 6px;
+  scroll-snap-type:none;
 }
+.templateGrid::-webkit-scrollbar{display:none}
 
-#formScreen h2{
-  color:#ffffff !important;
-  text-shadow:0 4px 18px rgba(0,0,0,.35);
+.templateSection{margin-bottom:16px}
+
+.templateSectionTitle{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:7px;
 }
+.templateSectionTitle h3{font-size:19px;color:white;margin:0}
+.templateSectionTitle span{font-size:14px;color:#ffd21a;font-weight:900;letter-spacing:.4px;text-shadow:0 0 12px rgba(255,210,26,.35)}
 
-#formScreen .small{
-  color:rgba(255,255,255,.72) !important;
-}
-
-/* Section title */
-.templateSectionTitle h3{
-  color:#ffffff !important;
-}
-
-.templateSectionTitle span{
-  color:#ffd21a !important;
-  text-shadow:0 0 12px rgba(255,210,26,.35);
-}
-
-/* Row template lebih premium */
 .templateRow{
-  gap:14px !important;
-  padding:2px 4px 8px !important;
+  display:flex;gap:10px;
+  overflow-x:auto;overflow-y:hidden;
+  padding:0 2px 4px;
+  scroll-snap-type:x mandatory;
 }
+.templateRow::-webkit-scrollbar{display:none}
 
-/* Card tidak perlu kotak besar, biar preview yang jadi fokus */
+/* Template cards */
 .templateCard{
-  overflow:visible !important;
+  position:relative;overflow:visible;color:white;
+  scroll-snap-align:start;flex-shrink:0;
 }
 
-/* Preview base */
 .templateImageBox{
-  background:#071b38 !important;
-  border:2px solid rgba(255,210,26,.42) !important;
-  box-shadow:
-    0 12px 28px rgba(0,0,0,.38),
-    inset 0 0 0 1px rgba(255,255,255,.06) !important;
+  border-radius:16px;overflow:hidden;
+  background:#071b38;
+  border:2px solid rgba(255,210,26,.42);
+  box-shadow:0 12px 28px rgba(0,0,0,.38),inset 0 0 0 1px rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:center;
 }
+.templateImageBox img{width:100%;height:100%;object-fit:contain;display:block;background:#071b38}
 
-.templateImageBox img{
-  object-fit:contain !important;
-  background:#071b38 !important;
-}
-
-/* Active template: kuning + pink neon, nyambung home */
 .templateCard.active .templateImageBox{
-  border-color:#ffd21a !important;
+  border-color:#ffd21a;
   box-shadow:
     0 0 0 2px rgba(255,210,26,.9),
     0 0 0 5px rgba(255,47,146,.42),
     0 16px 34px rgba(0,0,0,.45),
-    0 0 24px rgba(255,47,146,.35) !important;
+    0 0 24px rgba(255,47,146,.35);
 }
 
-/* Nama template */
 .templateName{
-  color:white !important;
+  margin-top:5px;font-size:12px;font-weight:900;color:white;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   text-shadow:0 2px 8px rgba(0,0,0,.45);
 }
 
-/* Badge Free/Pro dibuat lebih cocok warna home */
-.templateBadge.free{
-  background:#16c79a !important;
-  color:white !important;
-}
+.templateBadge{display:none}
 
-.templateBadge.pro{
-  background:linear-gradient(135deg,#ffd21a,#ff9f1c) !important;
-  color:#071b38 !important;
-}
+/* Ukuran per kategori layout */
+.templateCard.catSquare{min-width:96px;width:96px;flex:0 0 96px}
+.templateCard.catSquare .templateImageBox{width:96px;height:96px;border-radius:14px}
+.templateCard.catSquare .templateName{max-width:96px}
 
-/* ===============================
-   UKURAN PREVIEW PER LAYOUT
-================================ */
+.templateCard.cat2x6{min-width:78px;width:78px;flex:0 0 78px}
+.templateCard.cat2x6 .templateImageBox{width:78px;height:170px;border-radius:14px}
+.templateCard.cat2x6 .templateName{max-width:78px}
 
-/* Square: benar-benar kotak */
-.templateCard.catSquare{
-  min-width:118px !important;
-  width:118px !important;
-  flex:0 0 118px !important;
-}
+.templateCard.cat4x6{min-width:108px;width:108px;flex:0 0 108px}
+.templateCard.cat4x6 .templateImageBox{width:108px;height:144px;border-radius:14px}
+.templateCard.cat4x6 .templateName{max-width:108px}
 
-.templateCard.catSquare .templateImageBox{
-  width:118px !important;
-  height:118px !important;
-  border-radius:18px !important;
-}
+.templateCard.catOther{min-width:96px;width:96px;flex:0 0 96px}
+.templateCard.catOther .templateImageBox{width:96px;height:128px;border-radius:14px}
+.templateCard.catOther .templateName{max-width:96px}
 
-/* Layout 2x6: tinggi ramping seperti photostrip */
-.templateCard.cat2x6{
-  min-width:96px !important;
-  width:96px !important;
-  flex:0 0 96px !important;
-}
-
-.templateCard.cat2x6 .templateImageBox{
-  width:96px !important;
-  height:214px !important;
-  border-radius:18px !important;
-}
-
-/* Layout 4x6: lebih lebar, tidak setinggi 2x6 */
-.templateCard.cat4x6{
-  min-width:132px !important;
-  width:132px !important;
-  flex:0 0 132px !important;
-}
-
-.templateCard.cat4x6 .templateImageBox{
-  width:132px !important;
-  height:176px !important;
-  border-radius:18px !important;
-}
-
-/* Kalau ada fallback lain */
-.templateCard.catOther{
-  min-width:118px !important;
-  width:118px !important;
-  flex:0 0 118px !important;
-}
-
-.templateCard.catOther .templateImageBox{
-  width:118px !important;
-  height:156px !important;
-  border-radius:18px !important;
-}
-
-/* Nama template mengikuti lebar card */
-.templateCard.catSquare .templateName,
-.templateCard.catOther .templateName{
-  max-width:118px !important;
-}
-
-.templateCard.cat2x6 .templateName{
-  max-width:96px !important;
-}
-
-.templateCard.cat4x6 .templateName{
-  max-width:132px !important;
-}
-
-/* Bottom bar dibuat navy, bukan hitam polos */
-.formBottomBar{
-  background:linear-gradient(180deg,rgba(3,7,17,0),#030711 22%,#030711 100%) !important;
-  padding-top:8px !important;
-}
-
-.formBottomBar #songInput{
-  background:#071b38 !important;
-  border:1px solid rgba(255,210,26,.22) !important;
-}
-
-#startBtn{
-  background:linear-gradient(180deg,#ffd84d,#ff2f92) !important;
-  color:#071b38 !important;
-  font-weight:1000 !important;
-  box-shadow:
-    0 12px 28px rgba(255,47,146,.28),
-    0 0 18px rgba(255,210,26,.28) !important;
-}
-
-#backHomeBtn{
-  background:#111b31 !important;
-  border:1px solid rgba(255,210,26,.18) !important;
-}
-  .templateBadge{
-  display:none !important;
-}
-  /* ===============================
-   CATEGORY MORE SHEET
-================================ */
-
+/* Tombol "Lainnya" */
 .categoryMoreBtn{
-  width:auto !important;
-  max-width:max-content !important;
-  padding:0 !important;
-  background:transparent !important;
-  box-shadow:none !important;
-  color:#ffd21a !important;
-  font-size:14px !important;
-  font-weight:1000 !important;
-  letter-spacing:.4px !important;
+  width:auto;max-width:max-content;
+  padding:0;background:transparent;box-shadow:none;
+  color:#ffd21a;font-size:12px;font-weight:900;letter-spacing:.4px;
 }
+.categoryMoreBtn:active{transform:scale(.96)}
 
-.categoryMoreBtn:active{
-  transform:scale(.96);
+/* Bottom bar form */
+.formBottomBar{
+  flex-shrink:0;display:flex;flex-direction:column;gap:7px;
+  padding-top:6px;
+  background:linear-gradient(180deg,rgba(3,7,17,0),#030711 22%,#030711 100%);
 }
+.formBottomBar #songInput{
+  width:100%;font-size:14px;padding:11px 14px;border-radius:16px;
+  background:#071b38;border:1px solid rgba(255,210,26,.22);color:white;
+}
+.formActionRow{display:grid;grid-template-columns:1fr 1.35fr;gap:8px}
+.formActionRow button{
+  width:100%;margin:0;padding:12px 10px;border-radius:18px;font-size:14px;white-space:nowrap;
+}
+#startBtn{
+  background:linear-gradient(180deg,#ffd84d,#ff2f92);color:#071b38;font-weight:900;
+  box-shadow:0 12px 28px rgba(255,47,146,.28),0 0 18px rgba(255,210,26,.28);
+  flex-shrink:0;
+}
+#backHomeBtn{background:#111b31;border:1px solid rgba(255,210,26,.18);color:white;flex-shrink:0}
+#formScreen .row{flex-shrink:0}
+
+/* ============================================================
+   CATEGORY SHEET (Popup "Lainnya")
+   ============================================================ */
 
 #categorySheet{
-  position:fixed;
-  inset:0;
-  z-index:850;
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
+  position:fixed;inset:0;z-index:850;
+  display:flex;align-items:stretch;justify-content:stretch;
 }
-
-.categorySheetBackdrop{
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,.62);
-  backdrop-filter:blur(6px);
-}
+.categorySheetBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(6px)}
 
 .categorySheetPanel{
-  position:relative;
-  z-index:2;
-  width:100%;
-  max-width:520px;
-  max-height:82dvh;
-  padding:18px 16px calc(18px + env(safe-area-inset-bottom));
-  border-radius:30px 30px 0 0;
+  position:relative;z-index:2;
+  width:100vw;max-width:none;
+  height:100dvh;max-height:100dvh;
+  padding:16px 14px calc(14px + env(safe-area-inset-bottom));
+  border-radius:0;gap:10px;
   background:
     radial-gradient(circle at top left,rgba(255,216,77,.18),transparent 34%),
     linear-gradient(180deg,#071b38 0%,#030711 100%);
   border:1px solid rgba(255,210,26,.22);
   box-shadow:0 -20px 55px rgba(0,0,0,.55);
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  gap:14px;
+  overflow:hidden;display:flex;flex-direction:column;
 }
 
 .categorySheetHeader{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;
 }
-
-.categorySheetHeader p{
-  margin:0;
-  color:#ffd21a;
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:2px;
-  text-transform:uppercase;
-}
-
-.categorySheetHeader h3{
-  margin:4px 0 0;
-  color:white;
-  font-size:28px;
-  line-height:1;
-}
+.categorySheetHeader p{margin:0;color:#ffd21a;font-size:10px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase}
+.categorySheetHeader h3{margin:4px 0 0;color:white;font-size:23px;line-height:1}
 
 #closeCategorySheet{
-  width:44px !important;
-  height:44px !important;
-  max-width:44px !important;
-  padding:0 !important;
-  border-radius:50% !important;
-  background:#111b31 !important;
-  color:white !important;
-  box-shadow:none !important;
-  font-size:28px !important;
-  line-height:1 !important;
+  width:38px;height:38px;max-width:38px;
+  padding:0;border-radius:50%;
+  background:#111b31;color:white;
+  box-shadow:none;font-size:24px;line-height:1;
 }
 
 .categorySheetGrid{
   overflow-y:auto;
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:18px 14px;
-  padding:4px 2px 20px;
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px 8px;padding:4px 0 18px;align-items:start;
 }
+.categorySheetGrid::-webkit-scrollbar{display:none}
+.categorySheetGrid .templateCard{margin:0 auto}
+.categorySheetGrid .templateName{max-width:96px;font-size:11px;margin-top:5px;text-align:center}
 
-.categorySheetGrid::-webkit-scrollbar{
-  display:none;
-}
+/* Ukuran card dalam sheet */
+.categorySheetGrid .templateCard.catSquare{width:92px;min-width:92px;flex:0 0 92px}
+.categorySheetGrid .templateCard.catSquare .templateImageBox{width:92px;height:92px;border-radius:14px}
+.categorySheetGrid .templateCard.cat2x6{width:72px;min-width:72px;flex:0 0 72px}
+.categorySheetGrid .templateCard.cat2x6 .templateImageBox{width:72px;height:158px;border-radius:14px}
+.categorySheetGrid .templateCard.cat4x6{width:96px;min-width:96px;flex:0 0 96px}
+.categorySheetGrid .templateCard.cat4x6 .templateImageBox{width:96px;height:128px;border-radius:14px}
 
-.categorySheetGrid .templateCard{
-  margin:0 auto !important;
-}
-
-/* Di popup, preview dibuat lebih besar tapi tetap fit */
-.categorySheetGrid .templateCard.catSquare{
-  width:148px !important;
-  min-width:148px !important;
-  flex:0 0 148px !important;
-}
-
-.categorySheetGrid .templateCard.catSquare .templateImageBox{
-  width:148px !important;
-  height:148px !important;
-}
-
-.categorySheetGrid .templateCard.cat2x6{
-  width:112px !important;
-  min-width:112px !important;
-  flex:0 0 112px !important;
-}
-
-.categorySheetGrid .templateCard.cat2x6 .templateImageBox{
-  width:112px !important;
-  height:250px !important;
-}
-
-.categorySheetGrid .templateCard.cat4x6{
-  width:150px !important;
-  min-width:150px !important;
-  flex:0 0 150px !important;
-}
-
-.categorySheetGrid .templateCard.cat4x6 .templateImageBox{
-  width:150px !important;
-  height:200px !important;
-}
-
-.categorySheetGrid .templateName{
-  max-width:150px !important;
-  text-align:center !important;
-}
-  /* ===============================
-   TEMPLATE PICKER ULTRA COMPACT
-   + LAINNYA FULL SCREEN
-================================ */
-
-/* Halaman pilih template lebih padat */
-#formScreen .card{
-  padding:14px 14px 10px !important;
-  gap:8px !important;
-}
-
-#formScreen .logo{
-  font-size:10px !important;
-  letter-spacing:3px !important;
-}
-
-#formScreen h2{
-  font-size:24px !important;
-}
-
-#formScreen .small{
-  font-size:12px !important;
-}
-
-/* Section lebih rapat */
-.templateGrid{
-  padding:0 0 6px !important;
-}
-
-.templateSection{
-  margin-bottom:16px !important;
-}
-
-.templateSectionTitle{
-  margin-bottom:7px !important;
-}
-
-.templateSectionTitle h3{
-  font-size:19px !important;
-}
-
-.categoryMoreBtn{
-  font-size:12px !important;
-}
-
-/* Row lebih compact */
-.templateRow{
-  gap:10px !important;
-  padding:0 2px 4px !important;
-}
-
-/* Ukuran preview utama diperkecil */
-.templateCard.catSquare{
-  min-width:96px !important;
-  width:96px !important;
-  flex:0 0 96px !important;
-}
-
-.templateCard.catSquare .templateImageBox{
-  width:96px !important;
-  height:96px !important;
-  border-radius:14px !important;
-}
-
-.templateCard.cat2x6{
-  min-width:78px !important;
-  width:78px !important;
-  flex:0 0 78px !important;
-}
-
-.templateCard.cat2x6 .templateImageBox{
-  width:78px !important;
-  height:170px !important;
-  border-radius:14px !important;
-}
-
-.templateCard.cat4x6{
-  min-width:108px !important;
-  width:108px !important;
-  flex:0 0 108px !important;
-}
-
-.templateCard.cat4x6 .templateImageBox{
-  width:108px !important;
-  height:144px !important;
-  border-radius:14px !important;
-}
-
-.templateName{
-  font-size:12px !important;
-  margin-top:5px !important;
-}
-
-.templateCard.catSquare .templateName{
-  max-width:96px !important;
-}
-
-.templateCard.cat2x6 .templateName{
-  max-width:78px !important;
-}
-
-.templateCard.cat4x6 .templateName{
-  max-width:108px !important;
-}
-
-/* Bottom control ikut compact */
-.formBottomBar{
-  gap:7px !important;
-  padding-top:6px !important;
-}
-
-.formBottomBar #songInput{
-  font-size:14px !important;
-  padding:11px 14px !important;
-  border-radius:16px !important;
-}
-
-.formActionRow{
-  gap:8px !important;
-}
-
-.formActionRow button{
-  padding:12px 10px !important;
-  font-size:14px !important;
-  border-radius:18px !important;
-}
-
-/* ===============================
-   POPUP LAINNYA FULL SCREEN
-================================ */
-
-#categorySheet{
-  align-items:stretch !important;
-  justify-content:stretch !important;
-}
-
-.categorySheetPanel{
-  width:100vw !important;
-  max-width:none !important;
-  height:100dvh !important;
-  max-height:100dvh !important;
-  border-radius:0 !important;
-  padding:16px 14px calc(14px + env(safe-area-inset-bottom)) !important;
-  gap:10px !important;
-}
-
-/* Header popup lebih kecil */
-.categorySheetHeader p{
-  font-size:10px !important;
-  letter-spacing:1.6px !important;
-}
-
-.categorySheetHeader h3{
-  font-size:23px !important;
-}
-
-#closeCategorySheet{
-  width:38px !important;
-  height:38px !important;
-  max-width:38px !important;
-  font-size:24px !important;
-}
-
-/* Grid popup lebih banyak muat */
-.categorySheetGrid{
-  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-  gap:14px 8px !important;
-  padding:4px 0 18px !important;
-  align-items:start !important;
-}
-
-/* Preview popup diperkecil */
-.categorySheetGrid .templateCard.catSquare{
-  width:92px !important;
-  min-width:92px !important;
-  flex:0 0 92px !important;
-}
-
-.categorySheetGrid .templateCard.catSquare .templateImageBox{
-  width:92px !important;
-  height:92px !important;
-  border-radius:14px !important;
-}
-
-.categorySheetGrid .templateCard.cat2x6{
-  width:72px !important;
-  min-width:72px !important;
-  flex:0 0 72px !important;
-}
-
-.categorySheetGrid .templateCard.cat2x6 .templateImageBox{
-  width:72px !important;
-  height:158px !important;
-  border-radius:14px !important;
-}
-
-.categorySheetGrid .templateCard.cat4x6{
-  width:96px !important;
-  min-width:96px !important;
-  flex:0 0 96px !important;
-}
-
-.categorySheetGrid .templateCard.cat4x6 .templateImageBox{
-  width:96px !important;
-  height:128px !important;
-  border-radius:14px !important;
-}
-
-.categorySheetGrid .templateName{
-  max-width:96px !important;
-  font-size:11px !important;
-  margin-top:5px !important;
-}
-
-/* Kalau layar kecil, popup tetap rapi */
 @media(max-width:380px){
-  .categorySheetGrid{
-    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-    gap:12px 6px !important;
-  }
-
-  .categorySheetGrid .templateCard.catSquare{
-    width:86px !important;
-    min-width:86px !important;
-    flex:0 0 86px !important;
-  }
-
-  .categorySheetGrid .templateCard.catSquare .templateImageBox{
-    width:86px !important;
-    height:86px !important;
-  }
-
-  .categorySheetGrid .templateCard.cat2x6{
-    width:66px !important;
-    min-width:66px !important;
-    flex:0 0 66px !important;
-  }
-
-  .categorySheetGrid .templateCard.cat2x6 .templateImageBox{
-    width:66px !important;
-    height:146px !important;
-  }
-
-  .categorySheetGrid .templateCard.cat4x6{
-    width:88px !important;
-    min-width:88px !important;
-    flex:0 0 88px !important;
-  }
-
-  .categorySheetGrid .templateCard.cat4x6 .templateImageBox{
-    width:88px !important;
-    height:118px !important;
-  }
+  .categorySheetGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 6px}
+  .categorySheetGrid .templateCard.catSquare{width:86px;min-width:86px;flex:0 0 86px}
+  .categorySheetGrid .templateCard.catSquare .templateImageBox{width:86px;height:86px}
+  .categorySheetGrid .templateCard.cat2x6{width:66px;min-width:66px;flex:0 0 66px}
+  .categorySheetGrid .templateCard.cat2x6 .templateImageBox{width:66px;height:146px}
+  .categorySheetGrid .templateCard.cat4x6{width:88px;min-width:88px;flex:0 0 88px}
+  .categorySheetGrid .templateCard.cat4x6 .templateImageBox{width:88px;height:118px}
 }
-  /* ===============================
-   REVIEW SCREEN FIX
-   1 foto center, 4 foto grid rapi
-================================ */
 
-#reviewScreen.active{
-  justify-content:center !important;
-  padding:16px !important;
+/* ============================================================
+   CAMERA SCREEN
+   ============================================================ */
+
+#cameraScreen{padding:0;z-index:20}
+#cameraScreen.active{justify-content:center}
+
+.fullCamera{
+  position:relative;width:100vw;height:100dvh;
+  overflow:hidden;background:#000;
 }
+.fullCamera.shoot{animation:cameraShoot .16s ease}
+.fullCamera video{width:100%;height:100%;object-fit:cover;background:#000}
+
+/* Overlay atas kamera */
+.cameraTopOverlay{
+  position:absolute;top:14px;left:14px;right:14px;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.iconBtn{
+  width:44px;height:44px;max-width:44px;
+  padding:0;border-radius:50%;
+  background:rgba(0,0,0,.45);box-shadow:none;font-size:22px;backdrop-filter:blur(10px);
+}
+#photoCounter{
+  padding:10px 16px;border-radius:999px;
+  background:rgba(0,0,0,.45);font-weight:bold;backdrop-filter:blur(10px);
+}
+.photoDots{display:flex;gap:6px;justify-content:center}
+.photoDots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.28)}
+.photoDots span.active{background:#ff2f92;box-shadow:0 0 10px rgba(255,47,146,.9)}
+
+/* Timer popup */
+.timerPopup{
+  position:absolute;top:68px;right:14px;z-index:45;
+  display:none;gap:8px;padding:8px;border-radius:999px;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(10px);
+}
+.timerPopup.show{display:flex}
+
+/* Overlay bawah kamera */
+.cameraBottomOverlay{
+  position:absolute;left:0;right:0;bottom:22px;z-index:40;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.filterBar{
+  width:100%;display:flex;gap:10px;
+  overflow-x:auto;padding:0 18px;scrollbar-width:none;
+}
+.filterBar::-webkit-scrollbar{display:none}
+
+.filterChip,
+.timerChip{
+  width:auto;min-width:max-content;
+  height:44px;padding:9px 13px;border-radius:999px;
+  background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);
+  box-shadow:none;color:white;font-size:14px;backdrop-filter:blur(10px);
+}
+.filterChip.active,
+.timerChip.active{background:#ff2f92;border-color:#ff2f92}
+
+/* Filter nama label */
+.filterName{
+  padding:6px 12px;border-radius:999px;
+  background:rgba(0,0,0,.35);font-size:12px;
+  color:rgba(255,255,255,.85);backdrop-filter:blur(10px);
+}
+
+/* Shutter row */
+.shutterRow{display:flex;align-items:center;justify-content:center;gap:22px}
+
+.shutterBtn{
+  position:relative;z-index:30;
+  width:78px;height:78px;min-width:78px;max-width:78px;
+  padding:0;border-radius:50%;
+  background:white;border:6px solid rgba(255,255,255,.35);
+  box-shadow:0 0 0 6px rgba(255,255,255,.15),0 12px 30px rgba(0,0,0,.45);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.shutterBtn #shutterIcon{width:52px;height:52px;border-radius:50%;background:#fff;border:3px solid #ff2f92}
+.shutterBtn.cancelMode{background:#ff2f92}
+.shutterBtn.cancelMode #shutterIcon{width:32px;height:32px;background:transparent;border:none;position:relative}
+.shutterBtn.cancelMode #shutterIcon::before,
+.shutterBtn.cancelMode #shutterIcon::after{
+  content:"";position:absolute;left:15px;top:0;
+  width:4px;height:34px;background:white;border-radius:4px;
+}
+.shutterBtn.cancelMode #shutterIcon::before{transform:rotate(45deg)}
+.shutterBtn.cancelMode #shutterIcon::after{transform:rotate(-45deg)}
+
+/* Filter warna shutter */
+.shutterBtn.filter-natural{background:white}
+.shutterBtn.filter-bright{background:#ffb6d8}
+.shutterBtn.filter-party{background:#8b5cf6}
+.shutterBtn.filter-vintage{background:#b8895b}
+.shutterBtn.filter-beauty{background:#f9a8d4}
+
+/* Tombol kecil samping shutter */
+.miniRoundBtn{
+  width:54px;height:54px;max-width:54px;
+  padding:0;border-radius:50%;
+  background:rgba(0,0,0,.45);box-shadow:none;font-size:24px;backdrop-filter:blur(10px);
+}
+.previewThumb{
+  width:54px;height:54px;max-width:54px;
+  padding:0;border-radius:14px;overflow:hidden;
+  background:rgba(0,0,0,.45);box-shadow:none;
+  border:2px solid rgba(255,255,255,.5);
+}
+.previewThumb img{width:100%;height:100%;object-fit:cover}
+
+/* Flash overlay */
+#flashOverlay{
+  position:fixed;inset:0;background:white;opacity:0;
+  pointer-events:none;z-index:80;transition:opacity .12s ease;
+}
+#flashOverlay.show{opacity:1}
+#flashBtn.flashOn{background:#ff2f92}
+
+/* Countdown */
+#countdown{
+  position:fixed;inset:0;display:none;
+  align-items:center;justify-content:center;
+  font-size:116px;font-weight:bold;background:transparent;
+  text-shadow:0 0 24px #ff2f92;z-index:20;pointer-events:none;
+}
+
+/* ============================================================
+   REVIEW SCREEN (Preview foto sebelum generate)
+   ============================================================ */
+
+#reviewScreen{z-index:20}
+#reviewScreen.active{justify-content:center;padding:16px}
 
 #reviewScreen .card{
-  width:100% !important;
-  max-width:440px !important;
-  height:100dvh !important;
-  max-height:none !important;
-  border-radius:0 !important;
-  padding:20px 16px 18px !important;
+  width:100%;max-width:440px;
+  height:100dvh;max-height:none;
+  border-radius:0;padding:20px 16px 18px;
   background:
     radial-gradient(circle at top left,rgba(255,216,77,.16),transparent 34%),
-    linear-gradient(180deg,#071b38 0%,#030711 100%) !important;
-  border:none !important;
-  box-shadow:none !important;
-  overflow:hidden !important;
+    linear-gradient(180deg,#071b38 0%,#030711 100%);
+  border:none;box-shadow:none;overflow:hidden;
 }
 
-.reviewGrid{
-  min-height:0 !important;
-  width:100% !important;
-  gap:12px !important;
-  align-items:center !important;
-  justify-items:center !important;
-}
+.reviewGrid{min-height:0;width:100%;gap:12px;align-items:center;justify-items:center}
 
-/* Mode 1 foto: jangan paksa center vertikal penuh */
 .reviewGrid.onePhoto{
-  flex:0 0 auto !important;
-  width:100% !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  margin-top:18px !important;
-  margin-bottom:18px !important;
-  padding:0 2px !important;
-  overflow:visible !important;
+  flex:0 0 auto;width:100%;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:18px;margin-bottom:18px;padding:0 2px;overflow:visible;
 }
-
-/* Mode 4 foto: tetap pakai area penuh */
 .reviewGrid.multiPhoto{
-  flex:1 !important;
-  display:grid !important;
-  grid-template-columns:1fr 1fr !important;
-  align-content:center !important;
+  flex:1;display:grid;grid-template-columns:1fr 1fr;align-content:center;
 }
 
-/* Card foto review */
 .reviewPhotoCard{
-  position:relative !important;
-  border-radius:22px !important;
-  overflow:hidden !important;
-  background:#111 !important;
-  border:2px solid rgba(255,210,26,.55) !important;
-  box-shadow:
-    0 16px 36px rgba(0,0,0,.42),
-    0 0 22px rgba(255,47,146,.22) !important;
+  position:relative;border-radius:22px;overflow:hidden;
+  background:#111;border:2px solid rgba(255,210,26,.55);
+  box-shadow:0 16px 36px rgba(0,0,0,.42),0 0 22px rgba(255,47,146,.22);
 }
+.reviewGrid.onePhoto .reviewPhotoCard{width:100%;max-width:360px;box-sizing:border-box}
+.reviewGrid.multiPhoto .reviewPhotoCard{width:100%}
 
-/* Ukuran khusus 1 foto */
-.reviewGrid.onePhoto .reviewPhotoCard{
-  width:100% !important;
-  max-width:360px !important;
-  box-sizing:border-box !important;
-}
-/* Ukuran khusus 4 foto */
-.reviewGrid.multiPhoto .reviewPhotoCard{
-  width:100% !important;
-}
-
-/* Foto */
 .reviewPhotoCard img{
-  width:100% !important;
-  height:auto !important;
-  max-height:min(52vh,390px) !important;
-  display:block !important;
-  object-fit:contain !important;
-  background:#000 !important;
+  width:100%;height:auto;
+  max-height:min(52vh,390px);
+  display:block;object-fit:contain;background:#000;
 }
+.reviewGrid.onePhoto .reviewPhotoCard img{height:auto;max-height:min(58vh,430px);object-fit:contain}
+.reviewGrid.multiPhoto .reviewPhotoCard img{height:190px;object-fit:contain}
 
-/* 1 foto: jangan paksa tinggi, biar rasio asli aman */
-.reviewGrid.onePhoto .reviewPhotoCard img{
-  height:auto !important;
-  max-height:min(58vh,430px) !important;
-  object-fit:contain !important;
-}
-
-/* 4 foto: tetap compact tapi tidak crop */
-.reviewGrid.multiPhoto .reviewPhotoCard img{
-  height:190px !important;
-  object-fit:contain !important;
-}
-
-/* Label */
 .reviewPhotoLabel{
-  position:absolute !important;
-  left:0 !important;
-  right:0 !important;
-  bottom:0 !important;
-  padding:8px 6px !important;
-  background:rgba(0,0,0,.58) !important;
-  backdrop-filter:blur(8px) !important;
-  font-size:12px !important;
-  text-align:center !important;
-  color:white !important;
-  font-weight:800 !important;
+  position:absolute;left:0;right:0;bottom:0;
+  padding:8px 6px;background:rgba(0,0,0,.58);backdrop-filter:blur(8px);
+  font-size:12px;text-align:center;color:white;font-weight:800;
 }
 
 #finishReviewBtn,
-#reviewBackBtn{
-  flex-shrink:0 !important;
-}
-  /* ===============================
-   ROTATE PHOTO BUTTON
-   Untuk opsi fleksibel orientasi HP
-================================ */
+#reviewBackBtn{flex-shrink:0}
 
+/* Tombol rotate foto */
 .rotatePhotoBtn{
-  position:absolute !important;
-  top:8px !important;
-  right:12px !important;
-  z-index:6 !important;
-  width:auto !important;
-  max-width:max-content !important;
-  padding:7px 10px !important;
-  border-radius:999px !important;
-  background:rgba(0,0,0,.62) !important;
-  color:white !important;
-  border:1px solid rgba(255,255,255,.32) !important;
-  box-shadow:0 6px 16px rgba(0,0,0,.28) !important;
-  font-size:12px !important;
-  font-weight:900 !important;
-  backdrop-filter:blur(8px) !important;
+  position:absolute;top:8px;right:12px;z-index:6;
+  width:auto;max-width:max-content;
+  padding:7px 10px;border-radius:999px;
+  background:rgba(0,0,0,.62);color:white;
+  border:1px solid rgba(255,255,255,.32);
+  box-shadow:0 6px 16px rgba(0,0,0,.28);
+  font-size:12px;font-weight:900;backdrop-filter:blur(8px);
+}
+.rotatePhotoBtn:active{transform:scale(.94)}
+
+/* ============================================================
+   RESULT SCREEN
+   ============================================================ */
+
+#resultScreen{z-index:20}
+#resultScreen.active{justify-content:flex-start;padding:10px;gap:10px}
+#resultScreen h2{font-size:28px;margin-top:4px}
+
+canvas{
+  width:auto;height:calc(100dvh - 220px);
+  max-height:610px;max-width:92vw;
+  border-radius:22px;background:black;
+  box-shadow:0 18px 50px rgba(0,0,0,.45);cursor:pointer;
 }
 
-.rotatePhotoBtn:active{
-  transform:scale(.94);
+.actions{
+  width:100%;max-width:430px;
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 6px;
 }
-  
+.actions button{width:100%;padding:10px 8px;font-size:13px;border-radius:18px;white-space:nowrap}
+.actions button:last-child{grid-column:1 / -1}
+
+/* ============================================================
+   ADMIN SCREEN
+   ============================================================ */
+
+#adminScreen{
+  z-index:20;
+  background:
+    radial-gradient(circle at top left,rgba(255,47,146,.26),transparent 34%),
+    radial-gradient(circle at bottom right,rgba(255,212,0,.16),transparent 38%),
+    #07070b;
+}
+#adminScreen .card{background:rgba(15,15,24,.96);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(14px)}
+
+#adminLoginModal{z-index:999}
+
+#saveTemplateBtn{position:sticky;bottom:0;z-index:20}
+
+.templatePreview{width:100%;height:110px;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+.templatePreview img{width:100%;height:100%;object-fit:cover}
+
+/* ============================================================
+   CARD UMUM
+   ============================================================ */
+
+.card{
+  width:100%;max-width:440px;height:100%;max-height:780px;
+  padding:18px 16px;border-radius:28px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(14px);box-shadow:0 20px 60px rgba(0,0,0,.35);
+  display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto;
+}
+
+/* Topbar (dipakai di beberapa screen) */
+.topbar{
+  width:100%;max-width:430px;height:44px;
+  display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
+}
+
+/* Video (fallback, dipakai sebelum fullCamera override) */
+video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX(-1)}
+
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
