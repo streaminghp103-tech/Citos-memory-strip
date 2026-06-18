@@ -585,7 +585,28 @@ select option{color:black}
 }
 
 /* Shutter row */
-.shutterRow{display:flex;align-items:center;justify-content:center;gap:22px}
+.shutterRow{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  width:100%;
+  padding:0 28px;
+  box-sizing:border-box;
+}
+
+/* Tombol kiri & kanan sama lebarnya → shutter selalu di tengah */
+.shutterRow .previewThumb,
+.shutterRow .miniRoundBtn{
+  flex:1;
+  display:flex;
+  justify-content:center;
+}
+
+.shutterRow .shutterBtn{
+  flex-shrink:0;
+  margin:0 16px;
+}
 
 .shutterBtn{
   position:relative;z-index:30;
@@ -1022,9 +1043,9 @@ video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX
       </div>
 
       <div class="shutterRow">
-  <button id="previewBtn" class="previewThumb" style="display:none;">
-  <img id="previewThumbImg">
-</button>
+  <button id="previewBtn" class="previewThumb" style="visibility:hidden;">
+    <img id="previewThumbImg">
+  </button>
 
   <button id="captureBtn" class="shutterBtn filter-natural" aria-label="Ambil Foto">
     <span id="shutterIcon"></span>
@@ -2237,7 +2258,7 @@ async function capturePhoto(){
 const imgData = pendingPhoto.toDataURL("image/png");
 
 previewThumbImg.src = imgData;
-previewBtn.style.display = "block";
+previewBtn.style.visibility = "visible";
 
 if(retakeIndex >= 0){
   photos[retakeIndex] = pendingPhoto;
@@ -3108,7 +3129,7 @@ function resetPhotoSession(){
   retakeFromReview=false;
   lastMasks=[];
 
-  previewBtn.style.display="none";
+  previewBtn.style.visibility="hidden";
   previewThumbImg.src="";
 
   captureBtn.disabled=false;
