@@ -4272,47 +4272,75 @@ function drawPhotoIntoMask(photo,mask){
   const maskRatio = mask.w / mask.h;
 
   /*
-    Mode baru:
-    - Background dibuat cover + blur agar frame tetap penuh
-    - Foto utama dibuat contain agar landscape/wide tidak kepotong
+    Mode otomatis:
+    - Slot portrait / square / photostrip = COVER, supaya frame penuh dan rapi
+    - Slot landscape lebar + foto landscape = CONTAIN + blur, supaya wide tidak kepotong parah
   */
 
-  // 1. Background cover blur
-  let bgW, bgH;
+  const isPhotoLandscape = photoRatio > 1.15;
+  const isMaskLandscape = maskRatio > 1.25;
 
-  if(photoRatio > maskRatio){
-    bgH = mask.h;
-    bgW = bgH * photoRatio;
+  if(isPhotoLandscape && isMaskLandscape){
+    // MODE WIDE: background blur + foto utama contain
+
+    let bgW, bgH;
+
+    if(photoRatio > maskRatio){
+      bgH = mask.h;
+      bgW = bgH * photoRatio;
+    }else{
+      bgW = mask.w;
+      bgH = bgW / photoRatio;
+    }
+
+    const bgX = mask.x + (mask.w - bgW) / 2;
+    const bgY = mask.y + (mask.h - bgH) / 2;
+
+    lctx.save();
+    lctx.filter = "blur(18px) brightness(0.72)";
+    lctx.drawImage(photo,bgX,bgY,bgW,bgH);
+    lctx.restore();
+
+    let fgW, fgH;
+
+    if(photoRatio > maskRatio){
+      fgW = mask.w;
+      fgH = fgW / photoRatio;
+    }else{
+      fgH = mask.h;
+      fgW = fgH * photoRatio;
+    }
+
+    const fgX = mask.x + (mask.w - fgW) / 2;
+    const fgY = mask.y + (mask.h - fgH) / 2;
+
+    lctx.drawImage(photo,fgX,fgY,fgW,fgH);
+
   }else{
-    bgW = mask.w;
-    bgH = bgW / photoRatio;
+    // MODE NORMAL PHOTOBOOTH: cover penuh frame
+
+    let dw, dh;
+
+    if(photoRatio > maskRatio){
+      dh = mask.h;
+      dw = dh * photoRatio;
+    }else{
+      dw = mask.w;
+      dh = dw / photoRatio;
+    }
+
+    const bleed = 3;
+
+    const dx = mask.x + (mask.w - dw) / 2 - bleed;
+    const dy = mask.y + (mask.h - dh) / 2 - bleed;
+
+    dw += bleed * 2;
+    dh += bleed * 2;
+
+    lctx.drawImage(photo,dx,dy,dw,dh);
   }
 
-  const bgX = mask.x + (mask.w - bgW) / 2;
-  const bgY = mask.y + (mask.h - bgH) / 2;
-
-  lctx.save();
-  lctx.filter = "blur(18px) brightness(0.72)";
-  lctx.drawImage(photo,bgX,bgY,bgW,bgH);
-  lctx.restore();
-
-  // 2. Foto utama contain / fit, tidak crop
-  let fgW, fgH;
-
-  if(photoRatio > maskRatio){
-    fgW = mask.w;
-    fgH = fgW / photoRatio;
-  }else{
-    fgH = mask.h;
-    fgW = fgH * photoRatio;
-  }
-
-  const fgX = mask.x + (mask.w - fgW) / 2;
-  const fgY = mask.y + (mask.h - fgH) / 2;
-
-  lctx.drawImage(photo,fgX,fgY,fgW,fgH);
-
-  // 3. Potong hanya sesuai area hijau mask
+  // Potong hanya sesuai area hijau mask
   const layerData = lctx.getImageData(0,0,w,h);
   const d = layerData.data;
   const keep = new Uint8Array(w*h);
