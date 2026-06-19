@@ -789,7 +789,8 @@ canvas{
 }
 
 /* Video (fallback, dipakai sebelum fullCamera override) */
-video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX(-1)}
+/* transform:scaleX(-1) DIHAPUS dari sini — JS di startCamera() yang mengontrol mirror per mode kamera */
+video{width:100%;height:100%;object-fit:contain;background:#000}
 
 /* ============================================================
    TOAST NOTIFICATION SYSTEM
@@ -1354,8 +1355,8 @@ let torchEnabled=false;
   }else if(f==="beauty"){
     video.style.filter="brightness(1.14) contrast(1.03) saturate(1.08)";
   }else{
-  video.style.filter=
-  "brightness(1.02) contrast(1.00) saturate(1.02)";
+  /* Natural: tanpa filter — biarkan sensor kamera tampil apa adanya seperti kamera bawaan HP */
+  video.style.filter="none";
 }
 }
 document.querySelectorAll(".filterChip").forEach(btn=>{
@@ -1814,17 +1815,22 @@ async function startCamera(){
   try{
     stopCamera();
 
+    /* Minta resolusi tinggi + aspect ratio portrait agar tidak zoom & kualitas setara kamera HP */
     stream=await navigator.mediaDevices.getUserMedia({
       video:{
-  facingMode:{ ideal: currentFacingMode }
-},
+        facingMode:{ ideal: currentFacingMode },
+        width:{ ideal: 1920 },
+        height:{ ideal: 1080 },
+        aspectRatio:{ ideal: currentFacingMode==="user" ? 9/16 : 16/9 }
+      },
       audio:false
     });
     video.srcObject=stream;
 
+    /* Gunakan addEventListener agar tidak menimpa handler lain */
     await new Promise(resolve=>{
-      if(video.readyState>=2) resolve();
-      else video.onloadedmetadata=()=>resolve();
+      if(video.readyState>=1) resolve();
+      else video.addEventListener("loadedmetadata",resolve,{once:true});
     });
 
     await video.play();
@@ -1915,8 +1921,7 @@ function applyFilterToContext(c){
   else if(f==="party") c.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
   else if(f==="vintage") c.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
   else if(f==="beauty") c.filter="brightness(1.14) contrast(1.03) saturate(1.08)";
-  else c.filter=
-"brightness(1.02) contrast(1.00) saturate(1.02)";
+  else c.filter="none"; /* Natural: tidak ada modifikasi warna — warna asli sensor kamera */
 }
 
 function playFlashEffect(){
@@ -1985,6 +1990,10 @@ function takeSnapshot(){
 
   tctx.save();
 
+  /* PERBAIKAN: terapkan filter SEBELUM drawImage agar benar-benar diterapkan ke gambar.
+     Sebelumnya filter dipanggil setelah restore() sehingga tidak berpengaruh sama sekali. */
+  applyFilterToContext(tctx);
+
   if(isVideoLandscape){
     const rotate = getLandscapeRotateDirection();
 
@@ -2023,8 +2032,6 @@ function takeSnapshot(){
   }
 
   tctx.restore();
-
-  applyFilterToContext(tctx);
 
   return temp;
 }
@@ -2872,6 +2879,10 @@ function resetPhotoSession(){
   retakeIndex=-1;
   retakeFromReview=false;
   lastMasks=[];
+
+  /* Reset torch state agar tidak konflik saat sesi baru */
+  torchEnabled=false;
+  flashBtn.classList.remove("flashOn");
 
   previewBtn.style.visibility="hidden";
   previewThumbImg.src="";
