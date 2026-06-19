@@ -568,6 +568,7 @@ select option{color:black}
 .filterBar{
   width:100%;display:flex;gap:10px;
   overflow-x:auto;padding:0 18px;scrollbar-width:none;
+  align-items:center;   /* ← fix: label & chip sejajar, tidak miring */
 }
 .filterBar::-webkit-scrollbar{display:none}
 
@@ -586,6 +587,10 @@ select option{color:black}
   padding:6px 12px;border-radius:999px;
   background:rgba(0,0,0,.35);font-size:12px;
   color:rgba(255,255,255,.85);backdrop-filter:blur(10px);
+  flex-shrink:0;          /* ← tidak terpencet chip lain */
+  white-space:nowrap;
+  line-height:1;
+  display:flex;align-items:center;
 }
 
 /* Shutter row */
@@ -605,6 +610,23 @@ select option{color:black}
   flex:1;
   display:flex;
   justify-content:center;
+  align-items:center;
+}
+
+/* Wrapper tombol kanan (switch camera) dengan label */
+.shutterRow .switchCameraWrap{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+.switchCameraWrap .switchLabel{
+  font-size:10px;font-weight:700;
+  color:rgba(255,255,255,.65);
+  letter-spacing:.4px;
+  text-shadow:0 1px 3px rgba(0,0,0,.7);
+  white-space:nowrap;
 }
 
 .shutterRow .shutterBtn{
@@ -1552,17 +1574,36 @@ let torchEnabled=false;
   
   function updateVideoFilter(){
   const f=selectedFilter;
+  const isSelfie = currentFacingMode === "user";
+
+  /* Kamera depan (selfie) secara hardware memiliki sensor lebih kecil
+     dan lensa lebih soft. Tambahkan boost brightness & contrast ekstra
+     agar hasilnya tidak kusam dibanding kamera belakang. */
+  const selfieBoost = isSelfie
+    ? "brightness(1.18) contrast(1.18) saturate(1.28)"
+    : "";
+
   if(f==="bright"){
-    video.style.filter="brightness(1.22) contrast(1.10) saturate(1.35)";
+    video.style.filter = isSelfie
+      ? "brightness(1.42) contrast(1.16) saturate(1.45)"
+      : "brightness(1.22) contrast(1.10) saturate(1.35)";
   }else if(f==="party"){
-    video.style.filter="brightness(1.12) contrast(1.20) saturate(1.45) hue-rotate(-6deg)";
+    video.style.filter = isSelfie
+      ? "brightness(1.30) contrast(1.26) saturate(1.55) hue-rotate(-6deg)"
+      : "brightness(1.12) contrast(1.20) saturate(1.45) hue-rotate(-6deg)";
   }else if(f==="vintage"){
-    video.style.filter="brightness(1.08) contrast(1.08) saturate(.80) sepia(.28)";
+    video.style.filter = isSelfie
+      ? "brightness(1.24) contrast(1.14) saturate(.85) sepia(.28)"
+      : "brightness(1.08) contrast(1.08) saturate(.80) sepia(.28)";
   }else if(f==="beauty"){
-    video.style.filter="brightness(1.18) contrast(1.06) saturate(1.15)";
+    video.style.filter = isSelfie
+      ? "brightness(1.38) contrast(1.10) saturate(1.22)"
+      : "brightness(1.18) contrast(1.06) saturate(1.15)";
   }else{
-    /* Natural: mimik auto-enhance kamera HP bawaan */
-    video.style.filter="brightness(1.12) contrast(1.14) saturate(1.22)";
+    /* Natural: selfie dapat lebih banyak boost agar tidak kusam */
+    video.style.filter = isSelfie
+      ? "brightness(1.28) contrast(1.20) saturate(1.30)"
+      : "brightness(1.12) contrast(1.14) saturate(1.22)";
   }
 }
 document.querySelectorAll(".filterChip").forEach(btn=>{
@@ -2057,6 +2098,7 @@ async function startCamera(){
     }else{
       video.style.transform="scaleX(1)";
     }
+    updateFlashBtnVisibility();
     updateVideoFilter();
   }catch(e){
     showToast("Kamera tidak bisa dibuka. Pastikan izin kamera aktif dan buka lewat HTTPS.", "error", 5000);
@@ -2107,6 +2149,18 @@ if(!track.getCapabilities){
   }
 }
   
+/* Sembunyikan tombol flash saat kamera depan, tampilkan saat belakang */
+function updateFlashBtnVisibility(){
+  if(currentFacingMode === "user"){
+    flashBtn.style.display = "none";
+    // Matikan torch jika sebelumnya aktif
+    torchEnabled = false;
+    flashBtn.classList.remove("flashOn");
+  } else {
+    flashBtn.style.display = "";
+  }
+}
+
   async function switchCamera(){
 
   try{
@@ -2117,7 +2171,7 @@ if(!track.getCapabilities){
       currentFacingMode="user";
     }
     torchEnabled=false;
-flashBtn.classList.remove("flashOn");
+    flashBtn.classList.remove("flashOn");
 
     stopCamera();
 
@@ -2135,11 +2189,29 @@ flashBtn.classList.remove("flashOn");
 
 function applyFilterToContext(c){
   const f=selectedFilter;
-  if(f==="bright")       c.filter="brightness(1.22) contrast(1.10) saturate(1.35)";
-  else if(f==="party")   c.filter="brightness(1.12) contrast(1.20) saturate(1.45) hue-rotate(-6deg)";
-  else if(f==="vintage") c.filter="brightness(1.08) contrast(1.08) saturate(.80) sepia(.28)";
-  else if(f==="beauty")  c.filter="brightness(1.18) contrast(1.06) saturate(1.15)";
-  else /* Natural */     c.filter="brightness(1.12) contrast(1.14) saturate(1.22)";
+  const isSelfie = currentFacingMode === "user";
+
+  if(f==="bright"){
+    c.filter = isSelfie
+      ? "brightness(1.42) contrast(1.16) saturate(1.45)"
+      : "brightness(1.22) contrast(1.10) saturate(1.35)";
+  }else if(f==="party"){
+    c.filter = isSelfie
+      ? "brightness(1.30) contrast(1.26) saturate(1.55) hue-rotate(-6deg)"
+      : "brightness(1.12) contrast(1.20) saturate(1.45) hue-rotate(-6deg)";
+  }else if(f==="vintage"){
+    c.filter = isSelfie
+      ? "brightness(1.24) contrast(1.14) saturate(.85) sepia(.28)"
+      : "brightness(1.08) contrast(1.08) saturate(.80) sepia(.28)";
+  }else if(f==="beauty"){
+    c.filter = isSelfie
+      ? "brightness(1.38) contrast(1.10) saturate(1.22)"
+      : "brightness(1.18) contrast(1.06) saturate(1.15)";
+  }else{
+    c.filter = isSelfie
+      ? "brightness(1.28) contrast(1.20) saturate(1.30)"
+      : "brightness(1.12) contrast(1.14) saturate(1.22)";
+  }
 }
 
 function playFlashEffect(){
