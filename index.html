@@ -1576,34 +1576,40 @@ let torchEnabled=false;
   const f=selectedFilter;
   const isSelfie = currentFacingMode === "user";
 
-  /* Kamera depan (selfie) secara hardware memiliki sensor lebih kecil
-     dan lensa lebih soft. Tambahkan boost brightness & contrast ekstra
-     agar hasilnya tidak kusam dibanding kamera belakang. */
-  const selfieBoost = isSelfie
-    ? "brightness(1.18) contrast(1.18) saturate(1.28)"
-    : "";
+  /* CATATAN COLOR GRADING:
+     Versi lama pakai saturate tinggi (1.3-1.55) + contrast tinggi.
+     Kombinasi ini MENGUATKAN warm-cast bawaan sensor HP (apalagi di
+     lampu indoor tungsten yang sudah kemerahan/oranye) -> hasil makin
+     "dipercerah" malah makin merah/kusam di kulit.
+
+     Pendekatan baru ala iPhone: brightness naik secukupnya untuk
+     mencerahkan, contrast & saturate dijaga rendah-sedang (clean look,
+     bukan oversaturated), lalu hue-rotate negatif kecil dipakai untuk
+     menarik warna keluar dari merah/oranye ke arah netral. Koreksi
+     warm-cast yang sebenarnya (white balance) dilakukan lewat overlay
+     tint dingin tipis di canvas saat capture (lihat coolToneOverlay). */
 
   if(f==="bright"){
     video.style.filter = isSelfie
-      ? "brightness(1.42) contrast(1.16) saturate(1.45)"
-      : "brightness(1.22) contrast(1.10) saturate(1.35)";
+      ? "brightness(1.22) contrast(1.04) saturate(1.05) hue-rotate(-4deg)"
+      : "brightness(1.12) contrast(1.03) saturate(1.05) hue-rotate(-4deg)";
   }else if(f==="party"){
     video.style.filter = isSelfie
-      ? "brightness(1.30) contrast(1.26) saturate(1.55) hue-rotate(-6deg)"
-      : "brightness(1.12) contrast(1.20) saturate(1.45) hue-rotate(-6deg)";
+      ? "brightness(1.14) contrast(1.10) saturate(1.18) hue-rotate(-6deg)"
+      : "brightness(1.08) contrast(1.08) saturate(1.15) hue-rotate(-6deg)";
   }else if(f==="vintage"){
     video.style.filter = isSelfie
-      ? "brightness(1.24) contrast(1.14) saturate(.85) sepia(.28)"
-      : "brightness(1.08) contrast(1.08) saturate(.80) sepia(.28)";
+      ? "brightness(1.14) contrast(1.06) saturate(.82) sepia(.20)"
+      : "brightness(1.05) contrast(1.04) saturate(.78) sepia(.20)";
   }else if(f==="beauty"){
     video.style.filter = isSelfie
-      ? "brightness(1.38) contrast(1.10) saturate(1.22)"
-      : "brightness(1.18) contrast(1.06) saturate(1.15)";
+      ? "brightness(1.20) contrast(1.02) saturate(1.02) hue-rotate(-4deg)"
+      : "brightness(1.10) contrast(1.02) saturate(1.02) hue-rotate(-4deg)";
   }else{
-    /* Natural: selfie dapat lebih banyak boost agar tidak kusam */
+    /* Natural: cerah & bersih, tidak oversaturated/kemerahan */
     video.style.filter = isSelfie
-      ? "brightness(1.28) contrast(1.20) saturate(1.30)"
-      : "brightness(1.12) contrast(1.14) saturate(1.22)";
+      ? "brightness(1.16) contrast(1.04) saturate(1.04) hue-rotate(-3deg)"
+      : "brightness(1.08) contrast(1.03) saturate(1.04) hue-rotate(-3deg)";
   }
 }
 document.querySelectorAll(".filterChip").forEach(btn=>{
@@ -2191,26 +2197,27 @@ function applyFilterToContext(c){
   const f=selectedFilter;
   const isSelfie = currentFacingMode === "user";
 
+  /* Harus identik dengan updateVideoFilter() agar hasil foto = preview */
   if(f==="bright"){
     c.filter = isSelfie
-      ? "brightness(1.42) contrast(1.16) saturate(1.45)"
-      : "brightness(1.22) contrast(1.10) saturate(1.35)";
+      ? "brightness(1.22) contrast(1.04) saturate(1.05) hue-rotate(-4deg)"
+      : "brightness(1.12) contrast(1.03) saturate(1.05) hue-rotate(-4deg)";
   }else if(f==="party"){
     c.filter = isSelfie
-      ? "brightness(1.30) contrast(1.26) saturate(1.55) hue-rotate(-6deg)"
-      : "brightness(1.12) contrast(1.20) saturate(1.45) hue-rotate(-6deg)";
+      ? "brightness(1.14) contrast(1.10) saturate(1.18) hue-rotate(-6deg)"
+      : "brightness(1.08) contrast(1.08) saturate(1.15) hue-rotate(-6deg)";
   }else if(f==="vintage"){
     c.filter = isSelfie
-      ? "brightness(1.24) contrast(1.14) saturate(.85) sepia(.28)"
-      : "brightness(1.08) contrast(1.08) saturate(.80) sepia(.28)";
+      ? "brightness(1.14) contrast(1.06) saturate(.82) sepia(.20)"
+      : "brightness(1.05) contrast(1.04) saturate(.78) sepia(.20)";
   }else if(f==="beauty"){
     c.filter = isSelfie
-      ? "brightness(1.38) contrast(1.10) saturate(1.22)"
-      : "brightness(1.18) contrast(1.06) saturate(1.15)";
+      ? "brightness(1.20) contrast(1.02) saturate(1.02) hue-rotate(-4deg)"
+      : "brightness(1.10) contrast(1.02) saturate(1.02) hue-rotate(-4deg)";
   }else{
     c.filter = isSelfie
-      ? "brightness(1.28) contrast(1.20) saturate(1.30)"
-      : "brightness(1.12) contrast(1.14) saturate(1.22)";
+      ? "brightness(1.16) contrast(1.04) saturate(1.04) hue-rotate(-3deg)"
+      : "brightness(1.08) contrast(1.03) saturate(1.04) hue-rotate(-3deg)";
   }
 }
 
@@ -2334,6 +2341,41 @@ function takeSnapshot(){
   }
 
   tctx.restore();
+
+  /* ── Koreksi warm-cast (white balance) ──────────────────────
+     CSS filter (brightness/contrast/saturate) tidak bisa "menarik"
+     warna merah secara langsung. Cara paling murah & efektif di
+     Canvas2D: tumpuk tint biru-kehijauan sangat tipis pakai blend
+     mode "overlay", yang secara visual menetralkan warm-cast tanpa
+     bikin foto jadi biru/dingin terlihat. */
+  tctx.save();
+  tctx.globalCompositeOperation = "overlay";
+  tctx.globalAlpha = 0.05;
+  tctx.fillStyle = "#cfe3e8";
+  tctx.fillRect(0,0,outputW,outputH);
+  tctx.restore();
+
+  /* ── Skin smoothing ala iPhone ───────────────────────────────
+     Teknik standar "soft skin": blur seluruh foto, lalu tumpuk
+     balik versi blur itu di atas foto asli pakai blend "soft-light"
+     dengan opacity rendah. Tekstur halus (pori, noise kulit) jadi
+     lembut, tapi tepi tajam (mata, alis, garis rambut) tetap
+     kelihatan karena soft-light tidak meratakan kontras tinggi. */
+  const smoothAmount = (selectedFilter === "beauty") ? 0.45 : 0.22;
+
+  const blurCanvas = document.createElement("canvas");
+  blurCanvas.width = outputW;
+  blurCanvas.height = outputH;
+  const bctx = blurCanvas.getContext("2d");
+  bctx.filter = "blur(4px)";
+  bctx.drawImage(temp,0,0,outputW,outputH);
+
+  tctx.save();
+  tctx.globalCompositeOperation = "soft-light";
+  tctx.globalAlpha = smoothAmount;
+  tctx.drawImage(blurCanvas,0,0,outputW,outputH);
+  tctx.restore();
+
   return temp;
 }
 
@@ -3477,46 +3519,18 @@ openIgBtn.onclick=async()=>{
 
   await logInteraction("open_story");
 
-  // Coba share langsung ke Instagram Story via Web Share API
-  // Ini cara paling andal — file dibagikan ke app yang dipilih user
-  if(lastBlob && navigator.share && navigator.canShare){
-    const file = new File(
-      [lastBlob],
-      getDownloadFileName(),
-      {type:"image/png"}
-    );
-
-    if(navigator.canShare({files:[file]})){
-      try{
-        await navigator.share({
-          files:[file],
-          title:"HP103 Memory Strip"
-        });
-        // Jika share berhasil, selesai — tidak perlu buka IG manual
-        return;
-      }catch(e){
-        // User cancel atau share gagal → lanjut ke fallback modal
-        if(e.name === "AbortError") return;
-      }
-    }
-  }
-
-  // Fallback: tampilkan modal dengan instruksi + tombol buka IG
-  // Coba urutan URL scheme yang lebih baru dulu
+  /* Tombol ini DIBEDAKAN dari shareBtn: tidak pakai Web Share API
+     (itu fungsi shareBtn), tapi langsung coba buka kamera Story IG
+     lewat URL scheme. Foto sudah otomatis tersimpan ke galeri,
+     tinggal dipilih user saat compose Story. */
   function openInstagram(){
-    // Urutan: story-camera (lama), lalu fallback ke app biasa
     const schemes = [
       "instagram://story-camera",
       "instagram://",
     ];
 
-    // Coba buka scheme pertama
-    // iOS & Android modern: instagram:// biasanya buka app langsung
-    let opened = false;
-
     const tryScheme = (i) => {
       if(i >= schemes.length){
-        // Semua scheme gagal, buka Play Store / App Store
         const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
         window.open(
           isIos
@@ -3529,7 +3543,6 @@ openIgBtn.onclick=async()=>{
 
       window.location.href = schemes[i];
 
-      // Jika setelah 1.5s masih di halaman ini, coba scheme berikutnya
       setTimeout(()=>{
         if(document.visibilityState !== "hidden"){
           tryScheme(i + 1);
@@ -3540,6 +3553,9 @@ openIgBtn.onclick=async()=>{
     tryScheme(0);
   }
 
+  // Langsung buka Instagram Story camera (masih dalam user-gesture klik)
+  openInstagram();
+
   const msgDownloaded = hasDownloaded
     ? "Foto sudah tersimpan di galeri kamu."
     : "Foto otomatis disimpan ke galeri.";
@@ -3547,10 +3563,9 @@ openIgBtn.onclick=async()=>{
   showModal(
     "✨",
     "Upload ke Instagram Story",
-    `${msgDownloaded}<br><br>Tap <b>Buka Instagram</b>, lalu pilih foto HP103 dari galeri saat membuat Story.<br><br>Jangan lupa tag <b>@happup.samarinda.panjaitan</b> 💕`,
+    `${msgDownloaded}<br><br>Pilih foto HP103 dari galeri saat membuat Story.<br><br>Jangan lupa tag <b>@happup.samarinda.panjaitan</b> 💕`,
     [
-      {label:"Buka Instagram", action: openInstagram},
-      {label:"Nanti", secondary:true}
+      {label:"OK", secondary:true}
     ]
   );
 };
