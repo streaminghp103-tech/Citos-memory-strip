@@ -529,7 +529,6 @@ select option{color:black}
 .fullCamera.shoot{animation:cameraShoot .16s ease}
 .fullCamera video{
   width:100%;height:100%;object-fit:cover;background:#000;
-  /* Percepat rendering via GPU — mengurangi blur akibat software scaling */
   will-change:transform;
   -webkit-backface-visibility:hidden;
   backface-visibility:hidden;
@@ -795,7 +794,7 @@ canvas{
 }
 
 /* Video (fallback, dipakai sebelum fullCamera override) */
-/* transform:scaleX(-1) DIHAPUS dari sini — JS di startCamera() yang mengontrol mirror per mode kamera */
+/* transform:scaleX(-1) dihapus — JS di startCamera() yang kontrol mirror per mode */
 video{width:100%;height:100%;object-fit:contain;background:#000}
 
 /* ============================================================
@@ -1351,7 +1350,6 @@ let torchEnabled=false;
   
   function updateVideoFilter(){
   const f=selectedFilter;
-
   if(f==="bright"){
     video.style.filter="brightness(1.22) contrast(1.10) saturate(1.35)";
   }else if(f==="party"){
@@ -1361,10 +1359,9 @@ let torchEnabled=false;
   }else if(f==="beauty"){
     video.style.filter="brightness(1.18) contrast(1.06) saturate(1.15)";
   }else{
-    /* Natural: mimik auto-enhance kamera HP bawaan (brightness, contrast, saturation, sharpening) */
+    /* Natural: mimik auto-enhance kamera HP bawaan */
     video.style.filter="brightness(1.10) contrast(1.12) saturate(1.20)";
   }
-}
 }
 document.querySelectorAll(".filterChip").forEach(btn=>{
   btn.addEventListener("click",()=>{
@@ -1822,30 +1819,34 @@ async function startCamera(){
   try{
     stopCamera();
 
-    /* Minta resolusi tinggi + aspect ratio portrait agar tidak zoom & kualitas setara kamera HP */
+    /* Minta resolusi tinggi untuk kualitas setara kamera HP.
+       CATATAN: Tidak pakai aspectRatio constraint — width/height sudah cukup dan
+       menambah aspectRatio yang berlawanan (1920x1080=16:9 vs 9/16=portrait)
+       justru membingungkan browser dan menyebabkan zoom tidak terduga. */
     stream=await navigator.mediaDevices.getUserMedia({
       video:{
         facingMode:{ ideal: currentFacingMode },
         width:{ ideal: 1920 },
-        height:{ ideal: 1080 },
-        aspectRatio:{ ideal: currentFacingMode==="user" ? 9/16 : 16/9 }
+        height:{ ideal: 1080 }
       },
       audio:false
     });
     video.srcObject=stream;
 
-    /* Gunakan addEventListener agar tidak menimpa handler lain */
+    /* Gunakan addEventListener (once:true) agar tidak menimpa handler lain.
+       readyState >= 1 = metadata sudah tersedia (konsisten dengan event loadedmetadata) */
     await new Promise(resolve=>{
       if(video.readyState>=1) resolve();
       else video.addEventListener("loadedmetadata",resolve,{once:true});
     });
 
     await video.play();
+
     if(currentFacingMode==="user"){
-  video.style.transform="scaleX(-1)";
-}else{
-  video.style.transform="scaleX(1)";
-}
+      video.style.transform="scaleX(-1)";
+    }else{
+      video.style.transform="scaleX(1)";
+    }
     updateVideoFilter();
   }catch(e){
     showToast("Kamera tidak bisa dibuka. Pastikan izin kamera aktif dan buka lewat HTTPS.", "error", 5000);
@@ -1924,7 +1925,7 @@ flashBtn.classList.remove("flashOn");
 
 function applyFilterToContext(c){
   const f=selectedFilter;
-  if(f==="bright")   c.filter="brightness(1.22) contrast(1.10) saturate(1.35)";
+  if(f==="bright")       c.filter="brightness(1.22) contrast(1.10) saturate(1.35)";
   else if(f==="party")   c.filter="brightness(1.12) contrast(1.20) saturate(1.45) hue-rotate(-6deg)";
   else if(f==="vintage") c.filter="brightness(1.08) contrast(1.08) saturate(.80) sepia(.28)";
   else if(f==="beauty")  c.filter="brightness(1.18) contrast(1.06) saturate(1.15)";
@@ -1997,49 +1998,36 @@ function takeSnapshot(){
 
   tctx.save();
 
-  /* PERBAIKAN: terapkan filter SEBELUM drawImage agar benar-benar diterapkan ke gambar.
-     Sebelumnya filter dipanggil setelah restore() sehingga tidak berpengaruh sama sekali. */
+  /* PERBAIKAN KRITIS: filter WAJIB di-set SEBELUM drawImage.
+     Canvas 2D filter hanya berlaku untuk draw BERIKUTNYA, bukan retroaktif.
+     Bug lama: applyFilterToContext dipanggil SETELAH restore() = filter tidak pernah aktif */
   applyFilterToContext(tctx);
 
   if(isVideoLandscape){
     const rotate = getLandscapeRotateDirection();
-
     tctx.translate(outputW / 2, outputH / 2);
-
     if(currentFacingMode === "user"){
       tctx.scale(-1,1);
     }
-
     tctx.rotate(rotate);
-
     const scale = Math.max(outputW / vh, outputH / vw);
     const drawW = vw * scale;
     const drawH = vh * scale;
-
-    tctx.drawImage(
-      video,
-      -drawW / 2,
-      -drawH / 2,
-      drawW,
-      drawH
-    );
+    tctx.drawImage(video, -drawW / 2, -drawH / 2, drawW, drawH);
   }else{
     if(currentFacingMode === "user"){
       tctx.translate(outputW,0);
       tctx.scale(-1,1);
     }
-
     const scale = Math.max(outputW / vw, outputH / vh);
     const drawW = vw * scale;
     const drawH = vh * scale;
     const dx = (outputW - drawW) / 2;
     const dy = (outputH - drawH) / 2;
-
     tctx.drawImage(video, dx, dy, drawW, drawH);
   }
 
   tctx.restore();
-
   return temp;
 }
 
@@ -2887,7 +2875,7 @@ function resetPhotoSession(){
   retakeFromReview=false;
   lastMasks=[];
 
-  /* Reset torch state agar tidak konflik saat sesi baru */
+  /* Reset state flash/torch agar tidak konflik di sesi baru */
   torchEnabled=false;
   flashBtn.classList.remove("flashOn");
 
