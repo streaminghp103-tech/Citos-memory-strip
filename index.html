@@ -663,10 +663,10 @@ select option{color:black}
 /* Selfie Flash overlay — layar putih terang SEBELUM foto untuk fill light */
 #selfieFlashOverlay{
   position:fixed;inset:0;
-  background:white;
+  background:#ffffff;
   opacity:0;
   pointer-events:none;
-  z-index:75;
+  z-index:9990;  /* Harus di atas semua elemen termasuk kamera */
   transition:none;
 }
 #selfieFlashOverlay.active{
@@ -1961,24 +1961,23 @@ function playFlashEffect(){
    Kamera butuh ~300ms untuk auto-adjust exposure ke cahaya baru. */
 function selfieFlash(){
   return new Promise(resolve=>{
-    /* Matikan transition dulu agar langsung nyala */
+    /* Langsung nyala tanpa animasi */
     selfieFlashOverlay.style.transition="none";
     selfieFlashOverlay.classList.add("active");
 
-    /* Tunggu kamera auto-expose ke layar terang sebelum ambil foto */
+    /* 180ms: cukup untuk kamera auto-expose, tidak terasa lama */
     setTimeout(()=>{
       resolve();
 
-      /* Fade out pelan setelah foto diambil */
+      /* Fade out cepat setelah foto diambil */
       setTimeout(()=>{
-        selfieFlashOverlay.style.transition="opacity 0.5s ease";
+        selfieFlashOverlay.style.transition="opacity 0.25s ease";
         selfieFlashOverlay.classList.remove("active");
-        /* Restore transition default */
         setTimeout(()=>{
           selfieFlashOverlay.style.transition="none";
-        },500);
-      },120);
-    },320);
+        },250);
+      },80);
+    },180);
   });
 }
   
