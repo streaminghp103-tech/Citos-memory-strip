@@ -3401,30 +3401,85 @@ canvas.onclick=async(e)=>{
 openIgBtn.onclick=async()=>{
   if(!hasDownloaded){
     await downloadResultPhoto(false,"story_auto_download");
-
-    setTimeout(async()=>{
-      await logInteraction("open_story");
-
-      showModal(
-        "✨",
-        "Foto Otomatis Tersimpan!",
-        "Sekarang pilih foto HP103 dari galeri saat membuat Story Instagram.<br><br>Jangan lupa tag <b>@happup.samarinda.panjaitan</b>",
-        [{label:"Buka Instagram", action:()=>{ window.location.href="instagram://story-camera"; }},
-         {label:"Nanti", secondary:true}]
-      );
-    },500);
-
-    return;
   }
 
   await logInteraction("open_story");
 
+  // Coba share langsung ke Instagram Story via Web Share API
+  // Ini cara paling andal — file dibagikan ke app yang dipilih user
+  if(lastBlob && navigator.share && navigator.canShare){
+    const file = new File(
+      [lastBlob],
+      getDownloadFileName(),
+      {type:"image/png"}
+    );
+
+    if(navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({
+          files:[file],
+          title:"HP103 Memory Strip"
+        });
+        // Jika share berhasil, selesai — tidak perlu buka IG manual
+        return;
+      }catch(e){
+        // User cancel atau share gagal → lanjut ke fallback modal
+        if(e.name === "AbortError") return;
+      }
+    }
+  }
+
+  // Fallback: tampilkan modal dengan instruksi + tombol buka IG
+  // Coba urutan URL scheme yang lebih baru dulu
+  function openInstagram(){
+    // Urutan: story-camera (lama), lalu fallback ke app biasa
+    const schemes = [
+      "instagram://story-camera",
+      "instagram://",
+    ];
+
+    // Coba buka scheme pertama
+    // iOS & Android modern: instagram:// biasanya buka app langsung
+    let opened = false;
+
+    const tryScheme = (i) => {
+      if(i >= schemes.length){
+        // Semua scheme gagal, buka Play Store / App Store
+        const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        window.open(
+          isIos
+            ? "https://apps.apple.com/app/instagram/id389801252"
+            : "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "_blank"
+        );
+        return;
+      }
+
+      window.location.href = schemes[i];
+
+      // Jika setelah 1.5s masih di halaman ini, coba scheme berikutnya
+      setTimeout(()=>{
+        if(document.visibilityState !== "hidden"){
+          tryScheme(i + 1);
+        }
+      }, 1500);
+    };
+
+    tryScheme(0);
+  }
+
+  const msgDownloaded = hasDownloaded
+    ? "Foto sudah tersimpan di galeri kamu."
+    : "Foto otomatis disimpan ke galeri.";
+
   showModal(
     "✨",
-    "Buka Instagram Story",
-    "Pilih foto HP103 yang tadi sudah disimpan dari galeri.<br><br>Jangan lupa tag <b>@happup.samarinda.panjaitan</b>",
-    [{label:"Buka Instagram", action:()=>{ window.location.href="instagram://story-camera"; }},
-     {label:"Nanti", secondary:true}]
+    "Upload ke Instagram Story",
+    `${msgDownloaded}<br><br>Tap <b>Buka Instagram</b>, lalu pilih foto HP103 dari galeri saat membuat Story.<br><br>Jangan lupa tag <b>@happup.samarinda.panjaitan</b> 💕`,
+    [
+      {label:"Buka Instagram", action: openInstagram},
+      {label:"Nanti", secondary:true}
+    ]
   );
 };
 
