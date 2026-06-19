@@ -403,7 +403,6 @@ select option{color:black}
   text-shadow:0 2px 8px rgba(0,0,0,.45);
 }
 
-.templateBadge{display:none}
 
 /* Ukuran per kategori layout */
 .templateCard.catSquare{min-width:96px;width:96px;flex:0 0 96px}
@@ -986,7 +985,6 @@ video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX
 
     <div class="templateGrid"></div>
 
-    <input id="roomInput" type="hidden" readonly>
 
 <div class="formBottomBar">
   <input id="songInput" placeholder="Lagu favorit">
@@ -996,7 +994,6 @@ video{width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX
     <button id="startBtn">Ambil Foto</button>
   </div>
 
-  <button id="adminBtn" class="secondary" style="display:none;">⚙️ Admin Template</button>
 </div>
   </div>
 </section>
@@ -1260,6 +1257,12 @@ const supabaseClient = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+
+// Identitas akun admin di Supabase Auth.
+// Ini BUKAN rahasia (cuma email), password aslinya tersimpan terenkripsi
+// di Supabase, bukan di file ini. Buat user ini di Supabase Dashboard ->
+// Authentication -> Users, lalu sesuaikan email-nya di sini.
+const ADMIN_EMAIL = "admin@happypuppy.local";
 const startScreen=document.getElementById("startScreen");
 const formScreen=document.getElementById("formScreen");
 const cameraScreen=document.getElementById("cameraScreen");
@@ -1285,7 +1288,6 @@ const togglePasswordBtn=document.getElementById("togglePasswordBtn");
 const goFormBtn=document.getElementById("goFormBtn");
 const backHomeBtn=document.getElementById("backHomeBtn");
 const startBtn=document.getElementById("startBtn");
-const adminBtn=document.getElementById("adminBtn");
 const backFromAdminBtn=document.getElementById("backFromAdminBtn");
 const saveTemplateBtn=document.getElementById("saveTemplateBtn");
   const adminTemplateList=document.getElementById("adminTemplateList");
@@ -1333,7 +1335,6 @@ const ctx=canvas.getContext("2d");
 
 const roomBadge=document.getElementById("roomBadge");
 const roomLabel=document.getElementById("roomLabel");
-const roomInput=document.getElementById("roomInput");
 const songInput=document.getElementById("songInput");
   
 let selectedFilter="natural";
@@ -1456,7 +1457,6 @@ let lastBlob=null;
 let isCountingDown=false;
 let countdownCancelled=false;
 let pendingPhoto=null;
-  let reviewIndex=-1;
 let retakeIndex=-1;
 let lastMasks=[];
 let retakeFromReview=false;
@@ -1468,7 +1468,6 @@ const isLobby = room.toLowerCase() === "lobby";
 
 roomLabel.textContent = isLobby ? "AREA" : "ROOM";
 roomBadge.textContent = isLobby ? "Lobby" : room;
-roomInput.value = isLobby ? "LOBBY" : `ROOM ${room}`;
 
 function showScreen(screen){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -2300,9 +2299,6 @@ if(photos.length >= MAX_PHOTOS){
 
   stopCamera();
 
-  console.log("TOTAL FOTO", photos.length);
-  console.log(photos);
-
   const hasMissingPhoto = photos.slice(0,MAX_PHOTOS).some(p=>!p);
 
 if(hasMissingPhoto){
@@ -2336,270 +2332,6 @@ captureBtn.disabled=false;
 }
 }
 
-function roundRect(x,y,w,h,r){
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);
-  ctx.lineTo(x+w-r,y);
-  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r);
-  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  ctx.lineTo(x+r,y+h);
-  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-  ctx.lineTo(x,y+r);
-  ctx.quadraticCurveTo(x,y,x+r,y);
-  ctx.closePath();
-}
-
-function drawPhoto(img,x,y,w,h,r=18,rot=0,border="#fff"){
-  ctx.save();
-  ctx.translate(x+w/2,y+h/2);
-  ctx.rotate(rot*Math.PI/180);
-
-  ctx.shadowColor="rgba(0,0,0,.45)";
-  ctx.shadowBlur=24;
-  ctx.shadowOffsetY=12;
-
-  ctx.fillStyle=border;
-  roundRect(-w/2-10,-h/2-10,w+20,h+20,r+8);
-  ctx.fill();
-
-  ctx.shadowColor="transparent";
-  roundRect(-w/2,-h/2,w,h,r);
-  ctx.clip();
-
-  const sr=img.width/img.height;
-  const dr=w/h;
-  let sx,sy,sw,sh;
-
-  if(sr>dr){
-    sh=img.height; sw=img.height*dr; sx=(img.width-sw)/2; sy=0;
-  }else{
-    sw=img.width; sh=img.width/dr; sx=0; sy=(img.height-sh)/2;
-  }
-
-  ctx.drawImage(img,sx,sy,sw,sh,-w/2,-h/2,w,h);
-  ctx.restore();
-}
-
-function textCenter(txt,x,y,size,color="#fff",bold=true,font="Arial"){
-  ctx.fillStyle=color;
-  ctx.font=`${bold?"bold ":""}${size}px ${font}`;
-  ctx.textAlign="center";
-  ctx.fillText(txt,x,y);
-  ctx.textAlign="left";
-}
-
-function baseBg(c1,c2,c3){
-  const bg=ctx.createLinearGradient(0,0,0,1920);
-  bg.addColorStop(0,c1);
-  bg.addColorStop(.48,c2);
-  bg.addColorStop(1,c3);
-  ctx.fillStyle=bg;
-  ctx.fillRect(0,0,1080,1920);
-}
-
-function getDate(){
-  return new Date().toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
-}
-  function getDateParts(){
-  const d=new Date();
-  const day=String(d.getDate()).padStart(2,"0");
-  const month=d.toLocaleDateString("id-ID",{month:"short"}).toUpperCase();
-  const year=d.getFullYear();
-  return {day,month,year};
-}
-
-function getTime(){
-  return new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
-}
-
-function getSong(){
-  return songInput.value.trim() || "KARAOKE NIGHT";
-}
-
-function drawDoodles(color){
-  ctx.strokeStyle=color;
-  ctx.lineWidth=4;
-  for(let i=0;i<12;i++){
-    const x=80+(i*83)%900;
-    const y=180+(i*137)%1550;
-    ctx.beginPath();
-    ctx.arc(x,y,9+(i%4)*3,0,Math.PI*2);
-    ctx.stroke();
-  }
-}
-
-function drawDoodleText(txt,x,y,size,color="#fff",rot=0,font="Arial"){
-  ctx.save();
-  ctx.translate(x,y);
-  ctx.rotate(rot*Math.PI/180);
-  ctx.fillStyle=color;
-  ctx.font=`bold ${size}px ${font}`;
-  ctx.textAlign="center";
-  ctx.fillText(txt,0,0);
-  ctx.restore();
-}
-
-function drawStripLayout(theme){
-  baseBg(theme.bg1,theme.bg2,theme.bg3);
-
-  ctx.fillStyle=theme.glow;
-  ctx.beginPath();
-  ctx.arc(900,190,280,0,Math.PI*2);
-  ctx.fill();
-
-  textCenter(theme.icon+" "+theme.title,540,82,42,theme.main);
-textCenter(theme.subtitle,540,128,38,theme.sub);
-
-  const photoSize=370;
-const photoX=(1080-photoSize)/2;
-const photoW=photoSize;
-const photoH=photoSize;
-const gap=30;
-const startY=155;
-
-  drawPhoto(photos[0],photoX,startY,photoW,photoH,22,-1,theme.border);
-  drawPhoto(photos[1],photoX,startY+(photoH+gap),photoW,photoH,22,1,theme.border);
-  drawPhoto(photos[2],photoX,startY+(photoH+gap)*2,photoW,photoH,22,-1,theme.border);
-  drawPhoto(photos[3],photoX,startY+(photoH+gap)*3,photoW,photoH,22,1,theme.border);
-
-  drawDoodleText("ROOM",170,610,28,theme.main,-10);
-drawDoodleText(room.toUpperCase(),170,650,30,"#fff",-8);
-
-drawDoodleText("GOOD",900,760,28,"#fff",-10);
-drawDoodleText("MUSIC",900,800,34,theme.main,-10);
-
-const dateParts=getDateParts();
-
-drawDoodleText(dateParts.day,170,1325,36,theme.main,-6);
-drawDoodleText(dateParts.month,170,1365,26,"#fff",-6);
-drawDoodleText(dateParts.year,170,1400,26,"#fff",-6);
-
-drawDoodleText(getTime(),900,1350,30,"#fff",4);
-
-drawDoodleText("♪",900,430,30,theme.sub,12);
-drawDoodleText("✦",890,610,30,theme.sub,0);
-drawDoodleText("♡",900,690,34,theme.main,10);
-drawDoodleText("★",900,1120,26,theme.sub,0);
-drawDoodleText(theme.icon,900,1480,36,theme.main,-15);
-
-textCenter("@happup.samarinda.panjaitan",540,1825,22,"rgba(255,255,255,.85)",false);
-  
-}
-
-function renderKaraoke(){
-  drawStripLayout({
-    bg1:"#050408",
-    bg2:"#16071a",
-    bg3:"#030303",
-    glow:"rgba(255,47,146,.28)",
-    main:"#ff5dad",
-    sub:"#8bd9ff",
-    border:"#ff5dad",
-    icon:"🎤",
-    title:"KARAOKE",
-    subtitle:"NIGHT",
-    sideText1:"?",
-sideText2:getSong().substring(0,10)
-  });
-}
-
-function renderCouple(){
-  drawStripLayout({
-    bg1:"#1a0710",
-    bg2:"#3b1022",
-    bg3:"#090305",
-    glow:"rgba(255,150,190,.28)",
-    main:"#ff9ac7",
-    sub:"#ffd6e8",
-    border:"#ffb1d2",
-    icon:"♡",
-    title:"COUPLE",
-    subtitle:"MEMORY",
-    sideText1:"TOGETHER",
-    sideText2:"FOREVER"
-  });
-}
-
-function renderBestFriend(){
-  drawStripLayout({
-    bg1:"#090909",
-    bg2:"#191204",
-    bg3:"#020202",
-    glow:"rgba(255,214,75,.24)",
-    main:"#ffd64b",
-    sub:"#ff9f43",
-    border:"#ffd64b",
-    icon:"★",
-    title:"BEST",
-    subtitle:"FRIENDS",
-    sideText1:"BESTIES",
-    sideText2:"SQUAD"
-  });
-}
-
-function renderBirthday(){
-  drawStripLayout({
-    bg1:"#12051c",
-    bg2:"#341044",
-    bg3:"#050205",
-    glow:"rgba(255,122,192,.3)",
-    main:"#ff7ac0",
-    sub:"#ffd36a",
-    border:"#ff8bc5",
-    icon:"🎂",
-    title:"HAPPY",
-    subtitle:"BIRTHDAY",
-    sideText1:"MAKE",
-    sideText2:"A WISH"
-  });
-}
-
-function renderReceipt(){
-  ctx.fillStyle="#f4ead7";
-  ctx.fillRect(0,0,1080,1920);
-
-  ctx.fillStyle="#19120b";
-  textCenter("HAPPY PUPPY",540,100,42,"#19120b");
-  textCenter("103",540,145,32,"#19120b");
-
-  roundRect(220,190,640,58,10);
-  ctx.fill();
-  textCenter("KARAOKE RECEIPT",540,230,26,"#fff");
-
-  ctx.font="bold 36px monospace";
-  ctx.fillStyle="#19120b";
-  ctx.fillText(`ROOM     : ${room}`,120,340);
-  ctx.fillText(`CHECK IN : ${getTime()}`,120,405);
-  ctx.fillText(`DATE     : ${getDate()}`,120,470);
-  ctx.fillText(`PAX      : 4`,120,535);
-
-  ctx.setLineDash([10,10]);
-  ctx.beginPath();
-  ctx.moveTo(120,620);
-  ctx.lineTo(960,620);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  textCenter("TOP SONG",540,710,32,"#19120b");
-  textCenter(getSong().toUpperCase().slice(0,22),540,775,48,"#19120b");
-
-  drawPhoto(photos[0],150,850,360,300,6,0,"#fff");
-  drawPhoto(photos[1],570,850,360,300,6,0,"#fff");
-  drawPhoto(photos[2],150,1210,360,300,6,0,"#fff");
-  drawPhoto(photos[3],570,1210,360,300,6,0,"#fff");
-  
-
-  textCenter("THANK YOU",540,1650,36,"#19120b");
-  textCenter("SEE YOU AGAIN!",540,1700,34,"#19120b");
-
-  ctx.fillStyle="#19120b";
-  for(let i=0;i<38;i++){
-    const x=160+i*20;
-    const h=40+(i%5)*14;
-    ctx.fillRect(x,1770,8,h);
-  }
-}
 
   function loadImage(src){
   return new Promise((resolve,reject)=>{
@@ -2635,10 +2367,6 @@ function isMarkerGreen(data,index){
   );
 }
   
-// Template final untuk hasil akhir.
-// Untuk tes sekarang: template yang tersedia adalah preview-couple.png dan preview-birthday.png.
-// Nanti kalau file lain sudah di-upload, cukup ganti map ini ke preview-karaoke.png, dst.
-
 const maskCache={};
 
 
@@ -2727,8 +2455,6 @@ const h=img.naturalHeight || img.height;
     if(Math.abs(a.y-b.y)>40) return a.y-b.y;
     return a.x-b.x;
   });
-console.log("MASK DETECTED", masks.length);
-console.log(masks);
   maskCache[src] = masks;
   return maskCache[src];
 }
@@ -2841,7 +2567,6 @@ async function renderUploadedTemplate(){
   // 2. Deteksi area hijau
   const masks=detectGreenMasks(maskImg,tpl.mask);
 
-  console.log("MASK TERDETEKSI:", masks.length, masks);
   lastMasks = masks.slice(0,MAX_PHOTOS);
 
 if(masks.length < MAX_PHOTOS){
@@ -2887,18 +2612,40 @@ adminCancelBtn.onclick=()=>{
   adminLoginModal.style.display="none";
 };
 
-adminLoginBtn.onclick=()=>{
+adminLoginBtn.onclick=async()=>{
   const pass=adminPasswordInput.value.trim();
 
-  if(pass!=="HP1032026"){
-    showToast("Password salah.", "error");
+  if(!pass){
+    showToast("Masukkan password admin.", "warn");
     return;
   }
 
-  adminLoginModal.style.display="none";
-  showScreen(adminScreen);
-  renderAdminTemplateList();
-  renderUsageStats();
+  adminLoginBtn.disabled=true;
+  adminLoginBtn.textContent="Memeriksa...";
+
+  try{
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email: ADMIN_EMAIL,
+      password: pass
+    });
+
+    if(error || !data.session){
+      showToast("Password salah.", "error");
+      return;
+    }
+
+    adminPasswordInput.value="";
+    adminLoginModal.style.display="none";
+    showScreen(adminScreen);
+    renderAdminTemplateList();
+    renderUsageStats();
+
+  }catch(e){
+    showToast("Gagal login admin: " + (e?.message || ""), "error");
+  }finally{
+    adminLoginBtn.disabled=false;
+    adminLoginBtn.textContent="Masuk Admin";
+  }
 };
 
 adminPasswordInput.addEventListener("keydown",(e)=>{
@@ -2907,11 +2654,8 @@ adminPasswordInput.addEventListener("keydown",(e)=>{
   }
 });
 
-adminBtn.onclick=()=>{
-  showScreen(adminScreen);
-};
-
-backFromAdminBtn.onclick=()=>{
+backFromAdminBtn.onclick=async()=>{
+  await supabaseClient.auth.signOut();
   showScreen(formScreen);
 };
   previewFileInput.addEventListener("change",()=>{
