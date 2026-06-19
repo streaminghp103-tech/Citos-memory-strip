@@ -652,13 +652,26 @@ select option{color:black}
 }
 .previewThumb img{width:100%;height:100%;object-fit:cover}
 
-/* Flash overlay */
+/* Flash overlay (efek visual setelah foto) */
 #flashOverlay{
   position:fixed;inset:0;background:white;opacity:0;
   pointer-events:none;z-index:80;transition:opacity .12s ease;
 }
 #flashOverlay.show{opacity:1}
 #flashBtn.flashOn{background:#ff2f92}
+
+/* Selfie Flash overlay — layar putih terang SEBELUM foto untuk fill light */
+#selfieFlashOverlay{
+  position:fixed;inset:0;
+  background:white;
+  opacity:0;
+  pointer-events:none;
+  z-index:75;
+  transition:none;
+}
+#selfieFlashOverlay.active{
+  opacity:1;
+}
 
 /* Countdown */
 #countdown{
@@ -1063,6 +1076,7 @@ video{width:100%;height:100%;object-fit:contain;background:#000}
 
 <div id="countdown">3</div>
 <div id="flashOverlay"></div>
+<div id="selfieFlashOverlay"></div>
 
 <!-- Toast notification container -->
 <div id="toastContainer"></div>
@@ -1322,6 +1336,7 @@ const timerPopup=document.getElementById("timerPopup");
 const switchCameraBtn=document.getElementById("switchCameraBtn");
 const flashBtn=document.getElementById("flashBtn");
 const flashOverlay=document.getElementById("flashOverlay");
+const selfieFlashOverlay=document.getElementById("selfieFlashOverlay");
   const loadingOverlay=document.getElementById("loadingOverlay");
 const loadingText=document.getElementById("loadingText");
 const reviewGrid=document.getElementById("reviewGrid");
@@ -1360,7 +1375,7 @@ let torchEnabled=false;
     video.style.filter="brightness(1.18) contrast(1.06) saturate(1.15)";
   }else{
     /* Natural: mimik auto-enhance kamera HP bawaan */
-    video.style.filter="brightness(1.10) contrast(1.12) saturate(1.20)";
+    video.style.filter="brightness(1.12) contrast(1.14) saturate(1.22)";
   }
 }
 document.querySelectorAll(".filterChip").forEach(btn=>{
@@ -1929,17 +1944,42 @@ function applyFilterToContext(c){
   else if(f==="party")   c.filter="brightness(1.12) contrast(1.20) saturate(1.45) hue-rotate(-6deg)";
   else if(f==="vintage") c.filter="brightness(1.08) contrast(1.08) saturate(.80) sepia(.28)";
   else if(f==="beauty")  c.filter="brightness(1.18) contrast(1.06) saturate(1.15)";
-  else /* Natural */     c.filter="brightness(1.10) contrast(1.12) saturate(1.20)";
+  else /* Natural */     c.filter="brightness(1.12) contrast(1.14) saturate(1.22)";
 }
 
 function playFlashEffect(){
   document.querySelector(".fullCamera")?.classList.add("shoot");
   flashOverlay.classList.add("show");
-
   setTimeout(()=>{
     flashOverlay.classList.remove("show");
     document.querySelector(".fullCamera")?.classList.remove("shoot");
   },180);
+}
+
+/* Selfie Flash: nyalakan layar putih terang sebelum foto agar wajah
+   mendapat fill light, seperti fitur Screen Flash di kamera HP bawaan.
+   Kamera butuh ~300ms untuk auto-adjust exposure ke cahaya baru. */
+function selfieFlash(){
+  return new Promise(resolve=>{
+    /* Matikan transition dulu agar langsung nyala */
+    selfieFlashOverlay.style.transition="none";
+    selfieFlashOverlay.classList.add("active");
+
+    /* Tunggu kamera auto-expose ke layar terang sebelum ambil foto */
+    setTimeout(()=>{
+      resolve();
+
+      /* Fade out pelan setelah foto diambil */
+      setTimeout(()=>{
+        selfieFlashOverlay.style.transition="opacity 0.5s ease";
+        selfieFlashOverlay.classList.remove("active");
+        /* Restore transition default */
+        setTimeout(()=>{
+          selfieFlashOverlay.style.transition="none";
+        },500);
+      },120);
+    },320);
+  });
 }
   
 function getDeviceOrientationAngle(){
@@ -2250,6 +2290,12 @@ async function capturePhoto(){
     if(!countdownDone){
       captureBtn.disabled=false;
       return;
+    }
+
+    /* Selfie flash: aktifkan hanya di kamera depan saat torch tidak menyala.
+       Layar berfungsi sebagai fill light — sama seperti "Screen Flash" di kamera bawaan HP. */
+    if(currentFacingMode==="user" && !torchEnabled){
+      await selfieFlash();
     }
 
     playFlashEffect();
