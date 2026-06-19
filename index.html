@@ -527,7 +527,13 @@ select option{color:black}
   overflow:hidden;background:#000;
 }
 .fullCamera.shoot{animation:cameraShoot .16s ease}
-.fullCamera video{width:100%;height:100%;object-fit:cover;background:#000}
+.fullCamera video{
+  width:100%;height:100%;object-fit:cover;background:#000;
+  /* Percepat rendering via GPU — mengurangi blur akibat software scaling */
+  will-change:transform;
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+}
 
 /* Overlay atas kamera */
 .cameraTopOverlay{
@@ -1347,16 +1353,17 @@ let torchEnabled=false;
   const f=selectedFilter;
 
   if(f==="bright"){
-    video.style.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
+    video.style.filter="brightness(1.22) contrast(1.10) saturate(1.35)";
   }else if(f==="party"){
-    video.style.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
-   }else if(f==="vintage"){
-    video.style.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
+    video.style.filter="brightness(1.12) contrast(1.20) saturate(1.45) hue-rotate(-6deg)";
+  }else if(f==="vintage"){
+    video.style.filter="brightness(1.08) contrast(1.08) saturate(.80) sepia(.28)";
   }else if(f==="beauty"){
-    video.style.filter="brightness(1.14) contrast(1.03) saturate(1.08)";
+    video.style.filter="brightness(1.18) contrast(1.06) saturate(1.15)";
   }else{
-  /* Natural: tanpa filter — biarkan sensor kamera tampil apa adanya seperti kamera bawaan HP */
-  video.style.filter="none";
+    /* Natural: mimik auto-enhance kamera HP bawaan (brightness, contrast, saturation, sharpening) */
+    video.style.filter="brightness(1.10) contrast(1.12) saturate(1.20)";
+  }
 }
 }
 document.querySelectorAll(".filterChip").forEach(btn=>{
@@ -1917,11 +1924,11 @@ flashBtn.classList.remove("flashOn");
 
 function applyFilterToContext(c){
   const f=selectedFilter;
-  if(f==="bright") c.filter="brightness(1.16) contrast(1.07) saturate(1.18)";
-  else if(f==="party") c.filter="brightness(1.08) contrast(1.16) saturate(1.28) hue-rotate(-6deg)";
-  else if(f==="vintage") c.filter="brightness(1.05) contrast(1.05) saturate(.85) sepia(.22)";
-  else if(f==="beauty") c.filter="brightness(1.14) contrast(1.03) saturate(1.08)";
-  else c.filter="none"; /* Natural: tidak ada modifikasi warna — warna asli sensor kamera */
+  if(f==="bright")   c.filter="brightness(1.22) contrast(1.10) saturate(1.35)";
+  else if(f==="party")   c.filter="brightness(1.12) contrast(1.20) saturate(1.45) hue-rotate(-6deg)";
+  else if(f==="vintage") c.filter="brightness(1.08) contrast(1.08) saturate(.80) sepia(.28)";
+  else if(f==="beauty")  c.filter="brightness(1.18) contrast(1.06) saturate(1.15)";
+  else /* Natural */     c.filter="brightness(1.10) contrast(1.12) saturate(1.20)";
 }
 
 function playFlashEffect(){
