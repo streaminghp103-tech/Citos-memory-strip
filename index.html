@@ -1341,8 +1341,11 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
   <option value="Layout 2x6" selected>Layout 2x6</option>
   <option value="Layout 4x6">Layout 4x6</option>
 </select>
+
+  <label class="small">Jumlah Foto (sesuai jumlah area hijau di mask)</label>
+<input id="templatePhotoCountInput" type="number" min="1" max="12" step="1" value="4" placeholder="Jumlah foto">
   
-  
+
 
   <label class="small">Preview</label>
 <input id="previewFileInput" type="file" accept="image/png,image/jpeg">
@@ -1526,6 +1529,7 @@ const adminAddPanel=document.getElementById("adminAddPanel");
 const adminManagePanel=document.getElementById("adminManagePanel");
 const templateNameInput=document.getElementById("templateNameInput");
   const templateLayoutInput=document.getElementById("templateLayoutInput");
+  const templatePhotoCountInput=document.getElementById("templatePhotoCountInput");
   
 
 const maskFileInput=document.getElementById("maskFileInput");
@@ -1606,10 +1610,15 @@ let torchEnabled=false;
       ? "brightness(1.20) contrast(1.02) saturate(1.02) hue-rotate(-4deg)"
       : "brightness(1.10) contrast(1.02) saturate(1.02) hue-rotate(-4deg)";
   }else{
-    /* Natural: cerah & bersih, tidak oversaturated/kemerahan */
+    /* Natural: PERBAIKAN BUG — sebelumnya brightness Natural (1.16/1.08)
+       lebih redup dari Bright (1.22/1.12) padahal Natural adalah filter
+       default yang paling sering dipakai, jadi hasilnya terasa kusam.
+       Sekarang brightness dinaikkan mendekati Bright + sedikit tambahan
+       contrast lembut untuk efek "clean & glowing", tapi saturate tetap
+       dijaga moderat (bukan oversaturated) supaya warna kulit tetap natural. */
     video.style.filter = isSelfie
-      ? "brightness(1.16) contrast(1.04) saturate(1.04) hue-rotate(-3deg)"
-      : "brightness(1.08) contrast(1.03) saturate(1.04) hue-rotate(-3deg)";
+      ? "brightness(1.22) contrast(1.06) saturate(1.08) hue-rotate(-3deg)"
+      : "brightness(1.12) contrast(1.05) saturate(1.08) hue-rotate(-3deg)";
   }
 }
 document.querySelectorAll(".filterChip").forEach(btn=>{
@@ -1665,14 +1674,24 @@ let MAX_PHOTOS = 4;
 function getTemplatePhotoCount(tpl){
   if(!tpl) return 4;
 
+  // PERBAIKAN BUG: dulu fungsi ini mengabaikan tpl.photo_count dan
+  // hardcode 1 (Square) / 4 (lainnya) berdasarkan kategori saja.
+  // Akibatnya template dengan photo_count custom (mis. 3 foto untuk
+  // 3 grid) tetap dipaksa MAX_PHOTOS=4, padahal mask hijau di
+  // template cuma ada 3 area -> renderUploadedTemplate() selalu
+  // throw "Frame hijau kurang. Terdeteksi 3/4".
+  // Sekarang: pakai photo_count dari database sebagai sumber utama.
+  const count = Number(tpl.photo_count);
+
+  if(Number.isFinite(count) && count > 0){
+    return count;
+  }
+
+  // Fallback untuk template lama yang belum punya photo_count valid
   const category = getTemplateCategory(tpl);
 
   if(category === "Square"){
     return 1;
-  }
-
-  if(category === "Layout 2x6" || category === "Layout 4x6"){
-    return 4;
   }
 
   return 4;
@@ -2215,9 +2234,10 @@ function applyFilterToContext(c){
       ? "brightness(1.20) contrast(1.02) saturate(1.02) hue-rotate(-4deg)"
       : "brightness(1.10) contrast(1.02) saturate(1.02) hue-rotate(-4deg)";
   }else{
+    /* Disamakan dengan updateVideoFilter() — lihat catatan perbaikan disana */
     c.filter = isSelfie
-      ? "brightness(1.16) contrast(1.04) saturate(1.04) hue-rotate(-3deg)"
-      : "brightness(1.08) contrast(1.03) saturate(1.04) hue-rotate(-3deg)";
+      ? "brightness(1.22) contrast(1.06) saturate(1.08) hue-rotate(-3deg)"
+      : "brightness(1.12) contrast(1.05) saturate(1.08) hue-rotate(-3deg)";
   }
 }
 
@@ -2361,7 +2381,19 @@ function takeSnapshot(){
      dengan opacity rendah. Tekstur halus (pori, noise kulit) jadi
      lembut, tapi tepi tajam (mata, alis, garis rambut) tetap
      kelihatan karena soft-light tidak meratakan kontras tinggi. */
-  const smoothAmount = (selectedFilter === "beauty") ? 0.45 : 0.22;
+  /* PERBAIKAN BUG: dulu smoothAmount cuma dibedakan "beauty" vs "lainnya",
+     jadi filter Natural (default) cuma dapat smoothing 0.22 — terlalu
+     tipis sehingga tekstur kulit masih terlihat kusam/kasar di kamera HP
+     indoor. Sekarang tiap filter punya nilai sendiri; Natural dinaikkan
+     ke 0.32 (mulus tapi masih natural, tidak sehalus mode Beauty). */
+  const smoothAmountMap = {
+    natural: 0.32,
+    bright:  0.30,
+    beauty:  0.45,
+    party:   0.20,
+    vintage: 0.18
+  };
+  const smoothAmount = smoothAmountMap[selectedFilter] ?? 0.28;
 
   const blurCanvas = document.createElement("canvas");
   blurCanvas.width = outputW;
@@ -2641,7 +2673,7 @@ showScreen(resultScreen);
   return;
 }
 
-// Jangan biarkan foto lebih dari 4
+// Jangan biarkan foto lebih dari MAX_PHOTOS (jumlah foto sesuai template)
 if(photos.length >= MAX_PHOTOS){
   captureBtn.disabled=false;
   return;
@@ -3017,6 +3049,13 @@ backFromAdminBtn.onclick=async()=>{
   await supabaseClient.auth.signOut();
   showScreen(formScreen);
 };
+
+// Bantu admin: saat ganti kategori layout, isi default jumlah foto yang wajar.
+// Admin tetap bisa mengubahnya manual sesuai jumlah area hijau di mask sendiri.
+templateLayoutInput.addEventListener("change",()=>{
+  templatePhotoCountInput.value = templateLayoutInput.value === "Square" ? "1" : "4";
+});
+
   previewFileInput.addEventListener("change",()=>{
 
   const file=previewFileInput.files[0];
@@ -3074,7 +3113,17 @@ saveTemplateBtn.onclick=async()=>{
 
     const name=templateNameInput.value.trim();
     const layoutType=templateLayoutInput.value;
-    const photoCount = layoutType === "Square" ? 1 : 4;
+
+    // PERBAIKAN BUG: dulu photoCount di-hardcode 1 (Square) / 4 (lainnya),
+    // jadi template dengan 3 grid (atau jumlah lain) tidak bisa disimpan
+    // dengan benar dan selalu dipaksa 4 foto saat dipakai. Sekarang admin
+    // bisa menentukan sendiri jumlah foto sesuai jumlah area hijau di mask.
+    let photoCount = parseInt(templatePhotoCountInput.value, 10);
+
+    if(!Number.isFinite(photoCount) || photoCount < 1){
+      photoCount = layoutType === "Square" ? 1 : 4;
+    }
+    photoCount = Math.min(photoCount, 12);
 
     if(!name){
       showToast("Nama template wajib diisi.", "warn");
@@ -3119,6 +3168,7 @@ if(!maskName.endsWith(".png")){
 
     templateNameInput.value="";
 templateLayoutInput.value="Layout 2x6";
+templatePhotoCountInput.value="4";
     
 previewFileInput.value="";
     
@@ -3250,10 +3300,17 @@ function getFrameGuideLayout(tpl){
   if(!tpl) return {cols:2, rows:2, layoutClass:"layout-2x6", total:4, aspectW:3, aspectH:4};
 
   const cat = getTemplateCategory(tpl);
-  const total = tpl.photo_count || (cat==="Square" ? 1 : 4);
+
+  // PERBAIKAN BUG: dulu "total" dihitung ulang manual di sini
+  // (tpl.photo_count || fallback kategori), beda sumber dari
+  // getTemplatePhotoCount() yang dipakai untuk MAX_PHOTOS. Akibatnya
+  // viewfinder/frame guide bisa menampilkan jumlah slot yang berbeda
+  // dari jumlah foto yang sebenarnya diminta sistem. Sekarang pakai
+  // satu sumber yang sama supaya selalu sinkron.
+  const total = getTemplatePhotoCount(tpl);
 
   if(cat === "Square"){
-    return {cols:1, rows:1, layoutClass:"layout-square", total:1, aspectW:1, aspectH:1};
+    return {cols:1, rows:total, layoutClass:"layout-square", total, aspectW:1, aspectH:1};
   }
   if(cat === "Layout 4x6"){
     const rows = Math.ceil(total / 2);
