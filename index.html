@@ -653,7 +653,44 @@ select option{color:black}
 .shutterBtn.cancelMode #shutterIcon::before{transform:rotate(45deg)}
 .shutterBtn.cancelMode #shutterIcon::after{transform:rotate(-45deg)}
 
-/* ── Template Frame Guide — Viewfinder Corner Frame ─────── */
+/* ── Citos Special Template ────────────────────────────────── */
+.templateCard.catCitos{min-width:96px;width:96px;flex:0 0 96px}
+.templateCard.catCitos .templateImageBox{width:96px;height:128px;border-radius:14px;background:linear-gradient(145deg,#1a6b4a,#0d4a32)}
+.templateCard.catCitos .templateName{max-width:96px}
+
+/* Preview thumbnail inline untuk Citos (SVG mini) */
+.citosThumbBox{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:6px 5px 5px;gap:3px;
+  background:linear-gradient(145deg,#1d7a52,#0d4a32);
+  color:white;
+}
+.citosThumbDate{font-size:6px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:.3px;text-align:center}
+.citosThumbTitle{font-size:9px;font-weight:900;color:white;text-align:center;line-height:1.1}
+.citosThumbImg{width:80%;aspect-ratio:1;border-radius:6px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.35);margin:3px 0}
+.citosThumbSong{font-size:6px;font-weight:800;color:rgba(255,255,255,.85);text-align:left;width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.citosThumbBand{font-size:5px;color:rgba(255,255,255,.6);text-align:left;width:80%}
+.citosThumbPlayer{display:flex;gap:3px;align-items:center;margin-top:2px;opacity:.8;font-size:7px}
+
+/* Input khusus Citos — tersembunyi jika template lain aktif */
+#citosInputGroup{
+  display:none;flex-direction:column;gap:6px;
+  padding:8px 0 0;
+}
+#citosInputGroup.show{display:flex}
+#citosInputGroup label{
+  font-size:11px;font-weight:700;color:#ffd21a;letter-spacing:.5px;margin-bottom:-2px;
+}
+#citosInputGroup input{
+  background:#071b38;border:1px solid rgba(100,200,130,.35);
+  font-size:14px;padding:11px 14px;border-radius:16px;color:white;
+}
+#citosInputGroup input:focus{border-color:rgba(100,200,130,.7);}
+
+/* Sheet grid Citos */
+.categorySheetGrid .templateCard.catCitos{width:92px;min-width:92px;flex:0 0 92px}
+.categorySheetGrid .templateCard.catCitos .templateImageBox{width:92px;height:122px;border-radius:14px}
 
 /* Container utama: overlay penuh di atas video */
 #templateFrameGuide{
@@ -1315,6 +1352,14 @@ video{width:100%;height:100%;object-fit:contain;background:#000}
 <div class="formBottomBar">
   <input id="songInput" placeholder="Lagu favorit">
 
+  <!-- Input khusus template Citos: judul lagu & penyanyi -->
+  <div id="citosInputGroup">
+    <label>🎵 Judul Lagu</label>
+    <input id="citosLaguInput" placeholder="Contoh: Cinta Luar Biasa">
+    <label>🎤 Penyanyi / Band</label>
+    <input id="citosBandInput" placeholder="Contoh: Andmesh Kamaleng">
+  </div>
+
   <div class="formActionRow">
     <button id="backHomeBtn" class="secondary">Kembali</button>
     <button id="startBtn">Ambil Foto</button>
@@ -1919,6 +1964,17 @@ function hideLoading(){
   });
 }
 
+// ── Citos Special Template (hardcoded, tidak dari Supabase) ─
+const CITOS_TEMPLATE = {
+  id: "__citos_special__",
+  name: "Happy Puppy Citos",
+  preview: null,          // preview dirender lewat SVG inline
+  mask: null,             // render full via canvas JS
+  layout_type: "Citos",
+  photo_count: 1,         // 1 area foto utama (square-ish)
+  isCitos: true
+};
+
 let templates=[];
 
 function fileToDataURL(file){
@@ -1969,6 +2025,9 @@ async function loadTemplates(){
       photo_count: Number(t.photo_count || 4)
     }));
 
+    // Inject template Citos sebagai entri pertama (selalu muncul di paling atas)
+    templates.unshift(CITOS_TEMPLATE);
+
     if(templates.length === 0){
       if(grid) grid.innerHTML = `<div style="text-align:center;padding:40px 0;opacity:.6;font-size:13px;">Belum ada template aktif.<br>Upload template di menu Admin.</div>`;
       return;
@@ -1976,6 +2035,7 @@ async function loadTemplates(){
 
     selectedTemplate = templates[0].id;
     renderTemplatePicker();
+    toggleCitosInputs();
 
     if(adminTemplateList){
       renderAdminTemplateList();
@@ -1997,6 +2057,9 @@ function getSelectedTemplate(){
 }
 
 function getTemplateCategory(tpl){
+  // Template Citos khusus
+  if(tpl.isCitos || tpl.layout_type === "Citos") return "Citos";
+
   // Prioritas utama: kategori manual dari admin
   if(
     tpl.layout_type === "Square" ||
@@ -2043,10 +2106,52 @@ function getTemplateCategory(tpl){
 }
 
 function getCategoryClass(cat){
-  return cat === "Square" ? "catSquare" :
-         cat === "Layout 2x6" ? "cat2x6" :
-         cat === "Layout 4x6" ? "cat4x6" :
-         "catOther"; // termasuk kategori "Other"
+  return cat === "Square"      ? "catSquare" :
+         cat === "Layout 2x6"  ? "cat2x6" :
+         cat === "Layout 4x6"  ? "cat4x6" :
+         cat === "Citos"       ? "catCitos" :
+         "catOther";
+}
+
+function createCitosThumbSVG(){
+  const now = new Date();
+  const days = ["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
+  const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"];
+  const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  const hh = String(now.getHours()).padStart(2,"0");
+  const mm = String(now.getMinutes()).padStart(2,"0");
+
+  return `<svg viewBox="0 0 96 128" xmlns="http://www.w3.org/2000/svg" width="96" height="128">
+    <defs>
+      <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#2d9b6a"/>
+        <stop offset="100%" style="stop-color:#0d4a32"/>
+      </linearGradient>
+      <clipPath id="rnd"><rect width="96" height="128" rx="14"/></clipPath>
+    </defs>
+    <rect width="96" height="128" fill="url(#cg)" rx="14"/>
+    <!-- noise texture dots -->
+    <circle cx="12" cy="12" r="18" fill="rgba(255,255,255,.04)"/>
+    <circle cx="84" cy="110" r="22" fill="rgba(255,255,255,.04)"/>
+    <!-- tanggal -->
+    <text x="48" y="16" text-anchor="middle" fill="rgba(255,255,255,.7)" font-size="6" font-family="Arial" font-weight="700">${dateStr}</text>
+    <!-- jam -->
+    <text x="48" y="28" text-anchor="middle" fill="white" font-size="13" font-family="Georgia,serif" font-weight="900">${hh}:${mm}</text>
+    <!-- frame foto -->
+    <rect x="12" y="35" width="72" height="54" rx="7" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+    <text x="48" y="67" text-anchor="middle" fill="rgba(255,255,255,.3)" font-size="16">📷</text>
+    <!-- garis pemisah -->
+    <line x1="12" y1="96" x2="84" y2="96" stroke="rgba(255,255,255,.2)" stroke-width=".8"/>
+    <!-- judul lagu -->
+    <text x="12" y="106" fill="white" font-size="6.5" font-family="Arial" font-weight="800">Judul Lagu</text>
+    <text x="12" y="114" fill="rgba(255,255,255,.6)" font-size="5.5" font-family="Arial">Penyanyi / Band</text>
+    <!-- player icons -->
+    <text x="18" y="124" fill="rgba(255,255,255,.55)" font-size="8">⇄</text>
+    <text x="30" y="124" fill="rgba(255,255,255,.55)" font-size="8">⏮</text>
+    <text x="42" y="124" fill="white" font-size="9">▶</text>
+    <text x="56" y="124" fill="rgba(255,255,255,.55)" font-size="8">⏭</text>
+    <text x="68" y="124" fill="rgba(255,255,255,.55)" font-size="8">⇌</text>
+  </svg>`;
 }
 
 function createTemplateCard(tpl, cat, extraClass=""){
@@ -2054,19 +2159,27 @@ function createTemplateCard(tpl, cat, extraClass=""){
   div.className=`templateCard ${getCategoryClass(cat)} ${extraClass}`+(tpl.id===selectedTemplate?" active":"");
   div.dataset.template=tpl.id;
 
-  // Nama template tidak ditampilkan ke user (hanya thumbnail gambar yang
-  // dipilih), alt text tetap diisi untuk aksesibilitas/screen reader.
-  div.innerHTML=`
-    <div class="templateImageBox">
-      <img src="${tpl.preview || tpl.mask}" alt="${tpl.name}">
-    </div>
-  `;
+  if(tpl.isCitos){
+    div.innerHTML=`
+      <div class="templateImageBox" style="overflow:hidden">
+        ${createCitosThumbSVG()}
+      </div>
+      <div class="templateName">Happy Puppy Citos</div>
+    `;
+  } else {
+    div.innerHTML=`
+      <div class="templateImageBox">
+        <img src="${tpl.preview || tpl.mask}" alt="${tpl.name}">
+      </div>
+    `;
+  }
 
   div.onclick=()=>{
     document.querySelectorAll(".templateCard").forEach(t=>t.classList.remove("active"));
     div.classList.add("active");
     selectedTemplate=tpl.id;
     syncPhotoCountFromTemplate();
+    toggleCitosInputs();
 
     const sheet=document.getElementById("categorySheet");
     if(sheet){
@@ -2079,8 +2192,18 @@ function createTemplateCard(tpl, cat, extraClass=""){
   return div;
 }
 
+function toggleCitosInputs(){
+  const tpl = getSelectedTemplate();
+  const isCitos = tpl && tpl.isCitos;
+  const citosGroup = document.getElementById("citosInputGroup");
+  const songInput  = document.getElementById("songInput");
+  if(citosGroup) citosGroup.classList.toggle("show", !!isCitos);
+  // sembunyikan input "lagu favorit" umum saat Citos aktif (sudah ada input khusus)
+  if(songInput) songInput.style.display = isCitos ? "none" : "";
+}
+
 function groupTemplatesByCategory(){
-  const categoryOrder=["Square","Layout 2x6","Layout 4x6","Other"];
+  const categoryOrder=["Citos","Square","Layout 2x6","Layout 4x6","Other"];
   const grouped={};
 
   categoryOrder.forEach(cat=>{
@@ -2104,6 +2227,14 @@ function renderTemplatePicker(){
 
   const {categoryOrder, grouped}=groupTemplatesByCategory();
 
+  const catLabels = {
+    "Citos":      "🌿 Happy Puppy Citos",
+    "Square":     "Square",
+    "Layout 2x6": "Layout 2x6",
+    "Layout 4x6": "Layout 4x6",
+    "Other":      "Other"
+  };
+
   categoryOrder.forEach(cat=>{
     if(!grouped[cat] || grouped[cat].length===0) return;
 
@@ -2112,9 +2243,11 @@ function renderTemplatePicker(){
 
     const title=document.createElement("div");
     title.className="templateSectionTitle";
+
+    const isCitos = cat === "Citos";
     title.innerHTML=`
-      <h3>${cat}</h3>
-      <button type="button" class="categoryMoreBtn" data-cat="${cat}">LAINNYA</button>
+      <h3 style="${isCitos ? 'color:#5de0a0;' : ''}">${catLabels[cat] || cat}</h3>
+      ${!isCitos ? `<button type="button" class="categoryMoreBtn" data-cat="${cat}">LAINNYA</button>` : ''}
     `;
 
     const row=document.createElement("div");
@@ -3147,11 +3280,224 @@ for(const p of mask.pixels){
   ctx.drawImage(layer,0,0);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   RENDER TEMPLATE CITOS — full canvas dari scratch
+   Ukuran output: 1080 x 1440 px (rasio 3:4 portrait)
+   ═══════════════════════════════════════════════════════════ */
+async function renderCitosTemplate(){
+  const W = 1080, H = 1440;
+  canvas.width  = W;
+  canvas.height = H;
+
+  const c = ctx; // alias
+  c.clearRect(0,0,W,H);
+
+  // ── 1. Background gradient hijau ──────────────────────────
+  const bg = c.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,   "#2d9b6a");
+  bg.addColorStop(0.5, "#1a7a50");
+  bg.addColorStop(1,   "#0a3d28");
+  c.fillStyle = bg;
+  c.fillRect(0,0,W,H);
+
+  // Noise dot overlay (subtle texture)
+  c.save();
+  c.globalAlpha = 0.04;
+  for(let i=0;i<320;i++){
+    const x=Math.random()*W, y=Math.random()*H, r=Math.random()*18+4;
+    c.beginPath(); c.arc(x,y,r,0,Math.PI*2);
+    c.fillStyle="white"; c.fill();
+  }
+  c.restore();
+
+  // Lingkaran dekor besar pojok kanan atas & kiri bawah
+  c.save();
+  c.globalAlpha=0.06;
+  c.beginPath(); c.arc(W+60,-60,320,0,Math.PI*2); c.fillStyle="white"; c.fill();
+  c.beginPath(); c.arc(-60,H+60,280,0,Math.PI*2); c.fill();
+  c.restore();
+
+  // ── 2. Helper fungsi ──────────────────────────────────────
+  function roundRect(cx,cy,cw,ch,r){
+    c.beginPath();
+    c.moveTo(cx+r,cy);
+    c.lineTo(cx+cw-r,cy); c.quadraticCurveTo(cx+cw,cy,cx+cw,cy+r);
+    c.lineTo(cx+cw,cy+ch-r); c.quadraticCurveTo(cx+cw,cy+ch,cx+cw-r,cy+ch);
+    c.lineTo(cx+r,cy+ch); c.quadraticCurveTo(cx,cy+ch,cx,cy+ch-r);
+    c.lineTo(cx,cy+r); c.quadraticCurveTo(cx,cy,cx+r,cy);
+    c.closePath();
+  }
+
+  // ── 3. Tanggal & jam ──────────────────────────────────────
+  const now   = new Date();
+  const days  = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const months= ["Januari","Februari","Maret","April","Mei","Juni",
+                  "Juli","Agustus","September","Oktober","November","Desember"];
+  const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  const hh = String(now.getHours()).padStart(2,"0");
+  const mm  = String(now.getMinutes()).padStart(2,"0");
+
+  // Sub-label "Tanggal Hari ini"
+  c.save();
+  c.font = "bold 38px Arial";
+  c.fillStyle = "rgba(255,255,255,0.75)";
+  c.textAlign = "center";
+  c.fillText("Tanggal Hari ini", W/2, 110);
+
+  // Jam besar
+  c.font = "bold 140px Georgia,serif";
+  c.fillStyle = "white";
+  c.shadowColor = "rgba(0,0,0,0.25)";
+  c.shadowBlur  = 20;
+  c.fillText(`${hh}:${mm}`, W/2, 250);
+  c.shadowBlur = 0;
+
+  // Tanggal kecil di bawah jam
+  c.font = "600 36px Arial";
+  c.fillStyle = "rgba(255,255,255,0.68)";
+  c.fillText(dateStr, W/2, 300);
+  c.restore();
+
+  // ── 4. Area foto utama ────────────────────────────────────
+  const PX = 60, PY = 330;
+  const PW = W - PX*2;
+  const PH = 680;  // area foto
+
+  // Shadow kartu
+  c.save();
+  c.shadowColor="rgba(0,0,0,0.35)";
+  c.shadowBlur=40;
+  c.shadowOffsetY=10;
+  roundRect(PX, PY, PW, PH, 28);
+  c.fillStyle="rgba(255,255,255,0.12)";
+  c.fill();
+  c.restore();
+
+  // Border putih tipis
+  roundRect(PX, PY, PW, PH, 28);
+  c.strokeStyle="rgba(255,255,255,0.45)";
+  c.lineWidth=3;
+  c.stroke();
+
+  // Gambar foto user di dalam area
+  if(photos[0]){
+    c.save();
+    roundRect(PX, PY, PW, PH, 28);
+    c.clip();
+
+    const img    = photos[0];
+    const iRatio = img.width / img.height;
+    const fRatio = PW / PH;
+    let dw, dh, dx, dy;
+
+    if(iRatio > fRatio){
+      dh = PH; dw = dh * iRatio;
+      dx = PX + (PW - dw)/2; dy = PY;
+    } else {
+      dw = PW; dh = dw / iRatio;
+      dx = PX; dy = PY + (PH - dh)/2;
+    }
+
+    c.drawImage(img, dx, dy, dw, dh);
+    c.restore();
+  }
+
+  // Simpan mask area foto untuk fitur tap-retake
+  lastMasks = [{x:PX, y:PY, w:PW, h:PH, pixels:[]}];
+
+  // ── 5. Area info bawah foto ───────────────────────────────
+  const IY = PY + PH + 30; // Y start area info
+
+  // Judul Lagu
+  const lagu  = (document.getElementById("citosLaguInput")?.value.trim()) || "Judul Lagu";
+  const band  = (document.getElementById("citosBandInput")?.value.trim()) || "Penyanyi / Band";
+
+  c.save();
+  c.textAlign = "left";
+
+  // Ikon hati merah (kanan)
+  c.font = "bold 54px Arial";
+  c.fillStyle = "#ff4d6d";
+  c.textAlign = "right";
+  c.fillText("♥", W - PX, IY + 42);
+  c.textAlign = "left";
+
+  // Judul lagu
+  c.font = "bold 52px Arial";
+  c.fillStyle = "white";
+  c.shadowColor="rgba(0,0,0,0.2)"; c.shadowBlur=8;
+  c.fillText(lagu.length > 22 ? lagu.slice(0,22)+"…" : lagu, PX, IY + 48);
+
+  // Penyanyi / band
+  c.font = "500 38px Arial";
+  c.fillStyle = "rgba(255,255,255,0.72)";
+  c.shadowBlur=0;
+  c.fillText(band.length > 28 ? band.slice(0,28)+"…" : band, PX, IY + 96);
+
+  c.restore();
+
+  // Garis pembatas
+  const LY = IY + 118;
+  c.save();
+  c.strokeStyle="rgba(255,255,255,0.22)";
+  c.lineWidth=1.5;
+  c.beginPath(); c.moveTo(PX, LY); c.lineTo(W-PX, LY); c.stroke();
+
+  // Dot progress player (dekoratif)
+  const dotY = LY + 14;
+  c.fillStyle="rgba(255,255,255,0.22)";
+  c.fillRect(PX, dotY, PW, 4);
+  c.fillStyle="white";
+  c.fillRect(PX, dotY, PW*0.32, 4);
+  // knob
+  c.beginPath(); c.arc(PX + PW*0.32, dotY+2, 7, 0, Math.PI*2);
+  c.fillStyle="white"; c.fill();
+  c.restore();
+
+  // ── 6. Player icons ───────────────────────────────────────
+  const PLY = LY + 56;
+  const icons = ["⇄","⏮","▶","⏭","⇌"];
+  const slots = [0.12, 0.28, 0.50, 0.72, 0.88];
+
+  c.save();
+  c.textAlign="center";
+  icons.forEach((icon, i)=>{
+    const x = W * slots[i];
+    const isPlay = i === 2;
+    if(isPlay){
+      // Lingkaran tombol play
+      c.beginPath(); c.arc(x, PLY+4, 44, 0, Math.PI*2);
+      c.fillStyle="white"; c.fill();
+      c.font="bold 54px Arial";
+      c.fillStyle="#1a7a50";
+    } else {
+      c.font="bold 46px Arial";
+      c.fillStyle="rgba(255,255,255,0.75)";
+    }
+    c.fillText(icon, x, PLY + (isPlay ? 22 : 18));
+  });
+  c.restore();
+
+  // ── 7. Footer watermark ───────────────────────────────────
+  c.save();
+  c.font="bold 28px Arial";
+  c.fillStyle="rgba(255,255,255,0.5)";
+  c.textAlign="center";
+  c.letterSpacing="3px";
+  c.fillText("@HAPPUP.SAMARINDA.PANJAITAN", W/2, H - 36);
+  c.restore();
+}
+
 async function renderUploadedTemplate(){
   const tpl=getSelectedTemplate();
 
   if(!tpl){
     throw new Error("Template belum dipilih.");
+  }
+  if(tpl.isCitos){
+    // Citos dirender lewat renderCitosTemplate(), bukan sini
+    await renderCitosTemplate();
+    return;
   }
   if(!tpl.mask){
   throw new Error("File mask template belum tersedia.");
@@ -3194,7 +3540,12 @@ async function generateResult(){
   );
 }
 
-  await renderUploadedTemplate();
+  const tpl = getSelectedTemplate();
+  if(tpl && tpl.isCitos){
+    await renderCitosTemplate();
+  } else {
+    await renderUploadedTemplate();
+  }
 }
 function prepareBlob(){
   return new Promise(resolve=>{
