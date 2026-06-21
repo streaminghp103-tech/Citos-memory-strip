@@ -991,16 +991,19 @@ canvas{
 
 .canvasRetakeBadge{
   position:absolute;
-  display:inline-flex;align-items:center;gap:4px;
-  padding:5px 10px;border-radius:999px;
-  background:rgba(255,47,146,.82);
-  border:1.5px solid rgba(255,255,255,.5);
-  color:white;font-size:11px;font-weight:900;
-  letter-spacing:.3px;
-  box-shadow:0 3px 12px rgba(0,0,0,.45);
+  display:inline-flex;align-items:center;gap:3px;
+  border-radius:999px;
+  background:rgba(255,47,146,.78);
+  border:1px solid rgba(255,255,255,.45);
+  color:white;font-weight:900;
+  letter-spacing:.2px;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
   white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
   pointer-events:none;
   animation:badgePop .3s cubic-bezier(.34,1.56,.64,1) forwards;
+  backdrop-filter:blur(6px);
 }
 
 @keyframes badgePop{
@@ -1896,6 +1899,13 @@ function hideLoading(){
 
     // Tampilkan frame guide sesuai template yang dipilih
     renderFrameGuide();
+
+    // Tip kamera belakang — hanya muncul saat pertama buka (bukan retake)
+    if(retakeIndex < 0){
+      setTimeout(()=>{
+        showToast("📷 Rekomendasi: pakai kamera belakang untuk hasil terbaik", "info", 3000);
+      }, 400);
+    }
   }catch(e){
     hideLoading();
     throw e;
@@ -3819,7 +3829,6 @@ function renderRetakeBadges(){
   const scaleX=rect.width / canvas.width;
   const scaleY=rect.height / canvas.height;
 
-  // Offset canvas di dalam wrapper (object-fit:contain → mungkin ada letterbox)
   const wrapRect=document.getElementById("canvasWrapper").getBoundingClientRect();
   const canvasOffsetX=rect.left - wrapRect.left;
   const canvasOffsetY=rect.top  - wrapRect.top;
@@ -3827,16 +3836,29 @@ function renderRetakeBadges(){
   lastMasks.forEach((m, i)=>{
     const badge=document.createElement("div");
     badge.className="canvasRetakeBadge";
-    badge.textContent=`📷 Tap ulang foto ${i+1}`;
+    badge.innerHTML=`📷 <span>Tap ulang</span>`;
 
-    // Posisi: tengah horizontal mask, 8px dari atas mask
+    // Lebar badge proporsional: maks 80% lebar mask di layar, min 44px
+    const maskPxW = m.w * scaleX;
+    const maskPxH = m.h * scaleY;
+
+    // Font size: skala dari lebar mask, clamp 7–12px
+    const fs = Math.max(7, Math.min(12, maskPxW * 0.09));
+    const pad = Math.max(3, maskPxW * 0.04);
+    const padV = Math.max(2, pad * 0.55);
+
+    // Posisi: tengah horizontal mask, 6px dari atas mask area di layar
     const cx = canvasOffsetX + (m.x + m.w/2) * scaleX;
-    const cy = canvasOffsetY + m.y * scaleY + 8;
+    const cy = canvasOffsetY + m.y * scaleY + 6;
 
     badge.style.cssText=`
       left:${cx}px;
       top:${cy}px;
       transform:translateX(-50%);
+      font-size:${fs}px;
+      padding:${padV}px ${pad}px;
+      max-width:${maskPxW * 0.82}px;
+      gap:${Math.max(2, fs*0.3)}px;
     `;
 
     overlay.appendChild(badge);
