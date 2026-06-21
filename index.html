@@ -967,38 +967,44 @@ canvas{
 
 .actions{
   width:100%;max-width:430px;flex-shrink:0;
-  display:flex;flex-direction:column;gap:6px;padding:4px 6px 8px;
+  display:flex;flex-direction:column;gap:10px;padding:4px 6px 8px;
 }
 
-/* Aksi utama: Upload Story IG paling ditonjolkan */
+/* Aksi utama: Upload Story IG paling ditonjolkan, full width di atas */
 .actions .primaryAction{
-  font-size:15px;padding:14px 12px;
+  width:100%;font-size:15px;padding:14px 12px;
 }
 
-/* Baris 2 tombol sejajar: Simpan & Share */
-.actionRow2{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+/* Baris ikon bawah, gaya bottom-nav aplikasi: 4 kolom sejajar,
+   ikon besar di atas + label kecil di bawah. */
+.iconNavRow{
+  display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;
+  padding:6px 4px;
 }
 
-/* Baris 3 tombol sejajar: Ambil Ulang / Buat Lagi / Selesai */
-.actionRow3{
-  display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;
-}
-
-.actions button{width:100%;padding:10px 6px;font-size:13px;border-radius:18px;white-space:nowrap}
-.actionRow3 button{font-size:11.5px;padding:10px 4px}
-
-/* Versi ghost untuk aksi navigasi sekunder agar lebih halus dari aksi utama */
-.actions button.ghost{
-  background:rgba(255,255,255,.06);
-  box-shadow:none;
-  border:1px solid rgba(255,255,255,.14);
+.iconNavBtn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;
+  width:100%;padding:8px 2px;
+  background:transparent;border:none;box-shadow:none;border-radius:14px;
   color:#ddd;
+  transition:background .15s;
+}
+.iconNavBtn:active{
+  background:rgba(255,255,255,.1);
+}
+
+.iconNavIcon{font-size:20px;line-height:1}
+.iconNavLabel{
+  font-size:10.5px;font-weight:700;line-height:1.1;
+  color:#ccc;white-space:nowrap;
 }
 
 @media (max-width:360px){
-  .actionRow3{grid-template-columns:1fr 1fr;}
-  .actionRow3 button:last-child{grid-column:1 / -1}
+  .iconNavLabel{font-size:9.5px}
 }
 
 /* ============================================================
@@ -1418,15 +1424,23 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
   <div class="actions">
   <button id="openIgBtn" class="primaryAction">📷 Upload ke Story IG</button>
 
-  <div class="actionRow2">
-    <button id="downloadBtn" class="secondary">📥 Simpan Foto</button>
-    <button id="shareBtn" class="secondary">📤 Share</button>
-  </div>
-
-  <div class="actionRow3">
-    <button id="retryBtn" class="secondary ghost">🔄 Ambil Ulang</button>
-    <button id="makeAgainBtn" class="secondary ghost">✨ Buat Lagi</button>
-    <button id="doneBtn" class="secondary ghost">✅ Selesai</button>
+  <div class="iconNavRow">
+    <button id="downloadBtn" class="iconNavBtn">
+      <span class="iconNavIcon">📥</span>
+      <span class="iconNavLabel">Simpan</span>
+    </button>
+    <button id="retryBtn" class="iconNavBtn">
+      <span class="iconNavIcon">🔄</span>
+      <span class="iconNavLabel">Ambil Ulang</span>
+    </button>
+    <button id="makeAgainBtn" class="iconNavBtn">
+      <span class="iconNavIcon">✨</span>
+      <span class="iconNavLabel">Buat Lagi</span>
+    </button>
+    <button id="doneBtn" class="iconNavBtn">
+      <span class="iconNavIcon">✅</span>
+      <span class="iconNavLabel">Selesai</span>
+    </button>
   </div>
 </div>
 </section>
@@ -1586,7 +1600,6 @@ const makeAgainBtn=document.getElementById("makeAgainBtn");
   const doneBtn=document.getElementById("doneBtn");
 const downloadBtn=document.getElementById("downloadBtn");
 const openIgBtn=document.getElementById("openIgBtn");
-const shareBtn=document.getElementById("shareBtn");
 const timerToggleBtn=document.getElementById("timerToggleBtn");
 const timerPopup=document.getElementById("timerPopup");
 const switchCameraBtn=document.getElementById("switchCameraBtn");
@@ -3796,10 +3809,9 @@ openIgBtn.onclick=async()=>{
 
   await logInteraction("open_story");
 
-  /* Tombol ini DIBEDAKAN dari shareBtn: tidak pakai Web Share API
-     (itu fungsi shareBtn), tapi langsung coba buka kamera Story IG
-     lewat URL scheme. Foto sudah otomatis tersimpan ke galeri,
-     tinggal dipilih user saat compose Story. */
+  /* Tombol ini tidak pakai Web Share API, tapi langsung coba buka
+     kamera Story IG lewat URL scheme. Foto sudah otomatis tersimpan
+     ke galeri, tinggal dipilih user saat compose Story. */
   function openInstagram(){
     const schemes = [
       "instagram://story-camera",
@@ -3848,36 +3860,6 @@ openIgBtn.onclick=async()=>{
       {label:"OK", action: openInstagram}
     ]
   );
-};
-
-shareBtn.onclick=async()=>{
-  if(!lastBlob){
-    await prepareBlob();
-  }
-
-  const file=new File(
-    [lastBlob],
-    getDownloadFileName(),
-    {type:"image/png"}
-  );
-
-  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-    try{
-      await navigator.share({
-        title:"HP103 Memory Strip",
-        text:"Happy Puppy Karaoke Night!",
-        files:[file]
-      });
-
-      await logInteraction("share");
-
-    }catch(e){
-      console.warn("Share dibatalkan/gagal", e);
-    }
-  }else{
-    await logInteraction("share_not_supported");
-    showToast("HP ini belum mendukung share langsung. Gunakan tombol Simpan Foto lalu upload manual.", "info", 5000);
-  }
 };
   (async()=>{
   await loadTemplates();
