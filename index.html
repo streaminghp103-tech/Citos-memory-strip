@@ -1196,9 +1196,34 @@ video{width:100%;height:100%;object-fit:contain;background:#000}
 .toastModalTitle{font-size:18px;font-weight:900;color:white}
 .toastModalMsg{font-size:14px;color:rgba(255,255,255,.72);line-height:1.5}
 .toastModalBtns{display:flex;gap:10px;margin-top:4px}
-.toastModalBtns button{flex:1;padding:13px;border-radius:18px;font-size:15px;font-weight:700}
+/* ============================================================
+   CITOS TEXT OVERLAY — Input judul & penyanyi di review screen
+   ============================================================ */
 
-</style>
+#citosInputPanel{
+  flex-shrink:0;
+  width:100%;
+  background:rgba(255,210,26,.07);
+  border:1px solid rgba(255,210,26,.25);
+  border-radius:20px;
+  padding:12px 14px;
+  display:flex;flex-direction:column;gap:8px;
+}
+#citosInputPanel .citosLabel{
+  font-size:11px;font-weight:900;letter-spacing:1.2px;
+  color:#ffd21a;text-transform:uppercase;margin-bottom:2px;
+}
+#citosInputPanel input{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,210,26,.3);
+  font-size:14px;padding:11px 14px;
+}
+#citosInputPanel input::placeholder{color:rgba(255,255,255,.38)}
+#citosInputPanel .citosNote{
+  font-size:11px;color:rgba(255,255,255,.45);text-align:center;margin-top:2px;
+}
+
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
@@ -1420,6 +1445,15 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
     </div>
 
     <div id="reviewGrid" class="reviewGrid"></div>
+
+    <!-- Panel input khusus kategori Happy Puppy Citos -->
+    <div id="citosInputPanel" style="display:none;">
+      <div class="citosLabel">🎵 Info Lagu</div>
+      <input id="citosTitle" placeholder="Judul Lagu" maxlength="50">
+      <input id="citosArtist" placeholder="Penyanyi / Band" maxlength="50">
+      <div class="citosNote">Teks akan otomatis muncul di hasil foto ✨</div>
+    </div>
+
     <button id="finishReviewBtn">Lanjut Buat Hasil</button>
     <button id="reviewBackBtn" class="secondary">Kembali Kamera</button>
   </div>
@@ -1447,7 +1481,17 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
   <option value="Layout 2x6" selected>Layout 2x6</option>
   <option value="Layout 4x6">Layout 4x6</option>
   <option value="Other">Other (2,3,5,6+ foto)</option>
+  <option value="Happy Puppy Citos">⭐ Happy Puppy Citos (musik card)</option>
 </select>
+
+<div id="citosTextHint" style="display:none;background:rgba(255,210,26,.12);border:1px solid rgba(255,210,26,.3);border-radius:14px;padding:10px 12px;font-size:12px;color:#ffd21a;line-height:1.5;">
+  ✨ <b>Kategori Happy Puppy Citos</b><br>
+  Template ini akan otomatis menampilkan:<br>
+  • Tanggal &amp; jam saat foto dibuat<br>
+  • Input <b>Judul Lagu</b> &amp; <b>Penyanyi</b> di review screen<br>
+  <br>
+  Pastikan mask PNG <b>tidak mengandung teks</b> tanggal/jam/judul — semua akan digambar otomatis oleh sistem.
+</div>
 
   <label class="small">Jumlah Foto (sesuai jumlah area hijau di mask)</label>
 <input id="templatePhotoCountInput" type="number" min="1" max="12" step="1" value="4" placeholder="Jumlah foto">
@@ -1964,7 +2008,8 @@ async function loadTemplates(){
       preview: t.preview_url,
       mask: t.mask_url,
       layout_type: t.layout_type || "",
-      photo_count: Number(t.photo_count || 4)
+      photo_count: Number(t.photo_count || 4),
+      feature_type: t.feature_type || ""   // "citos" untuk Happy Puppy Citos
     }));
 
     if(templates.length === 0){
@@ -2000,7 +2045,8 @@ function getTemplateCategory(tpl){
     tpl.layout_type === "Square" ||
     tpl.layout_type === "Layout 2x6" ||
     tpl.layout_type === "Layout 4x6" ||
-    tpl.layout_type === "Other"
+    tpl.layout_type === "Other" ||
+    tpl.layout_type === "Happy Puppy Citos"
   ){
     return tpl.layout_type;
   }
@@ -2041,9 +2087,10 @@ function getTemplateCategory(tpl){
 }
 
 function getCategoryClass(cat){
-  return cat === "Square"      ? "catSquare" :
-         cat === "Layout 2x6"  ? "cat2x6" :
-         cat === "Layout 4x6"  ? "cat4x6" :
+  return cat === "Square"             ? "catSquare" :
+         cat === "Layout 2x6"         ? "cat2x6" :
+         cat === "Layout 4x6"         ? "cat4x6" :
+         cat === "Happy Puppy Citos"  ? "catSquare" :
          "catOther";
 }
 
@@ -2076,7 +2123,7 @@ function createTemplateCard(tpl, cat, extraClass=""){
 }
 
 function groupTemplatesByCategory(){
-  const categoryOrder=["Square","Layout 2x6","Layout 4x6","Other"];
+  const categoryOrder=["Square","Layout 2x6","Layout 4x6","Other","Happy Puppy Citos"];
   const grouped={};
 
   categoryOrder.forEach(cat=>{
@@ -2101,10 +2148,11 @@ function renderTemplatePicker(){
   const {categoryOrder, grouped}=groupTemplatesByCategory();
 
   const catLabels = {
-    "Square":     "Square",
-    "Layout 2x6": "Layout 2x6",
-    "Layout 4x6": "Layout 4x6",
-    "Other":      "Other"
+    "Square":             "Square",
+    "Layout 2x6":        "Layout 2x6",
+    "Layout 4x6":        "Layout 4x6",
+    "Other":             "Other",
+    "Happy Puppy Citos": "⭐ Happy Puppy Citos"
   };
 
   categoryOrder.forEach(cat=>{
@@ -2714,6 +2762,12 @@ async function runCountdown(){
   return rotated;
 }
 
+/* ── Helper: cek apakah template aktif adalah kategori Citos ── */
+function isCitosTemplate(){
+  const tpl = getSelectedTemplate();
+  return tpl && (tpl.feature_type === "citos" || tpl.layout_type === "Happy Puppy Citos");
+}
+
 function showPhotoReview(){
   reviewGrid.innerHTML="";
 
@@ -2779,6 +2833,12 @@ function showPhotoReview(){
   });
 
   showScreen(reviewScreen);
+
+  // Tampilkan panel input Citos hanya jika template adalah Happy Puppy Citos
+  const citosPanel = document.getElementById("citosInputPanel");
+  if(citosPanel){
+    citosPanel.style.display = isCitosTemplate() ? "flex" : "none";
+  }
 }
 
 async function logUsage(){
@@ -3227,6 +3287,69 @@ async function generateResult(){
 }
 
   await renderUploadedTemplate();
+
+  // Jika template Citos, render overlay teks otomatis
+  if(isCitosTemplate()){
+    renderCitosTextOverlay();
+  }
+}
+
+/* ── Render teks otomatis untuk kategori Happy Puppy Citos ── */
+function renderCitosTextOverlay(){
+  const W = canvas.width;
+  const H = canvas.height;
+
+  // Ambil nilai input dari review screen
+  const titleVal  = (document.getElementById("citosTitle")?.value  || "Judul Lagu").trim();
+  const artistVal = (document.getElementById("citosArtist")?.value || "Penyanyi Atau Band").trim();
+
+  // Waktu saat ini
+  const now  = new Date();
+  const days = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const months = ["Januari","Februari","Maret","April","Mei","Juni",
+                  "Juli","Agustus","September","Oktober","November","Desember"];
+  const dayName  = days[now.getDay()];
+  const dateStr  = `${dayName}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  const pad = n => String(n).padStart(2,"0");
+  const timeStr  = `${pad(now.getHours())}.${pad(now.getMinutes())}`;
+
+  // Skala relatif terhadap lebar canvas (template bisa beda ukuran)
+  const scale = W / 900;
+
+  ctx.save();
+  ctx.textBaseline = "top";
+
+  // ── Tanggal ──────────────────────────────────────────────
+  ctx.font = `${Math.round(32 * scale)}px Arial, sans-serif`;
+  ctx.fontWeight = "600";
+  ctx.fillStyle = "white";
+  ctx.textAlign = "center";
+  ctx.shadowColor = "rgba(0,0,0,0.55)";
+  ctx.shadowBlur  = 8 * scale;
+  ctx.fillText(dateStr, W / 2, Math.round(38 * scale));
+
+  // ── Jam ──────────────────────────────────────────────────
+  ctx.font = `900 ${Math.round(120 * scale)}px Georgia, serif`;
+  ctx.fillStyle = "white";
+  ctx.shadowBlur = 14 * scale;
+  ctx.fillText(timeStr, W / 2, Math.round(68 * scale));
+
+  // ── Judul Lagu ───────────────────────────────────────────
+  // Posisi di bawah area foto: ~72% tinggi canvas
+  const infoY = Math.round(H * 0.718);
+  ctx.textAlign  = "left";
+  ctx.font       = `900 ${Math.round(36 * scale)}px Arial, sans-serif`;
+  ctx.fillStyle  = "white";
+  ctx.shadowBlur = 6 * scale;
+  ctx.fillText(titleVal,  Math.round(52 * scale), infoY);
+
+  // ── Penyanyi ─────────────────────────────────────────────
+  ctx.font      = `${Math.round(28 * scale)}px Arial, sans-serif`;
+  ctx.fillStyle = "rgba(255,255,255,0.82)";
+  ctx.shadowBlur = 4 * scale;
+  ctx.fillText(artistVal, Math.round(52 * scale), infoY + Math.round(46 * scale));
+
+  ctx.restore();
 }
 function prepareBlob(){
   return new Promise(resolve=>{
@@ -3304,6 +3427,12 @@ templateLayoutInput.addEventListener("change",()=>{
     templatePhotoCountInput.value = "2";
   } else {
     templatePhotoCountInput.value = "4";
+  }
+
+  // Tampilkan/sembunyikan hint Citos
+  const hint = document.getElementById("citosTextHint");
+  if(hint){
+    hint.style.display = (val === "Happy Puppy Citos") ? "block" : "none";
   }
 });
 
@@ -3485,6 +3614,7 @@ if(!maskName.endsWith(".png")){
   slug,
   layout_type: layoutType,
   photo_count: photoCount,
+  feature_type: layoutType === "Happy Puppy Citos" ? "citos" : "",
   preview_url: previewUrl,
   final_url: maskUrl,
   mask_url: maskUrl,
@@ -3624,6 +3754,12 @@ function resetPhotoSession(){
   captureBtn.disabled=false;
   photoCounter.textContent=`Foto 1 / ${MAX_PHOTOS}`;
   updatePhotoProgress();
+
+  // Reset input Citos
+  const ct = document.getElementById("citosTitle");
+  const ca = document.getElementById("citosArtist");
+  if(ct) ct.value="";
+  if(ca) ca.value="";
 }
 
 /* ── Template Frame Guide (Viewfinder) ───────────────────── */
@@ -3641,7 +3777,7 @@ function getFrameGuideLayout(tpl){
   // satu sumber yang sama supaya selalu sinkron.
   const total = getTemplatePhotoCount(tpl);
 
-  if(cat === "Square"){
+  if(cat === "Square" || cat === "Happy Puppy Citos"){
     return {cols:1, rows:total, layoutClass:"layout-square", total, aspectW:1, aspectH:1};
   }
   if(cat === "Layout 4x6"){
