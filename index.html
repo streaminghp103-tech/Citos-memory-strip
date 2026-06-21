@@ -1344,6 +1344,7 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
 
   <label class="small">Jumlah Foto (sesuai jumlah area hijau di mask)</label>
 <input id="templatePhotoCountInput" type="number" min="1" max="12" step="1" value="4" placeholder="Jumlah foto">
+<p id="templatePhotoCountHint" class="small" style="margin-top:-4px;min-height:14px;"></p>
   
 
 
@@ -1530,6 +1531,7 @@ const adminManagePanel=document.getElementById("adminManagePanel");
 const templateNameInput=document.getElementById("templateNameInput");
   const templateLayoutInput=document.getElementById("templateLayoutInput");
   const templatePhotoCountInput=document.getElementById("templatePhotoCountInput");
+  const templatePhotoCountHint=document.getElementById("templatePhotoCountHint");
   
 
 const maskFileInput=document.getElementById("maskFileInput");
@@ -2044,11 +2046,83 @@ function renderAdminTemplateList(){
       <div style="flex:1;">
         <b>${tpl.name}</b>
         <p class="small">${tpl.layout_type || "Layout 2x6"} • ${tpl.photo_count || 4} Foto • ${tpl.id}</p>
+        <p class="small fixCountStatus" data-id="${tpl.id}" style="min-height:14px;"></p>
       </div>
+      <button data-id="${tpl.id}" class="fixCountBtn" style="width:auto;padding:8px 10px;background:#1d3a5f;font-size:12px;">Cek Jumlah</button>
       <button data-id="${tpl.id}" class="deleteTemplateBtn" style="width:auto;padding:8px 12px;background:#7f1d1d;">Hapus</button>
     `;
 
     adminTemplateList.appendChild(item);
+  });
+
+  // FITUR BARU: cek ulang jumlah area hijau pada mask template yang sudah
+  // tersimpan, lalu tawarkan perbaikan photo_count langsung di database
+  // tanpa perlu upload ulang file. Ini memperbaiki template lama yang
+  // photo_count-nya keliru (mis. tersimpan 4 padahal mask cuma 3 area).
+  document.querySelectorAll(".fixCountBtn").forEach(btn=>{
+    btn.onclick=async()=>{
+      const slug=btn.dataset.id;
+      const tpl=templates.find(t=>t.id===slug);
+      const statusEl=document.querySelector(`.fixCountStatus[data-id="${slug}"]`);
+
+      if(!tpl || !tpl.mask) return;
+
+      btn.disabled=true;
+      if(statusEl){
+        statusEl.textContent="Mengecek mask...";
+        statusEl.style.color="#aaa";
+      }
+
+      try{
+        const img=await loadImage(tpl.mask);
+        const detected=detectGreenMasks(img,tpl.mask);
+        const detectedCount=detected.length;
+        const savedCount=Number(tpl.photo_count || 4);
+
+        if(detectedCount===0){
+          if(statusEl){
+            statusEl.textContent="⚠ Tidak ada area hijau terdeteksi.";
+            statusEl.style.color="#ffb84d";
+          }
+          return;
+        }
+
+        if(detectedCount===savedCount){
+          if(statusEl){
+            statusEl.textContent=`✓ Sudah sesuai (${savedCount} foto).`;
+            statusEl.style.color="#7CFFB2";
+          }
+          return;
+        }
+
+        const lanjut=confirm(
+          `Template "${tpl.name}" tersimpan dengan ${savedCount} foto, `+
+          `tapi mask-nya punya ${detectedCount} area hijau.\n\n`+
+          `Perbaiki ke ${detectedCount} foto sekarang?`
+        );
+
+        if(!lanjut) return;
+
+        const { error } = await supabaseClient
+          .from("templates")
+          .update({photo_count: detectedCount})
+          .eq("slug", slug);
+
+        if(error) throw error;
+
+        showToast(`Jumlah foto "${tpl.name}" diperbaiki menjadi ${detectedCount}.`, "success");
+        await loadTemplates();
+
+      }catch(err){
+        console.warn("Gagal cek/perbaiki jumlah foto:", err);
+        if(statusEl){
+          statusEl.textContent="Gagal mengecek mask.";
+          statusEl.style.color="#ffb84d";
+        }
+      }finally{
+        btn.disabled=false;
+      }
+    };
   });
 
   document.querySelectorAll(".deleteTemplateBtn").forEach(btn=>{
@@ -3080,15 +3154,57 @@ maskFileInput.addEventListener("change",()=>{
 
   const reader=new FileReader();
 
-  reader.onload=e=>{
+  reader.onload=async e=>{
     maskImagePreview.src=e.target.result;
     maskImagePreview.style.display="block";
+
+    // FITUR BARU: deteksi otomatis jumlah area hijau di mask yang baru
+    // diupload, lalu isi otomatis field "Jumlah Foto" supaya admin tidak
+    // perlu menghitung manual dan tidak salah ketik (akar masalah bug
+    // "template 3 grid tapi minta 4 foto" karena photo_count tidak
+    // diubah dari nilai default).
+    await autoDetectPhotoCountFromMask(e.target.result);
   };
 
   reader.readAsDataURL(file);
 });
+
+async function autoDetectPhotoCountFromMask(dataUrl){
+  if(!templatePhotoCountHint) return;
+
+  templatePhotoCountHint.textContent = "Mendeteksi jumlah area hijau di mask...";
+  templatePhotoCountHint.style.color = "#aaa";
+
+  try{
+    const img = await loadImage(dataUrl);
+    const detected = detectGreenMasks(img, dataUrl);
+    const count = detected.length;
+
+    if(count > 0){
+      templatePhotoCountInput.value = String(Math.min(count, 12));
+      templatePhotoCountHint.textContent = `✓ Terdeteksi ${count} area hijau. Jumlah foto otomatis diisi ${count}.`;
+      templatePhotoCountHint.style.color = "#7CFFB2";
+    } else {
+      templatePhotoCountHint.textContent = "⚠ Tidak ada area hijau terdeteksi di mask ini. Pastikan mask memakai warna hijau solid untuk area foto, lalu isi Jumlah Foto secara manual.";
+      templatePhotoCountHint.style.color = "#ffb84d";
+    }
+  }catch(err){
+    console.warn("Gagal deteksi otomatis jumlah foto dari mask:", err);
+    templatePhotoCountHint.textContent = "Gagal mendeteksi otomatis. Isi Jumlah Foto secara manual sesuai jumlah area hijau di mask.";
+    templatePhotoCountHint.style.color = "#ffb84d";
+  }
+}
   
-  async function uploadTemplateFile(slug,type,file){
+  function fileToDataUrl(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadTemplateFile(slug,type,file){
   const ext=file.name.split(".").pop().toLowerCase();
   const path=`${slug}/${type}.${ext}`;
 
@@ -3141,6 +3257,42 @@ if(!maskName.endsWith(".png")){
   showToast("File mask harus berformat PNG.", "warn");
   return;
 }
+
+    // VALIDASI BARU: cek ulang jumlah area hijau di file mask yang akan
+    // diupload vs photoCount yang akan disimpan. Ini mencegah kasus nyata
+    // yang dilaporkan: template dibuat dengan 3 area hijau tapi photo_count
+    // masih default 4 (karena admin lupa ubah), sehingga sistem terus minta
+    // 4 foto padahal mask cuma punya 3 slot.
+    try{
+      const maskDataUrl = await fileToDataUrl(maskFile);
+      const maskImgCheck = await loadImage(maskDataUrl);
+      const detectedMasks = detectGreenMasks(maskImgCheck, maskDataUrl);
+      const detectedCount = detectedMasks.length;
+
+      if(detectedCount > 0 && detectedCount !== photoCount){
+        const lanjut = confirm(
+          `Terdeteksi ${detectedCount} area hijau di mask, tapi Jumlah Foto diisi ${photoCount}.\n\n`+
+          `Disarankan samakan Jumlah Foto dengan ${detectedCount} agar tidak terjadi error "Frame hijau kurang" saat dipakai.\n\n`+
+          `Klik OK untuk tetap pakai ${detectedCount} (disarankan), atau Cancel untuk membatalkan dan mengisi ulang manual.`
+        );
+
+        if(!lanjut){
+          showToast(`Disimpan dibatalkan. Ubah Jumlah Foto menjadi ${detectedCount} sesuai mask, lalu simpan ulang.`, "warn", 6000);
+          saveTemplateBtn.disabled=false;
+          saveTemplateBtn.textContent="Simpan Template";
+          return;
+        }
+
+        // Admin pilih OK -> ikuti hasil deteksi otomatis supaya konsisten
+        photoCount = detectedCount;
+        templatePhotoCountInput.value = String(detectedCount);
+      }
+    }catch(checkErr){
+      console.warn("Gagal validasi otomatis jumlah hijau vs photoCount:", checkErr);
+      // Tidak menggagalkan proses simpan kalau validasi gagal (mis. format
+      // mask tidak terbaca canvas) — admin tetap bisa lanjut manual.
+    }
+
     const slug=name.toLowerCase()
       .replace(/[^a-z0-9]+/g,"-")
       .replace(/^-+|-+$/g,"");
@@ -3178,6 +3330,7 @@ previewImagePreview.style.display="none";
 
 maskImagePreview.src="";
 maskImagePreview.style.display="none";
+if(templatePhotoCountHint) templatePhotoCountHint.textContent="";
 
     await loadTemplates();
     showScreen(formScreen);
