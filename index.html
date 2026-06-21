@@ -963,10 +963,39 @@ canvas{
 
 .actions{
   width:100%;max-width:430px;
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 6px;
+  display:flex;flex-direction:column;gap:10px;padding:0 6px;
 }
-.actions button{width:100%;padding:10px 8px;font-size:13px;border-radius:18px;white-space:nowrap}
-.actions button:last-child{grid-column:1 / -1}
+
+/* Aksi utama: Upload Story IG paling ditonjolkan */
+.actions .primaryAction{
+  font-size:15px;padding:14px 12px;
+}
+
+/* Baris 2 tombol sejajar: Simpan & Share */
+.actionRow2{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+
+/* Baris 3 tombol sejajar: Ambil Ulang / Buat Lagi / Selesai */
+.actionRow3{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;
+}
+
+.actions button{width:100%;padding:10px 6px;font-size:13px;border-radius:18px;white-space:nowrap}
+.actionRow3 button{font-size:11.5px;padding:10px 4px}
+
+/* Versi ghost untuk aksi navigasi sekunder agar lebih halus dari aksi utama */
+.actions button.ghost{
+  background:rgba(255,255,255,.06);
+  box-shadow:none;
+  border:1px solid rgba(255,255,255,.14);
+  color:#ddd;
+}
+
+@media (max-width:360px){
+  .actionRow3{grid-template-columns:1fr 1fr;}
+  .actionRow3 button:last-child{grid-column:1 / -1}
+}
 
 /* ============================================================
    ADMIN SCREEN
@@ -1340,6 +1369,7 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
   <option value="Square">Square</option>
   <option value="Layout 2x6" selected>Layout 2x6</option>
   <option value="Layout 4x6">Layout 4x6</option>
+  <option value="Other">Other (2,3,5,6+ foto)</option>
 </select>
 
   <label class="small">Jumlah Foto (sesuai jumlah area hijau di mask)</label>
@@ -1381,12 +1411,18 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
   <canvas id="resultCanvas" width="1080" height="1920"></canvas>
 
   <div class="actions">
-  <button id="downloadBtn">📥 Simpan Foto</button>
-  <button id="openIgBtn">📷 Upload ke Story IG</button>
-  <button id="shareBtn">📤 Share</button>
-  <button id="retryBtn" class="secondary">🔄 Ambil Ulang</button>
-  <button id="makeAgainBtn" class="secondary">✨ Buat Lagi</button>
-  <button id="doneBtn" class="secondary">✅ Selesai</button>
+  <button id="openIgBtn" class="primaryAction">📷 Upload ke Story IG</button>
+
+  <div class="actionRow2">
+    <button id="downloadBtn" class="secondary">📥 Simpan Foto</button>
+    <button id="shareBtn" class="secondary">📤 Share</button>
+  </div>
+
+  <div class="actionRow3">
+    <button id="retryBtn" class="secondary ghost">🔄 Ambil Ulang</button>
+    <button id="makeAgainBtn" class="secondary ghost">✨ Buat Lagi</button>
+    <button id="doneBtn" class="secondary ghost">✅ Selesai</button>
+  </div>
 </div>
 </section>
 <div id="adminLoginModal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.65);align-items:center;justify-content:center;padding:18px;">
@@ -1867,7 +1903,8 @@ function getTemplateCategory(tpl){
   if(
     tpl.layout_type === "Square" ||
     tpl.layout_type === "Layout 2x6" ||
-    tpl.layout_type === "Layout 4x6"
+    tpl.layout_type === "Layout 4x6" ||
+    tpl.layout_type === "Other"
   ){
     return tpl.layout_type;
   }
@@ -1902,6 +1939,8 @@ function getTemplateCategory(tpl){
     return "Layout 2x6";
   }
 
+  // Template lama tanpa layout_type & tanpa kata kunci -> tetap default
+  // ke Layout 2x6 supaya tidak mengubah perilaku template yang sudah ada.
   return "Layout 2x6";
 }
 
@@ -1909,7 +1948,7 @@ function getCategoryClass(cat){
   return cat === "Square" ? "catSquare" :
          cat === "Layout 2x6" ? "cat2x6" :
          cat === "Layout 4x6" ? "cat4x6" :
-         "catOther";
+         "catOther"; // termasuk kategori "Other"
 }
 
 function createTemplateCard(tpl, cat, extraClass=""){
@@ -1943,7 +1982,7 @@ function createTemplateCard(tpl, cat, extraClass=""){
 }
 
 function groupTemplatesByCategory(){
-  const categoryOrder=["Square","Layout 2x6","Layout 4x6"];
+  const categoryOrder=["Square","Layout 2x6","Layout 4x6","Other"];
   const grouped={};
 
   categoryOrder.forEach(cat=>{
@@ -3127,7 +3166,14 @@ backFromAdminBtn.onclick=async()=>{
 // Bantu admin: saat ganti kategori layout, isi default jumlah foto yang wajar.
 // Admin tetap bisa mengubahnya manual sesuai jumlah area hijau di mask sendiri.
 templateLayoutInput.addEventListener("change",()=>{
-  templatePhotoCountInput.value = templateLayoutInput.value === "Square" ? "1" : "4";
+  const val = templateLayoutInput.value;
+  if(val === "Square"){
+    templatePhotoCountInput.value = "1";
+  } else if(val === "Other"){
+    templatePhotoCountInput.value = "2";
+  } else {
+    templatePhotoCountInput.value = "4";
+  }
 });
 
   previewFileInput.addEventListener("change",()=>{
@@ -3469,6 +3515,18 @@ function getFrameGuideLayout(tpl){
     const rows = Math.ceil(total / 2);
     return {cols:2, rows, layoutClass:"layout-4x6", total, aspectW:4, aspectH:3};
   }
+  if(cat === "Other"){
+    // Kategori bebas (2, 3, 5, 6+ foto): tentukan kolom otomatis biar
+    // grid status terlihat rapi untuk berbagai jumlah foto, bukan
+    // dipaksa selalu 2 kolom seperti Layout 2x6/4x6.
+    let cols;
+    if(total <= 1) cols = 1;
+    else if(total === 3 || total === 5) cols = 3;
+    else cols = 2;
+
+    const rows = Math.ceil(total / cols);
+    return {cols, rows, layoutClass:"layout-other", total, aspectW:3, aspectH:4};
+  }
   // Layout 2x6 / default: potrait
   const rows = Math.ceil(total / 2);
   return {cols:2, rows, layoutClass:"layout-2x6", total, aspectW:3, aspectH:4};
@@ -3544,8 +3602,12 @@ function positionViewfinderFrame(frame, aspectW, aspectH){
   `;
 }
 
-function buildStripStatus(box, layoutClass, total){
+function buildStripStatus(box, layoutClass, total, cols){
   box.className = `stripStatusBox ${layoutClass}`;
+  // Untuk kategori "Other" jumlah kolom bisa bervariasi (1,2,3) sesuai
+  // total foto, jadi disetel inline supaya tidak perlu CSS class baru
+  // untuk setiap kombinasi jumlah foto.
+  box.style.gridTemplateColumns = cols ? `repeat(${cols}, 1fr)` : "";
   box.innerHTML = "";
   for(let i = 0; i < total; i++){
     const cell = document.createElement("div");
@@ -3565,7 +3627,7 @@ function renderFrameGuide(){
   const {cols, rows, layoutClass, total, aspectW, aspectH} = getFrameGuideLayout(tpl);
 
   buildViewfinderFrame(guide, aspectW, aspectH);
-  buildStripStatus(box, layoutClass, total);
+  buildStripStatus(box, layoutClass, total, cols);
 
   guide.classList.add("show");
   status.classList.add("show");
@@ -3763,9 +3825,12 @@ openIgBtn.onclick=async()=>{
     tryScheme(0);
   }
 
-  // Langsung buka Instagram Story camera (masih dalam user-gesture klik)
-  openInstagram();
-
+  // PERBAIKAN BUG: dulu openInstagram() dipanggil duluan sebelum
+  // showModal(), jadi browser sudah redirect ke app Instagram sebelum
+  // modal sempat terlihat oleh user. Sekarang modal ditampilkan DULU,
+  // dan baru redirect ke Instagram setelah user menekan tombol OK.
+  // Klik tombol OK tetap dianggap user-gesture yang valid oleh browser,
+  // jadi window.location.href ke instagram:// tidak diblokir.
   const msgDownloaded = hasDownloaded
     ? "Foto sudah tersimpan di galeri kamu."
     : "Foto otomatis disimpan ke galeri.";
@@ -3775,7 +3840,7 @@ openIgBtn.onclick=async()=>{
     "Upload ke Instagram Story",
     `${msgDownloaded}<br><br>Pilih foto HP103 dari galeri saat membuat Story.<br><br>Jangan lupa tag <b>@happup.samarinda.panjaitan</b> 💕`,
     [
-      {label:"OK", secondary:true}
+      {label:"OK", action: openInstagram}
     ]
   );
 };
