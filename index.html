@@ -938,21 +938,6 @@ select option{color:black}
 }
 .rotatePhotoBtn:active{transform:scale(.94)}
 
-/* Badge "Tap untuk foto ulang" di setiap foto review */
-.retakeBadge{
-  position:absolute;
-  top:8px;left:8px;z-index:7;
-  display:inline-flex;align-items:center;gap:4px;
-  padding:5px 9px;border-radius:999px;
-  background:rgba(255,47,146,.82);
-  border:1.5px solid rgba(255,255,255,.45);
-  color:white;font-size:10px;font-weight:900;
-  letter-spacing:.3px;backdrop-filter:blur(8px);
-  box-shadow:0 3px 10px rgba(0,0,0,.35);
-  pointer-events:none;
-  white-space:nowrap;
-}
-
 /* ============================================================
    RESULT SCREEN
    ============================================================ */
@@ -968,29 +953,59 @@ select option{color:black}
 
 #resultScreen h2,
 #resultScreen p.small{
-  display:none; /* sembunyikan judul agar canvas bisa lebih besar */
+  display:none;
+}
+
+/* Wrapper canvas agar badge bisa diposisikan relatif terhadap canvas */
+#canvasWrapper{
+  position:relative;
+  width:100%;
+  height:calc(100dvh - 80px);
+  display:flex;align-items:center;justify-content:center;
+  background:black;
+  overflow:hidden;
+  flex-shrink:0;
+}
+@supports not (height: 100dvh){
+  #canvasWrapper{ height:calc(100vh - 80px); }
 }
 
 canvas{
   display:block;
   width:100%;
-  height:calc(100dvh - 80px); /* sisakan 80px untuk bottom bar */
-  flex:0 0 auto;
+  height:100%;
   object-fit:contain;
   border-radius:0;
   background:black;
   box-shadow:none;
   cursor:pointer;
   max-width:100vw;
-  max-height:calc(100dvh - 80px);
 }
 
-/* Fallback vh untuk browser yang belum dukung dvh */
-@supports not (height: 100dvh){
-  canvas{
-    height:calc(100vh - 80px);
-    max-height:calc(100vh - 80px);
-  }
+/* Overlay badge di atas canvas */
+#retakeBadgeOverlay{
+  position:absolute;
+  inset:0;
+  pointer-events:none; /* klik tetap tembus ke canvas */
+}
+
+.canvasRetakeBadge{
+  position:absolute;
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px 10px;border-radius:999px;
+  background:rgba(255,47,146,.82);
+  border:1.5px solid rgba(255,255,255,.5);
+  color:white;font-size:11px;font-weight:900;
+  letter-spacing:.3px;
+  box-shadow:0 3px 12px rgba(0,0,0,.45);
+  white-space:nowrap;
+  pointer-events:none;
+  animation:badgePop .3s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+
+@keyframes badgePop{
+  from{opacity:0;transform:scale(.7)}
+  to{opacity:1;transform:scale(1)}
 }
 
 .actions{
@@ -1467,7 +1482,12 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
 </section>
   
 <section id="resultScreen" class="screen">
-  <canvas id="resultCanvas" width="1080" height="1920"></canvas>
+  <!-- Wrapper canvas + badge overlay -->
+  <div id="canvasWrapper">
+    <canvas id="resultCanvas" width="1080" height="1920"></canvas>
+    <!-- Badge overlay: muncul di atas setiap area foto, dirender lewat JS -->
+    <div id="retakeBadgeOverlay"></div>
+  </div>
 
   <div class="actions">
   <div class="iconNavRow">
@@ -1479,9 +1499,9 @@ style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72
       <span class="iconNavIcon">📥</span>
       <span class="iconNavLabel">Simpan</span>
     </button>
-    <button id="retryBtn" class="iconNavBtn">
-      <span class="iconNavIcon">🔄</span>
-      <span class="iconNavLabel">Ambil Ulang</span>
+    <button id="shareBtn" class="iconNavBtn">
+      <span class="iconNavIcon">🔗</span>
+      <span class="iconNavLabel">Share</span>
     </button>
     <button id="makeAgainBtn" class="iconNavBtn">
       <span class="iconNavIcon">✨</span>
@@ -1645,7 +1665,7 @@ const maskFileInput=document.getElementById("maskFileInput");
 const maskImagePreview=document.getElementById("maskImagePreview");
 const captureBtn=document.getElementById("captureBtn");
 const cancelBtn=document.getElementById("cancelBtn");
-const retryBtn=document.getElementById("retryBtn");
+const retryBtn=null; // tombol Ambil Ulang dihapus, diganti shareBtn
 const makeAgainBtn=document.getElementById("makeAgainBtn");
   const doneBtn=document.getElementById("doneBtn");
 const downloadBtn=document.getElementById("downloadBtn");
@@ -2714,13 +2734,6 @@ function showPhotoReview(){
     wrap.appendChild(img);
     wrap.appendChild(label);
     wrap.appendChild(rotateBtn);
-
-    // Badge "Tap untuk foto ulang"
-    const retakeBadge=document.createElement("div");
-    retakeBadge.className="retakeBadge";
-    retakeBadge.innerHTML=`📷 Tap ulang`;
-    wrap.appendChild(retakeBadge);
-
     reviewGrid.appendChild(wrap);
   });
 
@@ -2857,6 +2870,7 @@ await prepareBlob();
 
 hideLoading();
 showScreen(resultScreen);
+requestAnimationFrame(()=>requestAnimationFrame(renderRetakeBadges));
   captureBtn.disabled=false;
   return;
 }
@@ -3500,6 +3514,8 @@ finishReviewBtn.onclick=async()=>{
 
     hideLoading();
     showScreen(resultScreen);
+    // Tunda sedikit agar canvas ter-layout dulu baru hitung posisi badge
+    requestAnimationFrame(()=>requestAnimationFrame(renderRetakeBadges));
 
   }catch(e){
     hideLoading();
@@ -3757,10 +3773,75 @@ function hideFrameGuide(){
   if(status) status.classList.remove("show");
 }
 
-retryBtn.onclick=async()=>{
-  resetPhotoSession();
-  await startCameraWithLoading("Membuka kamera ulang...");
+// shareBtn menggantikan retryBtn
+const shareBtn=document.getElementById("shareBtn");
+
+shareBtn.onclick=async()=>{
+  try{
+    // Coba Web Share API (native share sheet di mobile)
+    if(navigator.share && navigator.canShare){
+      // Ambil blob dari canvas
+      const blob = await new Promise(res=>canvas.toBlob(res,"image/png",1));
+      const file = new File([blob], getDownloadFileName(), {type:"image/png"});
+
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({
+          files:[file],
+          title:"Memory Strip - Happy Puppy",
+          text:"Foto karaoeke seru bareng! 🎤✨ @happup.samarinda.panjaitan"
+        });
+        await logInteraction("share_native");
+        return;
+      }
+    }
+
+    // Fallback: download dulu lalu buka IG
+    await downloadResultPhoto(false,"share_fallback");
+    showToast("Foto tersimpan! Buka app share favoritmu 📤", "success");
+
+  }catch(e){
+    if(e?.name !== "AbortError"){
+      // User cancel = AbortError, tidak perlu error toast
+      showToast("Gagal share: " + (e?.message||""), "error");
+    }
+  }
 };
+
+/* Render badge "📷 Tap ulang" di atas setiap area foto pada canvas hasil */
+function renderRetakeBadges(){
+  const overlay=document.getElementById("retakeBadgeOverlay");
+  if(!overlay) return;
+  overlay.innerHTML="";
+
+  if(!lastMasks || lastMasks.length===0) return;
+
+  const rect=canvas.getBoundingClientRect();
+  const scaleX=rect.width / canvas.width;
+  const scaleY=rect.height / canvas.height;
+
+  // Offset canvas di dalam wrapper (object-fit:contain → mungkin ada letterbox)
+  const wrapRect=document.getElementById("canvasWrapper").getBoundingClientRect();
+  const canvasOffsetX=rect.left - wrapRect.left;
+  const canvasOffsetY=rect.top  - wrapRect.top;
+
+  lastMasks.forEach((m, i)=>{
+    const badge=document.createElement("div");
+    badge.className="canvasRetakeBadge";
+    badge.textContent=`📷 Tap ulang foto ${i+1}`;
+
+    // Posisi: tengah horizontal mask, 8px dari atas mask
+    const cx = canvasOffsetX + (m.x + m.w/2) * scaleX;
+    const cy = canvasOffsetY + m.y * scaleY + 8;
+
+    badge.style.cssText=`
+      left:${cx}px;
+      top:${cy}px;
+      transform:translateX(-50%);
+    `;
+
+    overlay.appendChild(badge);
+  });
+}
 
 makeAgainBtn.onclick=()=>{
   resetPhotoSession();
