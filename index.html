@@ -1684,6 +1684,18 @@ const goFormBtn=document.getElementById("goFormBtn");
 const backHomeBtn=document.getElementById("backHomeBtn");
 const startBtn=document.getElementById("startBtn");
 const backFromAdminBtn=document.getElementById("backFromAdminBtn");
+
+/* BUG FIX: goFormBtn tidak punya handler sehingga tombol "Mulai Buat Foto"
+   di halaman utama tidak bisa diklik untuk menuju halaman pilih template. */
+goFormBtn.onclick=()=>{
+  showScreen(formScreen);
+};
+
+/* BUG FIX: backHomeBtn tidak punya handler sehingga tombol "Kembali"
+   di formScreen tidak bisa kembali ke halaman utama. */
+backHomeBtn.onclick=()=>{
+  showScreen(startScreen);
+};
 const saveTemplateBtn=document.getElementById("saveTemplateBtn");
   const adminTemplateList=document.getElementById("adminTemplateList");
   const adminTabAdd=document.getElementById("adminTabAdd");
@@ -1736,7 +1748,10 @@ const songInput=document.getElementById("songInput");
   
 let selectedFilter="natural";
 let selectedTimer=0;
-let currentFacingMode="user";
+/* BUG FIX: Default kamera belakang (environment) bukan depan (user).
+   Kamera belakang menghasilkan foto lebih tajam & tidak terbalik mirror,
+   lebih cocok untuk photostrip grup. User bisa switch ke depan manual. */
+let currentFacingMode="environment";
 let torchEnabled=false;
   
   function updateVideoFilter(){
@@ -1934,10 +1949,10 @@ function hideLoading(){
     // Tampilkan frame guide sesuai template yang dipilih
     renderFrameGuide();
 
-    // Tip kamera belakang — hanya muncul saat pertama buka (bukan retake)
+    // Tip kamera — hanya muncul saat pertama buka (bukan retake)
     if(retakeIndex < 0){
       setTimeout(()=>{
-        showToast("📷 Rekomendasi: pakai kamera belakang untuk hasil terbaik", "info", 3000);
+        showToast("📷 Kamera belakang aktif. Tap 🔄 untuk beralih ke kamera depan (selfie)", "info", 3000);
       }, 400);
     }
   }catch(e){
@@ -1946,6 +1961,12 @@ function hideLoading(){
   }
 }
   function updatePhotoProgress(){
+  /* BUG FIX: renderPhotoDots() perlu dipanggil dulu agar jumlah dot selalu
+     sesuai MAX_PHOTOS terkini, baru update status active-nya. Sebelumnya
+     cuma toggle class tanpa rebuild, sehingga jumlah dot bisa tidak sinkron
+     jika MAX_PHOTOS berubah (ganti template lalu retake). */
+  renderPhotoDots();
+
   const dots=document.querySelectorAll("#photoDots span");
 
   dots.forEach((dot,index)=>{
@@ -3729,6 +3750,11 @@ function resetPhotoSession(){
   retakeIndex=-1;
   retakeFromReview=false;
   lastMasks=[];
+
+  /* BUG FIX: Reset currentFacingMode ke kamera belakang (environment) agar
+     setiap sesi baru selalu mulai dari kamera belakang, tidak terpengaruh
+     pilihan kamera dari sesi sebelumnya. */
+  currentFacingMode="environment";
 
   /* Reset state flash/torch agar tidak konflik di sesi baru */
   torchEnabled=false;
