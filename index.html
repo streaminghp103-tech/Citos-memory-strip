@@ -3354,7 +3354,7 @@ function renderCitosTextOverlay(){
   ctx.shadowBlur  = 0;
 
   // ── Tanggal (Menggunakan Arial / Sans-Serif Bersih) ────────────────
-  ctx.font        = "500 " + Math.round(30 * scale) + "px Arial, sans-serif";
+  ctx.font        = "500 " + Math.round(38 * scale) + "px Arial, sans-serif";
   ctx.fillStyle   = "rgba(255, 255, 255, 0.9)";
   ctx.fillText(dateStr, W / 2, Math.round(45 * scale));
 
@@ -3369,12 +3369,12 @@ function renderCitosTextOverlay(){
   ctx.textAlign  = "left";
 
   // Judul Lagu
-  ctx.font       = "900 " + Math.round(34 * scale) + "px Arial, sans-serif";
+  ctx.font       = "900 " + Math.round(44 * scale) + "px Arial, sans-serif";
   ctx.fillStyle  = "#ffffff";
   ctx.fillText(titleVal, Math.round(118 * scale), infoY);
 
   // Penyanyi / Band
-  ctx.font      = "500 " + Math.round(30 * scale) + "px Arial, sans-serif";
+  ctx.font      = "500 " + Math.round(40 * scale) + "px Arial, sans-serif";
   ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
   ctx.fillText(artistVal, Math.round(118 * scale), infoY + Math.round(48 * scale));
 
