@@ -1204,21 +1204,33 @@ video{width:100%;height:100%;object-fit:contain;background:#000}
   flex-shrink:0;width:100%;
   background:rgba(255,210,26,.07);
   border:1px solid rgba(255,210,26,.25);
-  border-radius:20px;padding:12px 14px;
-  display:flex;flex-direction:column;gap:8px;
+  border-radius:16px;padding:8px 12px;
+  display:flex;flex-direction:column;gap:6px;
 }
 #citosInputPanel .citosLabel{
-  font-size:11px;font-weight:900;letter-spacing:1.2px;
-  color:#ffd21a;text-transform:uppercase;margin-bottom:2px;
+  font-size:10px;font-weight:900;letter-spacing:1.2px;
+  color:#ffd21a;text-transform:uppercase;margin-bottom:0;
 }
 #citosInputPanel input{
   background:rgba(255,255,255,.1);
   border:1px solid rgba(255,210,26,.3);
-  font-size:14px;padding:11px 14px;
+  font-size:13px;padding:8px 12px;border-radius:12px;
 }
 #citosInputPanel input::placeholder{color:rgba(255,255,255,.38)}
 #citosInputPanel .citosNote{
-  font-size:11px;color:rgba(255,255,255,.45);text-align:center;margin-top:2px;
+  font-size:10px;color:rgba(255,255,255,.45);text-align:center;margin-top:0;
+}
+
+/* Review screen card: pastikan bisa scroll jika konten melebihi layar */
+#reviewScreen .card{
+  overflow-y:auto;
+}
+/* Layar pendek: perkecil review foto agar tombol selalu terlihat */
+@media(max-height:700px){
+  #citosInputPanel{padding:6px 10px;gap:4px;border-radius:14px}
+  #citosInputPanel input{font-size:12px;padding:7px 10px}
+  #citosInputPanel .citosLabel{font-size:9px}
+  #citosInputPanel .citosNote{font-size:9px}
 }
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
