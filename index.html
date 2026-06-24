@@ -435,10 +435,6 @@ select option{color:black}
   padding-top:6px;
   background:linear-gradient(180deg,rgba(3,7,17,0),#030711 22%,#030711 100%);
 }
-.formBottomBar #songInput{
-  width:100%;font-size:14px;padding:11px 14px;border-radius:16px;
-  background:#071b38;border:1px solid rgba(255,210,26,.22);color:white;
-}
 .formActionRow{display:grid;grid-template-columns:1fr 1.35fr;gap:8px}
 .formActionRow button{
   width:100%;margin:0;padding:12px 10px;border-radius:18px;font-size:14px;white-space:nowrap;
@@ -1345,8 +1341,6 @@ video{width:100%;height:100%;object-fit:contain;background:#000}
 
 
 <div class="formBottomBar">
-  <input id="songInput" placeholder="Lagu favorit">
-
   <div class="formActionRow">
     <button id="backHomeBtn" class="secondary">Kembali</button>
     <button id="startBtn">Ambil Foto</button>
@@ -1756,7 +1750,6 @@ const ctx=canvas.getContext("2d");
 
 const roomBadge=document.getElementById("roomBadge");
 const roomLabel=document.getElementById("roomLabel");
-const songInput=document.getElementById("songInput");
   
 let selectedFilter="natural";
 let selectedTimer=0;
@@ -3349,34 +3342,33 @@ function renderCitosTextOverlay(){
   ctx.textBaseline = "top";
   ctx.textAlign    = "center";
 
-  // Sembunyikan shadow bawaan canvas agar teks bersih seperti preview asli
-  ctx.shadowColor = "transparent";
-  ctx.shadowBlur  = 0;
+  // ── Tanggal ──────────────────────────────
+  ctx.font        = "600 " + Math.round(32 * scale) + "px Arial, sans-serif";
+  ctx.fillStyle   = "white";
+  ctx.shadowColor = "rgba(0,0,0,0.6)";
+  ctx.shadowBlur  = 8 * scale;
+  ctx.fillText(dateStr, W / 2, Math.round(36 * scale));
 
-  // ── Tanggal (Menggunakan Arial / Sans-Serif Bersih) ────────────────
-  ctx.font        = "500 " + Math.round(60 * scale) + "px Arial, sans-serif";
-  ctx.fillStyle   = "rgba(255, 255, 255, 0.9)";
-  ctx.fillText(dateStr, W / 2, Math.round(60 * scale));
+  // ── Jam ──────────────────────────────────
+  ctx.font      = "900 " + Math.round(118 * scale) + "px Georgia, serif";
+  ctx.fillStyle = "white";
+  ctx.shadowBlur = 16 * scale;
+  ctx.fillText(timeStr, W / 2, Math.round(66 * scale));
 
-  // ── Jam (Diubah ke Arial, Bukan Georgia, Agar Sesuai Gambar 1) ─────
-  ctx.font      = "900 " + Math.round(130 * scale) + "px Arial, sans-serif";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(timeStr, W / 2, Math.round(125 * scale));
-
-  // ── Tata Letak Judul & Penyanyi (Disesuaikan Agar Pas di Atas Progress Bar) ──
-  // Mengubah posisi Y agar pas, dan posisi X digeser ke kanan (50 * scale -> 118 * scale)
-  const infoY = Math.round(H * 0.705); 
+  // ── Judul Lagu ───────────────────────────
+  // ~72% dari tinggi canvas (posisi teks di bawah area foto)
+  const infoY = Math.round(H * 0.718);
   ctx.textAlign  = "left";
+  ctx.font       = "900 " + Math.round(36 * scale) + "px Arial, sans-serif";
+  ctx.fillStyle  = "white";
+  ctx.shadowBlur = 6 * scale;
+  ctx.fillText(titleVal, Math.round(50 * scale), infoY);
 
-  // Judul Lagu
-  ctx.font       = "900 " + Math.round(44 * scale) + "px Arial, sans-serif";
-  ctx.fillStyle  = "#ffffff";
-  ctx.fillText(titleVal, Math.round(118 * scale), infoY);
-
-  // Penyanyi / Band
-  ctx.font      = "500 " + Math.round(40 * scale) + "px Arial, sans-serif";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-  ctx.fillText(artistVal, Math.round(118 * scale), infoY + Math.round(48 * scale));
+  // ── Penyanyi ─────────────────────────────
+  ctx.font      = "" + Math.round(28 * scale) + "px Arial, sans-serif";
+  ctx.fillStyle = "rgba(255,255,255,0.82)";
+  ctx.shadowBlur = 4 * scale;
+  ctx.fillText(artistVal, Math.round(50 * scale), infoY + Math.round(46 * scale));
 
   ctx.restore();
 }
@@ -4067,7 +4059,6 @@ doneBtn.onclick=async()=>{
   await logInteraction("done");
 
   resetPhotoSession();
-  songInput.value="";
 
   showScreen(startScreen);
 };
